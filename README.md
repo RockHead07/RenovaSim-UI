@@ -22,6 +22,9 @@ Therefore, this repository focuses **only on the user interface (UI)** and visua
 - Translate product concepts into a visual experience
 - Serve as a foundation berfore moving into full dev
 
+> [!NOTE]
+> Tbh, this project happened because it's related with my college assignment :P.
+
 ## Tech Stack
 <p align="left">
   <img src="https://skillicons.dev/icons?i=laravel,php,tailwind,vite,mysql" />
