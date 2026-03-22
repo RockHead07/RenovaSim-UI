@@ -25,6 +25,10 @@ Therefore, this repository focuses **only on the user interface (UI)** and visua
 > [!NOTE]
 > Tbh, this project happened because it's related with my college assignment :P.
 
+<div align="center">
+<img width="1901" height="926" alt="Image" src="https://github.com/user-attachments/assets/c0030d02-0eba-40df-9475-cc16e5e0e76b" />
+</div>
+
 ## Tech Stack
 <p align="left">
   <img src="https://skillicons.dev/icons?i=laravel,php,tailwind,vite,mysql" />
