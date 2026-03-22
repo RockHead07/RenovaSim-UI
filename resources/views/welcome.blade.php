@@ -68,6 +68,17 @@
         .animate-fade-in {
             animation: fade-in 0.6s ease-out forwards;
         }
+
+        .hero-bg-img {
+            transform-origin: center;
+            object-fit: cover;   
+        }
+
+        @media (max-width: 768px) {
+            .hero-bg-img {
+                transform: scale(1);
+            }
+        }
     </style>
 </head>
 
@@ -78,7 +89,7 @@
 
         {{-- Background image --}}
         <div class="absolute inset-0">
-            <img src="{{ asset('images/hero-bg.png') }}" alt="" class="w-full h-full object-cover" />
+            <img src="{{ asset('images/hero-bg.png') }}" alt="" class="w-full h-full hero-bg-img" />
            \
         </div>
 
@@ -128,6 +139,9 @@
         </div>
 
     </section>
+
+    {{-- Features Section --}}
+    @include('components.features')
 
 </body>
 
