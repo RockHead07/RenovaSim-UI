@@ -140,6 +140,12 @@
 
     </section>
 
+    {{-- Partners Carousel (Bridge between Page 1 & 2) --}}
+    @include('components.partners-carousel')
+
+    {{-- Page 2 Section --}}
+    @include('components.about')
+
     {{-- Features Section --}}
     @include('components.features')
 

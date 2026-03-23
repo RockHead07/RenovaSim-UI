@@ -57,9 +57,9 @@
                     {{-- Right: Two Images --}}
                     <div class="md:col-span-5 flex gap-3">
                         <img src="{{ asset('images/features/' . $feature['images'][0]) }}" alt="{{ $feature['title'] }} preview 1"
-                            class="w-1/2 h-36 md:h-44 object-cover rounded-lg" />
+                            class="w-1/2 h-36 md:h-44 object-cover" />
                         <img src="{{ asset('images/features/' . $feature['images'][1]) }}" alt="{{ $feature['title'] }} preview 2"
-                            class="w-1/2 h-36 md:h-44 object-cover rounded-lg" />
+                            class="w-1/2 h-36 md:h-44 object-cover" />
                     </div>
                 </div>
             </div>
