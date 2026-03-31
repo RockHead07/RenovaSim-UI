@@ -5,8 +5,41 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+@layer base {
+    :root {
+        /* RenovaSim Theme Colors - Exact from features.blade.php */
+        --background: hsl(30 2% 17.3%);
+        --foreground: hsl(0 0% 96.1%);
+        --card: hsl(30 2% 20%);
+        --card-foreground: hsl(0 0% 96.1%);
+        --muted: hsl(30 2% 22%);
+        --muted-foreground: hsl(0 0% 96.1%);
+        --accent: hsl(0 0% 96.1%);
+        --accent-foreground: hsl(30 2% 17.3%);
+        --primary: hsl(78 37% 18%);
+        --primary-foreground: hsl(0 0% 96.1%);
+        --border: hsl(0 0% 96.1% / 0.1);
+        --ring: hsl(78 37% 18%);
+        --paragraph: #838383;
+    }
+}
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    
+    --color-background: hsl(30 2% 17.3%);
+    --color-foreground: hsl(0 0% 96.1%);
+    --color-card: hsl(30 2% 20%);
+    --color-card-foreground: hsl(0 0% 96.1%);
+    --color-muted: hsl(30 2% 22%);
+    --color-muted-foreground: hsl(0 0% 96.1%);
+    --color-accent: hsl(0 0% 96.1%);
+    --color-accent-foreground: hsl(30 2% 17.3%);
+    --color-primary: hsl(78 37% 18%);
+    --color-primary-foreground: hsl(0 0% 96.1%);
+    --color-border: hsl(0 0% 96.1% / 0.1);
+    --color-ring: hsl(78 37% 18%);
+    --color-paragraph: hsl(0 0% 100%);
 }
 

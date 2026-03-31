@@ -18,11 +18,6 @@
     @vite(['resources/css/app.css'])
 
     <style>
-        :root {
-            --paragraph: #444444;
-            --secondary-accent: #F5F5F5;
-        }
-
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -99,7 +94,7 @@
             <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-8" style="filter: brightness(0) invert(1) brightness(0.95);" />
 
             <div class="hidden md:flex items-center gap-8">
-                @foreach (['About Us', 'Features', 'Resources', 'Timers'] as $link)
+                @foreach (['How It Works', 'Features', 'Pricing', 'FAQ'] as $link)
                     <a href="#"
                         class="text-[hsl(0,0%,96%)]/80 text-sm font-light tracking-wide hover:text-[hsl(0,0%,96%)] transition-colors duration-200">
                         {{ $link }}
@@ -148,6 +143,12 @@
 
     {{-- Features Section --}}
     @include('components.features')
+
+    {{-- Pricing Section --}}
+    @include('components.pricing')
+
+    {{-- FAQ Section --}}
+    @include('faq')
 
 </body>
 
