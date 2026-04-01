@@ -9,28 +9,11 @@
         content="Where material honesty meets spatial intelligence — interiors crafted with intention, clarity, and quiet confidence.">
 
     {{-- Fonts --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
+    {{-- Add PP Neue Montreal and PP Editorial New fonts from your font provider --}}
 
     @vite(['resources/css/app.css'])
 
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        h1,
-        h2,
-        h3 {
-            font-family: 'DM Serif Display', serif;
-        }
-
-        .text-paragraph {
-            color: var(--paragraph);
-        }
 
         @keyframes fade-up {
             from {

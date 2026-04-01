@@ -25,8 +25,9 @@
 }
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'PP Neue Montreal', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'PP Editorial New', ui-serif, Georgia, serif;
     
     --color-background: hsl(30 2% 17.3%);
     --color-foreground: hsl(0 0% 96.1%);
