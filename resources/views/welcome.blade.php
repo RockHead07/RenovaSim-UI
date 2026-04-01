@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Renvasim — A visual space designed for real life</title>
+    <title>RenovaSim — A visual space designed for real life</title>
     <meta name="description"
         content="Where material honesty meets spatial intelligence — interiors crafted with intention, clarity, and quiet confidence.">
 
@@ -60,7 +60,7 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-[hsl(0,0%,96%)] text-[hsl(0,0%,15%)] antialiased">
+<body class=\"min-h-screen bg-background text-foreground antialiased font-sans\">
 
     {{-- Hero Section --}}
     <section class="relative min-h-screen flex flex-col overflow-hidden">
@@ -79,40 +79,44 @@
             <div class="hidden md:flex items-center gap-8">
                 @foreach (['How It Works', 'Features', 'Pricing', 'FAQ'] as $link)
                     <a href="#"
-                        class="text-[hsl(0,0%,96%)]/80 text-sm font-light tracking-wide hover:text-[hsl(0,0%,96%)] transition-colors duration-200">
+                        class="text-muted-foreground/80 text-sm font-light tracking-wide hover:text-foreground transition-colors duration-200 font-sans">
                         {{ $link }}
                     </a>
                 @endforeach
             </div>
 
             <a href="#"
-                class="flex items-center gap-2 rounded-full bg-[hsl(0,0%,96%)]/90 backdrop-blur px-5 py-2.5 text-sm font-medium text-[hsl(0,0%,18%)] hover:bg-[hsl(0,0%,96%)] transition-all duration-200 active:scale-[0.97] shadow-lg shadow-black/10">
+                class="flex items-center gap-2 rounded-full bg-accent/90 backdrop-blur px-5 py-2.5 text-sm font-bold text-accent-foreground hover:bg-accent transition-all duration-200 active:scale-[0.97] shadow-lg shadow-black/10 font-sans">
                 Get Started
-                <span
-                    class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[hsl(0,0%,18%)] text-[hsl(0,0%,96%)] text-xs">↗</span>
+                <svg class="w-4 h-4 ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="7" y1="17" x2="17" y2="7"></line>
+                    <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
             </a>
         </nav>
 
         {{-- Hero Content --}}
         <div class="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6 pb-32 pt-12">
-            <h1 class="text-balance text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-[hsl(0,0%,96%)] leading-[0.95] tracking-tight animate-fade-up opacity-0"
+            <h1 class="text-balance text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-foreground leading-[0.75] tracking-tight animate-fade-up opacity-0 font-sans font-normal"
                 style="animation-delay: 0.3s">
                 A visual space<br>
-                designed for <em class="italic">real life</em>
+                designed for <em class="leading-[0.75] italic font-serif font-normal">real life</em>
             </h1>
 
-            <p class="mt-6 max-w-xl text-[hsl(0,0%,96%)]/70 text-base md:text-lg font-light leading-relaxed animate-fade-up opacity-0"
+            <p class="mt-6 max-w-xl text-muted-foreground/70 text-base md:text-lg font-light leading-relaxed animate-fade-up opacity-0 font-sans"
                 style="animation-delay: 0.5s">
                 Where material honesty meets spatial intelligence — interiors
                 crafted with intention, clarity, and quiet confidence.
             </p>
 
             <a href="#"
-                class="mt-10 inline-flex items-center gap-2 rounded-full bg-[hsl(0,0%,96%)]/90 backdrop-blur px-7 py-3.5 text-sm font-medium text-[hsl(0,0%,18%)] hover:bg-[hsl(0,0%,96%)] transition-all duration-200 active:scale-[0.97] shadow-xl shadow-black/15 animate-fade-up opacity-0"
+                class="mt-10 inline-flex items-center gap-2 rounded-full bg-accent/90 backdrop-blur px-7 py-3.5 text-sm font-bold text-accent-foreground hover:bg-accent transition-all duration-200 active:scale-[0.97] shadow-xl shadow-black/15 animate-fade-up opacity-0 font-sans"
                 style="animation-delay: 0.7s">
                 Start exploring
-                <span
-                    class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[hsl(0,0%,18%)] text-[hsl(0,0%,96%)] text-xs">↗</span>
+                <svg class="w-4 h-4 ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="7" y1="17" x2="17" y2="7"></line>
+                    <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
             </a>
         </div>
 

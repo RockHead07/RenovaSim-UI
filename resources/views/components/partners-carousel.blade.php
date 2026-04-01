@@ -24,16 +24,16 @@
     ];
 @endphp
 
-<section class="py-16" style="background-color: #2C2C2B; border-bottom: 1px solid rgba(245, 245, 245, 0.1);">
-    <h2 class="text-center font-serif text-xl md:text-2xl tracking-widest uppercase mb-10" style="color: #F5F5F5;">
+<section class="py-16 bg-background" style="border-bottom: 1px solid rgba(245, 245, 245, 0.1);">
+    <h3 class="text-center font-serif text-xl md:text-2xl tracking-widest uppercase mb-10 text-foreground" >
         Our Partners
-    </h2>
+    </h3>
     <div class="relative overflow-hidden">
         {{-- Fade edges --}}
         <div class="absolute left-0 top-0 bottom-0 w-16 z-10"
-            style="background: linear-gradient(to right, #2C2C2B, transparent);"></div>
+            style="background: linear-gradient(to right, hsl(30 2% 17.3%), transparent);"></div>
         <div class="absolute right-0 top-0 bottom-0 w-16 z-10"
-            style="background: linear-gradient(to left, #2C2C2B, transparent);"></div>
+            style="background: linear-gradient(to left, hsl(30 2% 17.3%), transparent);"></div>
 
         {{-- Scrolling track (duplicated for seamless loop) --}}
         <div class="flex animate-scroll-left w-max">

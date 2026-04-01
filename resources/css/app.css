@@ -5,29 +5,107 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* PP Neue Montreal Font Faces */
+@font-face {
+    font-family: 'PP Neue Montreal';
+    src: url('/font/PP-Neue-Monteral/ppneuemontreal-thin.otf') format('opentype');
+    font-weight: 100;
+}
+
+@font-face {
+    font-family: 'PP Neue Montreal';
+    src: url('/font/PP-Neue-Monteral/ppneuemontreal-book.otf') format('opentype');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'PP Neue Montreal';
+    src: url('/font/PP-Neue-Monteral/ppneuemontreal-medium.otf') format('opentype');
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: 'PP Neue Montreal';
+    src: url('/font/PP-Neue-Monteral/ppneuemontreal-bold.otf') format('opentype');
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'PP Neue Montreal';
+    src: url('/font/PP-Neue-Monteral/ppneuemontreal-italic.otf') format('opentype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'PP Neue Montreal';
+    src: url('/font/PP-Neue-Monteral/ppneuemontreal-semibolditalic.otf') format('opentype');
+    font-weight: 600;
+    font-style: italic;
+}
+
+/* PP Editorial New Font Faces */
+@font-face {
+    font-family: 'PP Editorial New';
+    src: url('/font/PP-Editorial-New/PPEditorialNew-Ultralight-BF644b21500d0c0.otf') format('opentype');
+    font-weight: 100;
+}
+
+@font-face {
+    font-family: 'PP Editorial New';
+    src: url('/font/PP-Editorial-New/PPEditorialNew-UltralightItalic-BF644b214ff1e9b.otf') format('opentype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'PP Editorial New';
+    src: url('/font/PP-Editorial-New/PPEditorialNew-Regular-BF644b214ff145f.otf') format('opentype');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'PP Editorial New';
+    src: url('/font/PP-Editorial-New/PPEditorialNew-Italic-BF644b214fb0c0a.otf') format('opentype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'PP Editorial New';
+    src: url('/font/PP-Editorial-New/PPEditorialNew-Ultrabold-BF644b21500840c.otf') format('opentype');
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'PP Editorial New';
+    src: url('/font/PP-Editorial-New/PPEditorialNew-UltraboldItalic-BF644b21500840c.otf') format('opentype');
+    font-weight: 700;
+    font-style: italic;
+}
+
 @layer base {
-    :root {
-        /* RenovaSim Theme Colors - Exact from features.blade.php */
-        --background: hsl(30 2% 17.3%);
-        --foreground: hsl(0 0% 96.1%);
-        --card: hsl(30 2% 20%);
-        --card-foreground: hsl(0 0% 96.1%);
-        --muted: hsl(30 2% 22%);
-        --muted-foreground: hsl(0 0% 96.1%);
-        --accent: hsl(0 0% 96.1%);
-        --accent-foreground: hsl(30 2% 17.3%);
-        --primary: hsl(78 37% 18%);
-        --primary-foreground: hsl(0 0% 96.1%);
-        --border: hsl(0 0% 96.1% / 0.1);
-        --ring: hsl(78 37% 18%);
-        --paragraph: #838383;
+    body {
+        @apply font-sans;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-serif;
+    }
+
+    .text-paragraph {
+        @apply font-sans;
     }
 }
 
 @theme {
-    --font-sans: 'PP Neue Montreal', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-serif: 'PP Editorial New', ui-serif, Georgia, serif;
+    --font-sans: 'PP Neue Montreal', sans-serif;
+    --font-serif: 'PP Editorial New', serif;
     
     --color-background: hsl(30 2% 17.3%);
     --color-foreground: hsl(0 0% 96.1%);
@@ -41,6 +119,6 @@
     --color-primary-foreground: hsl(0 0% 96.1%);
     --color-border: hsl(0 0% 96.1% / 0.1);
     --color-ring: hsl(78 37% 18%);
-    --color-paragraph: hsl(0 0% 100%);
+    --color-paragraph: hsl(0 0% 51.4%);
 }
 
