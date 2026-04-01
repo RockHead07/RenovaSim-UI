@@ -25,7 +25,7 @@
 @endphp
 
 <section class="py-16 bg-background" style="border-bottom: 1px solid rgba(245, 245, 245, 0.1);">
-    <h3 class="text-center font-serif text-xl md:text-2xl tracking-widest uppercase mb-10 text-foreground" >
+    <h3 class="text-center font-sans text-xl md:text-2xl tracking-widest uppercase mb-10 text-paragraph" >
         Our Partners
     </h3>
     <div class="relative overflow-hidden">

@@ -23,7 +23,7 @@
     ];
 @endphp
 
-<section class="py-24 px-8 md:px-16 bg-background">
+<section class="py-24 px-8 md:px-16 bg-background/98">
     <div class="max-w-6xl mx-auto">
         {{-- Section Title --}}
         <h2 class="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight mb-16 text-foreground">

@@ -4,7 +4,7 @@
         {{-- Left - Headline --}}
         <div>
             <h2 class="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight font text-foreground">
-                Plan Your Renovation with Clear Cost Estimates
+                Plan Your <em class="leading-[0.75] italic font-serif font-normal">Renovation</em> with Clear Cost <em class="leading-[0.75] italic font-serif font-normal">Estimates</em>
             </h2>
         </div>
         {{-- Right - Description + CTA --}}

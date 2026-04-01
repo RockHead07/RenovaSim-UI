@@ -11,7 +11,7 @@
     {{-- Fonts --}}
     {{-- Add PP Neue Montreal and PP Editorial New fonts from your font provider --}}
 
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
 
@@ -60,15 +60,14 @@
     </style>
 </head>
 
-<body class=\"min-h-screen bg-background text-foreground antialiased font-sans\">
+<body class="min-h-screen bg-background text-foreground antialiased font-sans\">
 
     {{-- Hero Section --}}
     <section class="relative min-h-screen flex flex-col overflow-hidden">
 
         {{-- Background image --}}
         <div class="absolute inset-0">
-            <img src="{{ asset('images/hero-bg.png') }}" alt="" class="w-full h-full hero-bg-img" />
-           \
+            <img src="{{ asset('images/hero-bg.png') }}" alt="" class="w-full h-full hero-bg-img">
         </div>
 
         {{-- Navigation --}}
@@ -137,6 +136,9 @@
     {{-- FAQ Section --}}
     @include('faq')
 
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-dot-outline"></div>
 </body>
 
 </html>
