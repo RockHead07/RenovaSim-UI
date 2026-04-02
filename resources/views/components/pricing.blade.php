@@ -1,4 +1,4 @@
-<section class="py-24 px-8 md:px-16 bg-background">
+<section class="py-24 px-8 md:px-16 bg-background/98">
     <div class="max-w-6xl mx-auto">
 
         {{-- Header --}}
@@ -79,7 +79,7 @@
             </div>
 
             {{-- ── Smart (Popular) ── --}}
-            <div class="relative flex flex-col rounded-2xl border border-primary bg-primary/10 scale-[1.03] shadow-[0_0_40px_-12px_hsl(var(--primary)/0.3)] p-8 transition-all duration-300">
+            <div class="relative flex flex-col rounded-2xl border-2 scale-[1.03] shadow-[0_0_40px_-12px_hsl(var(--primary)/0.3)] p-8 transition-all duration-300" style="border-color: #8BA023; background-color: rgba(139, 160, 35, 0.08);">
 
                 {{-- Badge --}}
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2">

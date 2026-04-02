@@ -27,7 +27,7 @@
     <div class="max-w-6xl mx-auto">
         {{-- Section Title --}}
         <h2 class="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight mb-16 text-foreground">
-            Architecture & Interior<br>Services
+            Application & Tool<br>Services
         </h2>
 
         {{-- Feature Rows --}}

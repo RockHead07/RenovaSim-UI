@@ -1,0 +1,68 @@
+/*
+ * navbar.css
+ * Custom styles for navbar.blade.php
+ * Tech stack: Tailwind CSS utility companion
+ * Converted from: src/components/Navbar.tsx
+ *
+ * Include this file alongside your main Tailwind stylesheet.
+ * e.g. <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
+ */
+
+/* ── Custom easing (matches Tailwind arbitrary: ease-[cubic-bezier(0.16,1,0.3,1)]) ── */
+.nav-ease {
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Blur mask (top-edge gradient) ── */
+.nav-blur-mask {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+}
+
+/* ── Pill ambient glow (after pseudo-element) ── */
+.nav-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    box-shadow: 0 0 30px -8px hsl(78 37% 25% / 0.4);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ── CTA shimmer effect (before pseudo-element) ── */
+.cta-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-shimmer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.20), transparent);
+    transform: translateX(-100%);
+    transition: transform 700ms ease-in-out;
+}
+
+.cta-shimmer:hover::before {
+    transform: translateX(100%);
+}
+
+/* ── Fade-in animation (matches Tailwind animate-fade-in) ── */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.4s ease forwards;
+}
