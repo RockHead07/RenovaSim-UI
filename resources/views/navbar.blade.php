@@ -76,7 +76,7 @@ $navLinks = [
         <div class="flex items-center gap-2 shrink-0">
             <a
                 id="cta-btn"
-                href="#pricing"
+                href="{{ route('login') }}"
                 class="hidden md:inline-flex relative overflow-hidden rounded-full bg-foreground text-background font-medium px-5 py-2.5 text-sm transition-all duration-200 active:scale-[0.96] whitespace-nowrap hover:opacity-90 cta-shimmer"
             >
                 <span id="cta-label">Get Started</span>
@@ -171,7 +171,7 @@ $navLinks = [
     {{-- CTA footer --}}
     <div class="px-5 pt-4 pb-8 space-y-2">
         <a
-            href="#pricing"
+            href="{{ route('login') }}"
             onclick="closeMobileMenu()"
             class="relative overflow-hidden block text-center w-full rounded-full bg-foreground text-background text-sm font-medium px-5 py-4 hover:opacity-90 transition-opacity duration-200 active:scale-[0.97] cta-shimmer"
         >
