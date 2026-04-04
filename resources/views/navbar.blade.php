@@ -16,14 +16,14 @@ $navLinks = [
 {{-- ── Top-edge blur mask (fades in on scroll) ─────────────────── --}}
 <div
     id="nav-blur-mask"
-    class="fixed top-0 left-0 right-0 z-[45] pointer-events-none h-14 opacity-0 transition-opacity duration-500 nav-blur-mask"
+    class="fixed top-0 left-0 right-0 z-45 pointer-events-none h-14 opacity-0 transition-opacity duration-500 nav-blur-mask"
 ></div>
 
 {{-- ── Scroll progress bar ─────────────────────────────────────── --}}
-<div class="fixed top-0 left-0 right-0 z-[60] h-[2px] pointer-events-none">
+<div class="fixed top-0 left-0 right-0 z-60 h-0.5 pointer-events-none">
     <div
         id="scroll-progress"
-        class="h-full bg-gradient-to-r from-primary via-[hsl(78_50%_35%)] to-primary/40 transition-[width] duration-100 ease-linear"
+        class="h-full bg-linear-to-r from-primary via-[hsl(78_50%_35%)] to-primary/40 transition-[width] duration-100 ease-linear"
         style="width: 0%"
     ></div>
 </div>
@@ -38,7 +38,7 @@ $navLinks = [
         class="flex items-center w-full max-w-full bg-transparent justify-between transition-all duration-500 nav-ease"
     >
         {{-- ── Left: Logo / Home ── --}}
-        <div class="flex items-center flex-shrink-0" >
+        <div class="flex items-center shrink-0" >
             {{-- Full logo — visible at top --}}
             <img
                 id="logo-full"
@@ -52,7 +52,7 @@ $navLinks = [
                 id="logo-pill"
                 href="#"
                 onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;"
-                class="flex-shrink-0 w-0 h-0 opacity-0 overflow-hidden pointer-events-none transition-all duration-500"
+                class="shrink-0 w-0 h-0 opacity-0 overflow-hidden pointer-events-none transition-all duration-500"
             >
                 <img src="{{ asset('images/logo.svg') }}" alt="RenovaSim" class="h-5 w-auto object-contain" style="filter: brightness(0) invert(1) brightness(0.95);" />
             </a>
@@ -73,13 +73,13 @@ $navLinks = [
         </div>
 
         {{-- ── Right: CTA + Hamburger ── --}}
-        <div class="flex items-center gap-2 flex-shrink-0">
+        <div class="flex items-center gap-2 shrink-0">
             <a
                 id="cta-btn"
                 href="#pricing"
                 class="hidden md:inline-flex relative overflow-hidden rounded-full bg-foreground text-background font-medium px-5 py-2.5 text-sm transition-all duration-200 active:scale-[0.96] whitespace-nowrap hover:opacity-90 cta-shimmer"
             >
-                <span id="cta-label">Estimate for Free</span>
+                <span id="cta-label">Get Started</span>
             </a>
 
             {{-- Hamburger — mobile only --}}
@@ -112,7 +112,7 @@ $navLinks = [
 {{-- Sheet --}}
 <div
     id="mobile-sheet"
-    class="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[hsl(60_1.1%_11%)] rounded-t-[2rem] border-t border-white/[0.08] flex flex-col translate-y-full transition-transform duration-500 nav-ease"
+    class="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[hsl(60_1.1%_11%)] rounded-t-4xl border-t border-white/8 flex flex-col translate-y-full transition-transform duration-500 nav-ease"
     style="max-height: 88vh"
 >
     {{-- Drag handle --}}
@@ -138,7 +138,7 @@ $navLinks = [
     </div>
 
     {{-- Divider --}}
-    <div class="mx-6 h-px bg-white/[0.06]"></div>
+    <div class="mx-6 h-px bg-white/6"></div>
 
     {{-- Nav links --}}
     <nav class="flex flex-col px-4 py-4 gap-1 overflow-y-auto flex-1">
@@ -146,10 +146,10 @@ $navLinks = [
             <button
                 data-href="{{ $link['href'] }}"
                 onclick="handleMobileLink('{{ $link['href'] }}')"
-                class="mobile-nav-link w-full text-left px-4 py-4 rounded-2xl transition-all duration-200 flex items-center justify-between group text-foreground/60 hover:text-foreground hover:bg-white/[0.04]"
+                class="mobile-nav-link w-full text-left px-4 py-4 rounded-2xl transition-all duration-200 flex items-center justify-between group text-foreground/60 hover:text-foreground hover:bg-white/4"
             >
                 <div class="flex items-center gap-4">
-                    <span class="text-[10px] font-medium w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-white/[0.07] text-foreground/30 transition-all duration-200">
+                    <span class="text-[10px] font-medium w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-white/[0.07] text-foreground/30 transition-all duration-200">
                         {{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}
                     </span>
                     <div>
@@ -158,7 +158,7 @@ $navLinks = [
                     </div>
                 </div>
                 {{-- ChevronRight --}}
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0 text-foreground/20 group-hover:text-foreground/40 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 text-foreground/20 group-hover:text-foreground/40 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6" />
                 </svg>
             </button>
@@ -166,7 +166,7 @@ $navLinks = [
     </nav>
 
     {{-- Divider --}}
-    <div class="mx-6 h-px bg-white/[0.06]"></div>
+    <div class="mx-6 h-px bg-white/6"></div>
 
     {{-- CTA footer --}}
     <div class="px-5 pt-4 pb-8 space-y-2">
@@ -175,7 +175,8 @@ $navLinks = [
             onclick="closeMobileMenu()"
             class="relative overflow-hidden block text-center w-full rounded-full bg-foreground text-background text-sm font-medium px-5 py-4 hover:opacity-90 transition-opacity duration-200 active:scale-[0.97] cta-shimmer"
         >
-            Estimate for Free
+            Get Started
+            <span class="text-xs">↗</span>
         </a>
         <p class="text-center text-foreground/25 text-xs font-light">No credit card required</p>
     </div>
@@ -281,7 +282,7 @@ $navLinks = [
             /* CTA — expanded */
             ctaBtn.classList.remove('inline-flex', 'px-3.5', 'py-1.5', 'text-xs');
             ctaBtn.classList.add('hidden', 'md:inline-flex', 'px-5', 'py-2.5', 'text-sm');
-            ctaLabel.textContent = 'Estimate for Free';
+            ctaLabel.textContent = 'Get Started';
         }
     }
 
