@@ -9,13 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('plan_features', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+public function up(): void
+{
+    Schema::create('plan_features', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('pricing_plan_id')
+              ->constrained()
+              ->onDelete('cascade');
+        $table->string('feature');
+        $table->boolean('is_available')->default(true);
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

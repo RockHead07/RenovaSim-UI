@@ -9,13 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('materials', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+public function up(): void
+{
+    Schema::create('materials', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->string('category');
+        $table->decimal('price_per_unit', 12, 2);
+        $table->string('unit')->default('m²');
+        $table->boolean('is_active')->default(true);
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.
