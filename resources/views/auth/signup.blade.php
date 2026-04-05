@@ -64,19 +64,19 @@
             {{-- Center: Form --}}
             <div class="flex-1 flex items-center justify-center">
                 <div class="w-full max-w-md">
-                    <h2 class="font-serif text-4xl text-signin-foreground mb-2">
+                    <h2 class="font-serif text-3xl text-signin-foreground mb-1">
                         Sign Up
                     </h2>
-                    <p class="font-sans text-signin-muted text-sm mb-8">
+                    <p class="font-sans text-signin-muted text-xs mb-6">
                         Create your account and start planning.
                     </p>
 
-                    <form method="POST" action="{{ route('register') }}" class="space-y-5">
+                    <form method="POST" action="{{ route('register') }}" class="space-y-4">
                         @csrf
 
                         {{-- Full Name --}}
                         <div>
-                            <label for="name" class="block font-sans text-xs uppercase tracking-widest text-signin-muted mb-2">
+                            <label for="name" class="block font-sans text-xs uppercase tracking-widest text-signin-muted mb-1.5">
                                 Full Name
                             </label>
                             <input
@@ -85,7 +85,7 @@
                                 name="name"
                                 value="{{ old('name') }}"
                                 placeholder="John Doe"
-                                class="w-full rounded-full border border-signin-border bg-transparent px-5 py-3 text-sm font-sans text-signin-foreground placeholder:text-signin-muted/60 focus:outline-none focus:ring-2 focus:ring-ring"
+                                class="w-full rounded-full border border-signin-border bg-transparent px-4 py-2 text-xs font-sans text-signin-foreground placeholder:text-signin-muted/60 focus:outline-none focus:ring-2 focus:ring-ring"
                                 required
                                 autofocus
                             />
@@ -96,7 +96,7 @@
 
                         {{-- Email --}}
                         <div>
-                            <label for="email" class="block font-sans text-xs uppercase tracking-widest text-signin-muted mb-2">
+                            <label for="email" class="block font-sans text-xs uppercase tracking-widest text-signin-muted mb-1.5">
                                 Email
                             </label>
                             <input
@@ -105,7 +105,7 @@
                                 name="email"
                                 value="{{ old('email') }}"
                                 placeholder="hello@renovasim.com"
-                                class="w-full rounded-full border border-signin-border bg-transparent px-5 py-3 text-sm font-sans text-signin-foreground placeholder:text-signin-muted/60 focus:outline-none focus:ring-2 focus:ring-ring"
+                                class="w-full rounded-full border border-signin-border bg-transparent px-4 py-2 text-xs font-sans text-signin-foreground placeholder:text-signin-muted/60 focus:outline-none focus:ring-2 focus:ring-ring"
                                 required
                             />
                             @error('email')
@@ -115,7 +115,7 @@
 
                         {{-- Password --}}
                         <div>
-                            <label for="password" class="block font-sans text-xs uppercase tracking-widest text-signin-muted mb-2">
+                            <label for="password" class="block font-sans text-xs uppercase tracking-widest text-signin-muted mb-1.5">
                                 Password
                             </label>
                             <div class="relative" x-data="{ show: false }">
@@ -124,7 +124,7 @@
                                     :type="show ? 'text' : 'password'"
                                     name="password"
                                     placeholder="Create a password"
-                                    class="w-full rounded-full border border-signin-border bg-transparent px-5 py-3 text-sm font-sans text-signin-foreground placeholder:text-signin-muted/60 focus:outline-none focus:ring-2 focus:ring-ring pr-12"
+                                    class="w-full rounded-full border border-signin-border bg-transparent px-4 py-2 text-xs font-sans text-signin-foreground placeholder:text-signin-muted/60 focus:outline-none focus:ring-2 focus:ring-ring pr-10"
                                     required
                                 />
                                 <button
@@ -143,7 +143,7 @@
 
                         {{-- Confirm Password --}}
                         <div>
-                            <label for="password_confirmation" class="block font-sans text-xs uppercase tracking-widest text-signin-muted mb-2">
+                            <label for="password_confirmation" class="block font-sans text-xs uppercase tracking-widest text-signin-muted mb-1.5">
                                 Confirm Password
                             </label>
                             <div class="relative" x-data="{ show: false }">
@@ -152,7 +152,7 @@
                                     :type="show ? 'text' : 'password'"
                                     name="password_confirmation"
                                     placeholder="Confirm your password"
-                                    class="w-full rounded-full border border-signin-border bg-transparent px-5 py-3 text-sm font-sans text-signin-foreground placeholder:text-signin-muted/60 focus:outline-none focus:ring-2 focus:ring-ring pr-12"
+                                    class="w-full rounded-full border border-signin-border bg-transparent px-4 py-2 text-xs font-sans text-signin-foreground placeholder:text-signin-muted/60 focus:outline-none focus:ring-2 focus:ring-ring pr-10"
                                     required
                                 />
                                 <button
@@ -169,14 +169,14 @@
                         {{-- Sign Up Button --}}
                         <button
                             type="submit"
-                            class="w-full rounded-full bg-primary text-primary-foreground py-3 font-sans font-medium text-sm uppercase tracking-widest hover:opacity-90 transition-opacity"
+                            class="w-full rounded-full bg-primary text-primary-foreground py-2 font-sans font-medium text-xs uppercase tracking-widest hover:opacity-90 transition-opacity"
                         >
                             Sign Up
                         </button>
                     </form>
 
                     {{-- Divider --}}
-                    <div class="flex items-center gap-4 my-6">
+                    <div class="flex items-center gap-4 my-4">
                         <div class="flex-1 h-px bg-signin-border"></div>
                         <span class="font-sans text-xs uppercase tracking-widest text-signin-muted">
                             Or continue with
@@ -185,9 +185,9 @@
                     </div>
 
                     {{-- Social Buttons --}}
-                    <div class="grid grid-cols-2 gap-4">
-                        <a href="{{ url('/auth/google') }}" class="flex items-center justify-center gap-2 rounded-full border border-signin-border bg-transparent py-3 font-sans text-sm text-signin-foreground hover:bg-signin-border/20 transition-colors">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="{{ url('/auth/google') }}" class="flex items-center justify-center gap-2 rounded-full border border-signin-border bg-transparent py-2 font-sans text-xs text-signin-foreground hover:bg-signin-border/20 transition-colors">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
                                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -195,8 +195,8 @@
                             </svg>
                             Google
                         </a>
-                        <a href="{{ url('/auth/apple') }}" class="flex items-center justify-center gap-2 rounded-full border border-signin-border bg-transparent py-3 font-sans text-sm text-signin-foreground hover:bg-signin-border/20 transition-colors">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <a href="{{ url('/auth/apple') }}" class="flex items-center justify-center gap-2 rounded-full border border-signin-border bg-transparent py-2 font-sans text-xs text-signin-foreground hover:bg-signin-border/20 transition-colors">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
                             </svg>
                             Apple
@@ -206,7 +206,7 @@
             </div>
 
             {{-- Bottom Footer --}}
-            <div class="flex flex-wrap text-paragraph justify-center gap-x-4 gap-y-1 pt-12">
+            <div class="flex flex-wrap text-paragraph justify-center gap-x-3 gap-y-1 pt-8">
                 <span class="font-sans text-xs uppercase tracking-widest text-signin-muted">
                     &copy; 2024 RenovaSim AI
                 </span>
