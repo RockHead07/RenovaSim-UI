@@ -121,6 +121,13 @@
     --color-border: hsl(0 0% 96.1% / 0.1);
     --color-ring: hsl(78 37% 18%);
     --color-paragraph: hsl(0 0% 51.4%);
+    
+    /* Sign In / Sign Up Page Colors */
+    --color-signin: hsl(30 2% 13%);
+    --color-signin-foreground: hsl(0 0% 96.1%);
+    --color-signin-muted: hsl(0 0% 51.4%);
+    --color-signin-accent: hsl(78 37% 18%);
+    --color-signin-border: hsl(0 0% 96.1% / 0.15);
 }
 
 /* =========================

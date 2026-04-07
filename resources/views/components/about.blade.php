@@ -1,5 +1,5 @@
 {{-- resources/views/components/about.blade.php --}}
-<section class="py-24 px-8 md:px-16 bg-background">
+<section id="how-it-works" class="py-24 px-8 md:px-16 bg-background">
     <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
         {{-- Left - Headline --}}
         <div>

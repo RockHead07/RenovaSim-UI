@@ -30,15 +30,10 @@
             </a>
 
             {{-- Center: Headline + Subtext --}}
-            <div class="flex-1 flex flex-col justify-center max-w-lg relative z-10">
+            <div class="flex-1 flex flex-col justify-start pt-10 max-w-lg relative z-10">
                 <h1 class="font-serif text-4xl md:text-5xl leading-tight text-foreground mb-6">
-                    Plan Your Renovation with Clear Cost Estimates
+                    Plan Your Renovation with RenovaSim
                 </h1>
-                <p class="font-sans text-paragraph text-base leading-relaxed">
-                    AI-powered renovation planning for homeowners.
-                    <br />
-                    Turn your vision into a line-by-line reality.
-                </p>
             </div>
 
             {{-- Bottom: Footer --}}
@@ -147,7 +142,7 @@
                     {{-- Divider --}}
                     <div class="flex items-center gap-4 my-4">
                         <div class="flex-1 h-px bg-signin-border"></div>
-                        <span class="font-sans text-xs uppercase tracking-widest text-signin-muted">
+                        <span class="font-sans text-xs uppercase tracking-widest text-paragraph">
                             Or continue with
                         </span>
                         <div class="flex-1 h-px bg-signin-border"></div>
@@ -175,7 +170,7 @@
             </div>
 
             {{-- Bottom Footer --}}
-            <div class="flex flex-wrap text-paragraph justify-center gap-x-3 gap-y-1 pt-8">
+            <div class="flex flex-wrap text-paragraph justify-center gap-x-4 gap-y-1 pt-12">
                 <span class="font-sans text-xs uppercase tracking-widest text-signin-muted">
                     &copy; 2024 RenovaSim AI
                 </span>

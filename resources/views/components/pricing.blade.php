@@ -1,4 +1,4 @@
-<section class="py-24 px-8 md:px-16 bg-background/98">
+<section id="pricing" class="py-24 px-8 md:px-16 bg-background/98">
     <div class="max-w-6xl mx-auto">
 
         {{-- Header --}}
@@ -30,43 +30,43 @@
                 {{-- Features --}}
                 <ul class="space-y-3.5 mb-8 flex-1">
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Cost Estimation (Basic)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center">
                             <svg class="w-3 h-3 text-paragraph" viewBox="0 0 12 12" fill="none"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-paragraph/50">Design Simulation</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Material &amp; Cost Breakdown (Simple)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center">
                             <svg class="w-3 h-3 text-paragraph" viewBox="0 0 12 12" fill="none"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-paragraph/50">AI Design Suggestions</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Project Management (1 Project)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center">
                             <svg class="w-3 h-3 text-paragraph" viewBox="0 0 12 12" fill="none"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-paragraph">Export &amp; Reports</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full flex items-center justify-center">
                             <svg class="w-3 h-3 text-paragraph" viewBox="0 0 12 12" fill="none"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-paragraph">Priority Processing</span>
@@ -104,43 +104,43 @@
                 {{-- Features --}}
                 <ul class="space-y-3.5 mb-8 flex-1">
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Cost Estimation (Advanced)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Design Simulation (Basic)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Material &amp; Cost Breakdown (Detailed)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">AI Design Suggestions (Limited)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Project Management (Up to 5 Projects)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center">
                             <svg class="w-3 h-3 text-paragraph" viewBox="0 0 12 12" fill="none"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-paragraph/50">Export &amp; Reports</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Standard Processing</span>
@@ -171,43 +171,43 @@
                 {{-- Features --}}
                 <ul class="space-y-3.5 mb-8 flex-1">
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Cost Estimation (AI-powered)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Design Simulation (Full AI)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Material &amp; Cost Breakdown (Advanced + Insights)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">AI Design Suggestions (Full)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Project Management (Unlimited)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Export &amp; Reports (PDF / Data)</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                             <svg class="w-3 h-3 text-primary-foreground" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="text-sm font-light text-foreground">Priority Processing</span>

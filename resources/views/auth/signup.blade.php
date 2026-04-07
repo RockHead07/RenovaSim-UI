@@ -29,15 +29,10 @@
                 />
             </a>
 
-            <div class="flex-1 flex flex-col justify-center max-w-lg relative z-10">
+            <div class="flex-1 flex flex-col justify-start pt-10 max-w-lg relative z-10">
                 <h1 class="font-serif text-4xl md:text-5xl leading-tight text-foreground mb-6">
                     Start Your Renovation Journey Today
                 </h1>
-                <p class="font-sans text-paragraph text-base leading-relaxed">
-                    Join thousands of homeowners using AI
-                    <br />
-                    to plan smarter renovations.
-                </p>
             </div>
 
             <div class="flex items-center gap-3 relative z-10">

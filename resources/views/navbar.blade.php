@@ -4,6 +4,12 @@
      Converted from: src/components/Navbar.tsx + NavLink.tsx
      ============================================================ --}}
 
+<style>
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+
 @php
 $navLinks = [
     ['label' => 'How It Works', 'href' => '#how-it-works', 'desc' => 'See how RenovaSim works'],
@@ -44,8 +50,8 @@ $navLinks = [
                 id="logo-full"
                 src="{{ asset('images/logo.svg') }}"
                 alt="RenovaSim"
-                class="object-contain h-6 w-auto opacity-100 transition-all duration-500"
-                style="filter: brightness(0) invert(1) brightness(0.95);"
+                class="object-contain h-6 w-auto opacity-0 transition-all duration-500 animate-fade-in"
+                style="filter: brightness(0) invert(1) brightness(0.95); animation-delay: 0ms;"
             />
             {{-- Compact logo — visible in pill --}}
             <a
@@ -77,7 +83,8 @@ $navLinks = [
             <a
                 id="cta-btn"
                 href="{{ route('login') }}"
-                class="hidden md:inline-flex relative overflow-hidden rounded-full bg-foreground text-background font-medium px-5 py-2.5 text-sm transition-all duration-200 active:scale-[0.96] whitespace-nowrap hover:opacity-90 cta-shimmer"
+                class="hidden md:inline-flex relative overflow-hidden rounded-full bg-foreground text-background font-medium px-5 py-2.5 text-sm transition-all duration-200 active:scale-[0.96] whitespace-nowrap hover:opacity-90 cta-shimmer opacity-0 animate-fade-in"
+                style="animation-delay: 240ms;"
             >
                 <span id="cta-label">Get Started</span>
             </a>
@@ -239,7 +246,7 @@ $navLinks = [
             /* Logos */
             logoFull.classList.replace('h-6',      'h-0');
             logoFull.classList.replace('w-auto',   'w-0');
-            logoFull.classList.replace('opacity-100', 'opacity-0');
+            logoFull.classList.add('opacity-0');
             logoPill.classList.remove('w-0', 'h-0', 'opacity-0', 'overflow-hidden', 'pointer-events-none');
             logoPill.classList.add('opacity-100');
 
@@ -267,7 +274,8 @@ $navLinks = [
             /* Logos */
             logoFull.classList.replace('h-0',      'h-6');
             logoFull.classList.replace('w-0',      'w-auto');
-            logoFull.classList.replace('opacity-0','opacity-100');
+            logoFull.classList.remove('opacity-0');
+            logoFull.classList.add('opacity-100');
             logoPill.classList.add('w-0', 'h-0', 'opacity-0', 'overflow-hidden', 'pointer-events-none');
             logoPill.classList.remove('opacity-100');
 
