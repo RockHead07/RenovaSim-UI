@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +40,10 @@ Route::get('/admin/partners', function () {
 Route::post('/newsletter', function () {
     return back()->with('success', 'Subscribed!');
 })->name('newsletter.subscribe');
+
+//route crud user
+Route::resource('admin/users', UserController::class)
+    ->names('admin.users');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
