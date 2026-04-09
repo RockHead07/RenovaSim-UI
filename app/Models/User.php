@@ -10,11 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-<<<<<<< HEAD
-#[Fillable(['name', 'email', 'password', 'role'])]
-=======
 #[Fillable(['username', 'email', 'password'])]
->>>>>>> origin/dashboard-renovasim
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
