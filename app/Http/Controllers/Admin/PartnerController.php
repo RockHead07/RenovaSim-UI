@@ -8,6 +8,28 @@ use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
+    /**
+     * Get available order numbers (excluding taken ones)
+     */
+    private function getAvailableOrders(?int $excludeId = null): array
+    {
+        $query = Partner::query();
+        
+        // Exclude current partner when editing
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $usedOrders = $query->pluck('order')->toArray();
+        $totalPartners = Partner::count();
+        
+        // Generate available order numbers (1 to totalPartners + 1)
+        $allOrders = range(1, $totalPartners + 1);
+        $availableOrders = array_diff($allOrders, $usedOrders);
+        
+        return array_values($availableOrders); // Reindex array
+    }
+
     public function index()
     {
         $partners = Partner::orderBy('order')->get();
@@ -16,7 +38,8 @@ class PartnerController extends Controller
 
     public function create()
     {
-        return view('admin.partners.create');
+        $availableOrders = $this->getAvailableOrders();
+        return view('admin.partners.create', compact('availableOrders'));
     }
 
     public function store(Request $request)
@@ -24,7 +47,7 @@ class PartnerController extends Controller
         $request->validate([
             'name'  => 'required|string|max:255',
             'logo'  => 'nullable|image|mimes:png,jpg,svg|max:2048',
-            'order' => 'integer|min:0',
+            'order' => 'required|integer|min:1',
         ]);
 
         $data = $request->only('name', 'order', 'is_active');
@@ -49,7 +72,13 @@ class PartnerController extends Controller
     public function edit(string $id)
     {
         $partner = Partner::findOrFail($id);
-        return view('admin.partners.edit', compact('partner'));
+        $availableOrders = $this->getAvailableOrders($id);
+        // Add current order to available if not there
+        if (!in_array($partner->order, $availableOrders)) {
+            $availableOrders[] = $partner->order;
+        }
+        sort($availableOrders);
+        return view('admin.partners.edit', compact('partner', 'availableOrders'));
     }
 
     public function update(Request $request, string $id)
@@ -59,7 +88,7 @@ class PartnerController extends Controller
         $request->validate([
             'name'  => 'required|string|max:255',
             'logo'  => 'nullable|image|mimes:png,jpg,svg|max:2048',
-            'order' => 'integer|min:0',
+            'order' => 'required|integer|min:1',
         ]);
 
         $data = $request->only('name', 'order');

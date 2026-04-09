@@ -13,19 +13,27 @@
 </style>
 
 @php
-    $partners = [
-        ['name' => 'IKEA', 'logo' => 'partners/ikea.png'],
-        ['name' => 'INFORMA', 'logo' => 'partners/informa.png'],
-        ['name' => 'Mitra10', 'logo' => 'partners/mitra10.png'],
-        ['name' => 'BJ Home', 'logo' => 'partners/bjhome.png'],
-        ['name' => 'Qhomemart', 'logo' => 'partners/qhomemart.png'],
-        ['name' => 'Kanggo', 'logo' => 'partners/kanggo.png'],
-        ['name' => 'Tukang.com', 'logo' => 'partners/tukangcom.png'],
-    ];
+    // Fetch active partners from database, ordered by 'order' column
+    $partners = \App\Models\Partner::where('is_active', true)
+                                    ->orderBy('order')
+                                    ->get();
+    
+    // Fallback to static partners if no database partners exist
+    if ($partners->isEmpty()) {
+        $partners = collect([
+            ['name' => 'IKEA', 'logo' => 'images/partners/ikea.png'],
+            ['name' => 'INFORMA', 'logo' => 'images/partners/informa.png'],
+            ['name' => 'Mitra10', 'logo' => 'images/partners/mitra10.png'],
+            ['name' => 'BJ Home', 'logo' => 'images/partners/bjhome.png'],
+            ['name' => 'Qhomemart', 'logo' => 'images/partners/qhomemart.png'],
+            ['name' => 'Kanggo', 'logo' => 'images/partners/kanggo.png'],
+            ['name' => 'Tukang.com', 'logo' => 'images/partners/tukangcom.png'],
+        ]);
+    }
 @endphp
 
 <section class="py-16 bg-background" style="border-bottom: 1px solid rgba(245, 245, 245, 0.1);">
-    <h3 class="text-center font-sans text-xl md:text-2xl tracking-widest uppercase mb-10 text-paragraph" >
+    <h3 class="text-center font-sans text-xl md:text-2xl tracking-widest uppercase mb-10 text-paragraph">
         Our Partners
     </h3>
     <div class="relative overflow-hidden">
@@ -40,8 +48,28 @@
             @for ($i = 0; $i < 2; $i++)
                 @foreach ($partners as $partner)
                     <div class="flex items-center justify-center px-10 md:px-14">
-                        <img src="{{ asset('images/' . $partner['logo']) }}" alt="{{ $partner['name'] }}"
-                            class="h-8 md:h-10 w-auto object-contain opacity-50 grayscale brightness-150 hover:opacity-100 hover:grayscale-0 hover:brightness-100 transition-all duration-300" />
+                        @php
+                            // Determine logo path
+                            if (isset($partner->logo)) {
+                                // Database partner - check if logo is stored or public
+                                if ($partner->logo) {
+                                    // Check if logo is a full path (from storage) or just a filename (from public)
+                                    $logoPath = str_contains($partner->logo, '/') 
+                                        ? asset('storage/' . $partner->logo)
+                                        : asset('images/partners/' . $partner->logo);
+                                } else {
+                                    $logoPath = asset('images/logo.svg');
+                                }
+                                $partnerName = $partner->name;
+                            } else {
+                                // Static partner array fallback
+                                $logoPath = asset($partner['logo']);
+                                $partnerName = $partner['name'];
+                            }
+                        @endphp
+                        <img src="{{ $logoPath }}" alt="{{ $partnerName }}"
+                            class="h-8 md:h-10 w-auto object-contain opacity-50 grayscale brightness-150 hover:opacity-100 hover:grayscale-0 hover:brightness-100 transition-all duration-300" 
+                            onerror="this.src='{{ asset('images/logo.svg') }}'"/>
                     </div>
                 @endforeach
             @endfor

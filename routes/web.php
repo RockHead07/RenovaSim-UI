@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,19 +32,18 @@ Route::get('/admin/pricing', function () {
     return view('admin.pricing.index');
 });
 
-// dashboard admin/partners
-Route::get('/admin/partners', function () {
-    return view('admin.partners.index');
-});
+//route crud user
+Route::resource('admin/users', UserController::class)
+    ->names('admin.users');
+
+//route crud partner
+Route::resource('admin/partners', PartnerController::class)
+    ->names('admin.partners');
 
 //route subscribe footer
 Route::post('/newsletter', function () {
     return back()->with('success', 'Subscribed!');
 })->name('newsletter.subscribe');
-
-//route crud user
-Route::resource('admin/users', UserController::class)
-    ->names('admin.users');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
