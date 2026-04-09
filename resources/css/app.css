@@ -135,7 +135,7 @@
 ========================= */
 
 /* Hide default cursor */
-html, body, * {
+body.landing * {
     cursor: none;
 }
 
@@ -171,4 +171,28 @@ input, textarea, button {
     height: 40px;
     background-color: hsl(0 0% 96.1% / 0.2);
     z-index: 9998;
+}
+
+/* Scrollbar Dark Mode */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a1a; /* background gelap */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3f3f46; /* abu gelap */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #52525b; /* lebih terang saat hover */
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #3f3f46 #1a1a1a;
 }

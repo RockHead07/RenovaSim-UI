@@ -60,7 +60,7 @@
     </style>
 </head>
 
-<body>
+<body class="landing">
     {{-- Navigation Bar --}}
     @include('navbar')
     {{-- Hero Section --}}
