@@ -1,5 +1,5 @@
 <div align="center">
-<img width="1524" height="492" alt="Image" src="https://github.com/user-attachments/assets/2eda46a2-212f-4f42-8ff3-39d6ac0c02f9" />
+<img width="400" alt="Image" src="https://github.com/user-attachments/assets/2eda46a2-212f-4f42-8ff3-39d6ac0c02f9" />
 </div>
 <p align="center">
 <a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
@@ -25,9 +25,41 @@ Therefore, this repository focuses **only on the user interface (UI)** and visua
 > [!NOTE]
 > Tbh, this project happened because it's related with my college assignment :P.
 
+# Design Overview
+
 <div align="center">
-    <img width="1911" height="923" alt="Image" src="https://github.com/user-attachments/assets/accd54f5-841a-499c-8879-114d52f54015" />
+    <img width="720" alt="Image" src="https://github.com/user-attachments/assets/accd54f5-841a-499c-8879-114d52f54015" />
 </div>
+
+# Typography & Color Palette
+<div align="center">
+    <img width="720" alt="Image" src="https://github.com/user-attachments/assets/1e4c8b21-c460-4315-8c85-95fe43c49119" />
+</div>
+
+A visual reference sheet defining the core typographic system and color 
+palette for consistent brand expression across all design touchpoints.
+
+## Typography
+
+### PP Editorial New — Serif
+- **Usage:** Titles & Captions
+
+### PP Neue Montreal — Sans-Serif
+- **Usage:** Paragraphs & Body Text
+
+## Color Palette
+
+| Name           | Hex       | Preview |
+|----------------|-----------|---------|
+| Tech White     | `#F5F5F5` | ⬜      |
+| Zen Gray       | `#747473` | 🩶      |
+| Coconut Green  | `#8BA023` | 🟩      |
+| Thatch Green   | `#3B411E` | 🌿      |
+| Metallic Black | `#2C2C2B` | ⬛      |
+
+>[!IMPORTANT]
+> This sheet serves as the single source of truth for brand visual language.  
+> Always refer to these specifications when designing new assets or interfaces.
 
 ## Tech Stack
 <p align="left">
