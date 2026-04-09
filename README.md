@@ -26,7 +26,7 @@ Therefore, this repository focuses **only on the user interface (UI)** and visua
 > Tbh, this project happened because it's related with my college assignment :P.
 
 <div align="center">
-<img width="1901" height="926" alt="Image" src="https://github.com/user-attachments/assets/c0030d02-0eba-40df-9475-cc16e5e0e76b" />
+    <img width="1911" height="923" alt="Image" src="https://github.com/user-attachments/assets/accd54f5-841a-499c-8879-114d52f54015" />
 </div>
 
 ## Tech Stack
