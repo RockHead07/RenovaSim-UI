@@ -14,7 +14,7 @@ class AuthController extends Controller
      */
     public function showLogin()
     {
-        return view('auth.signin');
+        return view('login.signin');
     }
 
     /**
@@ -42,7 +42,7 @@ class AuthController extends Controller
      */
     public function showRegister()
     {
-        return view('auth.signup');
+        return view('login.signup');
     }
 
     /**
