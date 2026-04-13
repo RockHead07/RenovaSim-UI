@@ -33,6 +33,12 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
+    // SHOW CREATE FORM
+    public function create()
+    {
+        return view('admin.users.create');
+    }
+
     // CREATE
     public function store(Request $request)
     {
@@ -49,21 +55,26 @@ class UserController extends Controller
             'plan' => 'Free',
         ]);
 
-        return back()->with('success', 'User created');
+        return redirect('/admin/users')->with('success', 'User created successfully');
     }
 
-    // UPDATE (PLAN ONLY)
+    // SHOW EDIT FORM
+    public function edit(User $user)
+    {
+        return view('admin.users.edit', compact('user'));
+    }
+
+    // UPDATE
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'plan' => 'required|in:Free,Smart,Pro',
+            'username' => 'required|unique:users,username,' . $user->id,
+            'email' => 'required|email|unique:users,email,' . $user->id,
         ]);
 
-        $user->update([
-            'plan' => $request->plan,
-        ]);
+        $user->update($request->only(['username', 'email']));
 
-        return back()->with('success', 'User updated');
+        return redirect('/admin/users')->with('success', 'User updated successfully');
     }
 
     // DELETE
@@ -71,6 +82,6 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return back()->with('success', 'User deleted');
+        return redirect('/admin/users')->with('success', 'User deleted successfully');
     }
 }

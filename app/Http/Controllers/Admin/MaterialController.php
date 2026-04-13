@@ -28,13 +28,9 @@ class MaterialController extends Controller
             'unit'           => 'required|string|max:50',
         ]);
 
-        $data = $request->only('name', 'category', 'price_per_unit', 'unit');
-        $data['is_active'] = $request->boolean('is_active');
+        Material::create($request->only('name', 'category', 'price_per_unit', 'unit'))
 
-        Material::create($data);
-
-        return redirect()->route('admin.materials.index')
-                         ->with('success', 'Material added successfully.');
+        return redirect('/admin/materials')->with('success', 'Material added successfully.');
     }
 
     public function show(string $id)
@@ -60,13 +56,9 @@ class MaterialController extends Controller
             'unit'           => 'required|string|max:50',
         ]);
 
-        $data = $request->only('name', 'category', 'price_per_unit', 'unit');
-        $data['is_active'] = $request->boolean('is_active');
+        $material->update($request->only('name', 'category', 'price_per_unit', 'unit'))
 
-        $material->update($data);
-
-        return redirect()->route('admin.materials.index')
-                         ->with('success', 'Material updated successfully.');
+        return redirect('/admin/materials')->with('success', 'Material updated successfully.');
     }
 
     public function destroy(string $id)
@@ -74,7 +66,6 @@ class MaterialController extends Controller
         $material = Material::findOrFail($id);
         $material->delete();
 
-        return redirect()->route('admin.materials.index')
-                         ->with('success', 'Material deleted successfully.');
+        return redirect('/admin/materials')->with('success', 'Material deleted successfully.');
     }
 }

@@ -22,19 +22,16 @@ class PricingPlanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price'       => 'required|numeric|min:0',
+            'name'   => 'required|string|max:255',
+            'price'  => 'required|numeric|min:0',
         ]);
 
-        $data = $request->only('name', 'description', 'price');
-        $data['is_popular'] = $request->boolean('is_popular');
-        $data['is_active']  = $request->boolean('is_active');
+        $data = $request->only('name', 'price');
+        $data['is_popular'] = $request->boolean('is_popular', false);
 
         PricingPlan::create($data);
 
-        return redirect()->route('admin.pricing-plans.index')
-                         ->with('success', 'Pricing plan added successfully.');
+        return redirect('/admin/pricing-plans')->with('success', 'Pricing plan added successfully.');
     }
 
     public function show(string $id)
@@ -54,19 +51,16 @@ class PricingPlanController extends Controller
         $plan = PricingPlan::findOrFail($id);
 
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price'       => 'required|numeric|min:0',
+            'name'   => 'required|string|max:255',
+            'price'  => 'required|numeric|min:0',
         ]);
 
-        $data = $request->only('name', 'description', 'price');
-        $data['is_popular'] = $request->boolean('is_popular');
-        $data['is_active']  = $request->boolean('is_active');
+        $data = $request->only('name', 'price');
+        $data['is_popular'] = $request->boolean('is_popular', false);
 
         $plan->update($data);
 
-        return redirect()->route('admin.pricing-plans.index')
-                         ->with('success', 'Pricing plan updated successfully.');
+        return redirect('/admin/pricing-plans')->with('success', 'Pricing plan updated successfully.');
     }
 
     public function destroy(string $id)
@@ -74,7 +68,6 @@ class PricingPlanController extends Controller
         $plan = PricingPlan::findOrFail($id);
         $plan->delete();
 
-        return redirect()->route('admin.pricing-plans.index')
-                         ->with('success', 'Pricing plan deleted successfully.');
+        return redirect('/admin/pricing-plans')->with('success', 'Pricing plan deleted successfully.');
     }
 }

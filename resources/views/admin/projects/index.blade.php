@@ -1,120 +1,18 @@
 @extends('admin.layout')
-
-@section('title', 'Dashboard')
-
-@section('content')
-
-<!-- HEADER -->
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-lg font-semibold text-white">Projects</h2>
-
-    <button class="bg-white text-black px-4 py-2 rounded-lg text-sm hover:opacity-90">
-        + Add Project
-    </button>
-</div>
-
-<!-- SEARCH + FILTER -->
-<div class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 mb-6">
-
-    <div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-
-        <!-- Search -->
-        <input type="text"
-               placeholder="Search by name, user, or room..."
-               class="w-full md:w-1/3 bg-[#121212] border border-gray-800 px-4 py-2 rounded-lg text-sm focus:outline-none focus:border-gray-600">
-
-        <!-- Filter -->
-        <div class="flex gap-2 text-sm">
-            <button class="px-3 py-1 rounded-lg bg-green-700 text-white">All</button>
-            <button class="px-3 py-1 rounded-lg bg-[#121212] hover:bg-gray-800">Draft</button>
-            <button class="px-3 py-1 rounded-lg bg-[#121212] hover:bg-gray-800">Estimated</button>
-            <button class="px-3 py-1 rounded-lg bg-[#121212] hover:bg-gray-800">Completed</button>
-        </div>
-
+  @section('title', 'Projects')
+  @section('page-title', 'Projects')
+  @section('content')
+  <div class="space-y-4">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3"><div class="relative flex-1"><svg class="absolute left-3 top-1/2 -translate-y-1/2 text-paragraph w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Search by name, user, or room…" class="w-full bg-background rounded-lg pl-9 pr-4 py-2 text-sm font-sans text-foreground placeholder:text-paragraph focus:outline-none focus:border-primary border border-border/10"></div><div class="flex items-center gap-1.5 flex-wrap">@foreach(['All','Draft','Estimated','Completed'] as $status)<button class="px-3 py-1.5 rounded-lg text-xs font-sans font-medium {{ $loop->first ? 'bg-primary text-primary-foreground' : 'text-paragraph hover:text-foreground hover:bg-muted' }}">{{ $status }}</button>@endforeach</div></div>
+    
+    <div class="hidden sm:block bg-card rounded-[10px] overflow-hidden border border-border/10">
+      <div class="flex items-center justify-between px-5 py-4"><h3 class="font-serif text-foreground text-base">Projects</h3></div>
+      <div class="overflow-x-auto"><table class="w-full"><thead><tr class="border-b border-border/10"><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">ID</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Project Name</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">User</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Room</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Area</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Cost</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Status</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Actions</th></tr></thead><tbody>@forelse($projects as $project)
+<tr class="hover:bg-muted/50 transition-colors duration-200 border-b border-border/5"><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">#{{ $project->id }}</span></td><td class="px-5 py-3 text-sm font-sans text-foreground">{{ $project->name }}</td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">{{ $project->user->name ?? 'N/A' }}</span></td><td class="px-5 py-3 text-sm font-sans text-foreground">{{ $project->room_type }}</td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">{{ $project->area_size }} m²</span></td><td class="px-5 py-3 text-sm font-sans text-foreground" x-data="{ status: '{{ ucfirst($project->status) }}' }" x-text="status === 'Completed' ? '$' + Math.round({{ $project->area_size }} * 500) : '—'"></td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="{ 'bg-status-active/15 text-status-active': '{{ $project->status }}' === 'completed', 'bg-status-warning/15 text-status-warning': '{{ $project->status }}' === 'estimated', 'bg-muted text-muted-foreground': '{{ $project->status }}' === 'draft' }">{{ ucfirst($project->status) }}</span></td><td class="px-5 py-3 text-sm font-sans text-foreground"><div class="flex gap-2"><a href="/admin/projects/{{ $project->id }}/edit" class="px-3 py-1 rounded text-xs font-sans font-medium bg-foreground text-background">Edit</a><form method="POST" action="/admin/projects/{{ $project->id }}" style="display:inline" onsubmit="return confirm('Are you sure?')">@csrf @method('DELETE')<button type="submit" class="px-3 py-1 rounded text-xs font-sans font-medium bg-destructive/15 text-destructive">Delete</button></form></div></td></tr>
+@empty
+<tr><td colspan="8" class="px-5 py-3 text-center text-paragraph">No projects found</td></tr>
+@endforelse</tbody></table></div>
     </div>
-
-</div>
-
-<!-- TABLE -->
-<div class="bg-[#1a1a1a] border border-gray-800 rounded-xl overflow-hidden">
-
-    <table class="w-full text-sm">
-
-        <thead class="text-gray-500 border-b border-gray-800 bg-[#161616]">
-            <tr>
-                <th class="text-left py-3 px-4">ID</th>
-                <th class="text-left px-4">Project</th>
-                <th class="text-left px-4">User</th>
-                <th class="text-center">Room</th>
-                <th class="text-center">Area</th>
-                <th class="text-center">Cost</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Actions</th>
-            </tr>
-        </thead>
-
-        <tbody class="text-gray-300">
-
-            @foreach([
-                ['#1','Kitchen Remodel','John Doe','Kitchen','25 m²','$12,400','Completed'],
-                ['#2','Bathroom Update','Jane Smith','Bathroom','12 m²','$6,800','Estimated'],
-                ['#3','Living Room','Ali Mammadov','Living','35 m²','—','Draft'],
-                ['#4','Bedroom Reno','Sara Johnson','Bedroom','20 m²','$8,200','Completed'],
-            ] as $p)
-
-            <tr class="border-b border-gray-800 hover:bg-[#161616] transition">
-
-                <td class="py-3 px-4 text-gray-400">{{ $p[0] }}</td>
-
-                <td class="px-4 font-medium text-white">
-                    {{ $p[1] }}
-                </td>
-
-                <td class="px-4 text-gray-400">
-                    {{ $p[2] }}
-                </td>
-
-                <td class="text-center text-blue-400">
-                    {{ $p[3] }}
-                </td>
-
-                <td class="text-center text-gray-400">
-                    {{ $p[4] }}
-                </td>
-
-                <td class="text-center text-white">
-                    {{ $p[5] }}
-                </td>
-
-                <!-- STATUS -->
-                <td class="text-center">
-                    <span class="px-2 py-1 rounded text-xs
-                        {{ $p[6]=='Completed' ? 'bg-green-700 text-green-200' : '' }}
-                        {{ $p[6]=='Estimated' ? 'bg-yellow-700 text-yellow-200' : '' }}
-                        {{ $p[6]=='Draft' ? 'bg-gray-700 text-gray-300' : '' }}
-                    ">
-                        {{ $p[6] }}
-                    </span>
-                </td>
-
-                <!-- ACTION -->
-                <td class="text-center space-x-1">
-                    <button class="bg-gray-200 text-black px-2 py-1 rounded text-xs hover:opacity-80">
-                        Edit
-                    </button>
-                    <button class="bg-red-600 px-2 py-1 rounded text-xs hover:bg-red-500">
-                        Delete
-                    </button>
-                </td>
-
-            </tr>
-
-            @endforeach
-
-        </tbody>
-
-    </table>
-
-</div>
-
-@endsection
+  </div>
+  @endsection
+  

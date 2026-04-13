@@ -46,21 +46,12 @@ class PartnerController extends Controller
     {
         $request->validate([
             'name'  => 'required|string|max:255',
-            'logo'  => 'nullable|image|mimes:png,jpg,svg|max:2048',
             'order' => 'required|integer|min:1',
         ]);
 
-        $data = $request->only('name', 'order', 'is_active');
-        $data['is_active'] = $request->boolean('is_active');
+        Partner::create($request->only('name', 'order'));
 
-        if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('partners', 'public');
-        }
-
-        Partner::create($data);
-
-        return redirect()->route('admin.partners.index')
-                         ->with('success', 'Partner added successfully.');
+        return redirect('/admin/partners')->with('success', 'Partner added successfully.');
     }
 
     public function show(string $id)
@@ -72,13 +63,7 @@ class PartnerController extends Controller
     public function edit(string $id)
     {
         $partner = Partner::findOrFail($id);
-        $availableOrders = $this->getAvailableOrders($id);
-        // Add current order to available if not there
-        if (!in_array($partner->order, $availableOrders)) {
-            $availableOrders[] = $partner->order;
-        }
-        sort($availableOrders);
-        return view('admin.partners.edit', compact('partner', 'availableOrders'));
+        return view('admin.partners.edit', compact('partner'));
     }
 
     public function update(Request $request, string $id)
@@ -87,21 +72,12 @@ class PartnerController extends Controller
 
         $request->validate([
             'name'  => 'required|string|max:255',
-            'logo'  => 'nullable|image|mimes:png,jpg,svg|max:2048',
             'order' => 'required|integer|min:1',
         ]);
 
-        $data = $request->only('name', 'order');
-        $data['is_active'] = $request->boolean('is_active');
+        $partner->update($request->only('name', 'order', 'logo'));
 
-        if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('partners', 'public');
-        }
-
-        $partner->update($data);
-
-        return redirect()->route('admin.partners.index')
-                         ->with('success', 'Partner updated successfully.');
+        return redirect('/admin/partners')->with('success', 'Partner updated successfully.');
     }
 
     public function destroy(string $id)
@@ -109,7 +85,6 @@ class PartnerController extends Controller
         $partner = Partner::findOrFail($id);
         $partner->delete();
 
-        return redirect()->route('admin.partners.index')
-                         ->with('success', 'Partner deleted successfully.');
+        return redirect('/admin/partners')->with('success', 'Partner deleted successfully.');
     }
 }

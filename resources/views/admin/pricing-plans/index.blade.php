@@ -1,0 +1,18 @@
+@extends('admin.layout')
+  @section('title', 'Pricing Plans')
+  @section('page-title', 'Pricing Plans')
+  @section('content')
+  <div class="space-y-4">
+    
+    
+    <div class="hidden sm:block bg-card rounded-[10px] overflow-hidden border border-border/10">
+      <div class="flex items-center justify-between px-5 py-4"><h3 class="font-serif text-foreground text-base">Pricing Plans</h3><a href="/admin/pricing-plans/create" class="px-3 py-1.5 rounded-lg text-xs font-sans font-medium bg-foreground text-background">+ Add Plan</a></div>
+      <div class="overflow-x-auto"><table class="w-full"><thead><tr class="border-b border-border/10"><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Name</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Price</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Popular</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Active</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Actions</th></tr></thead><tbody>@forelse($plans as $plan)
+<tr class="hover:bg-muted/50 transition-colors duration-200 border-b border-border/5"><td class="px-5 py-3 text-sm font-sans text-foreground">{{ $plan->name }}</td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">${{ number_format($plan->price, 2) }}/mo</span></td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">{{ $plan->is_popular ? 'Yes' : 'No' }}</span></td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium bg-status-active/15 text-status-active">Active</span></td><td class="px-5 py-3 text-sm font-sans text-foreground"><div class="flex gap-2"><a href="/admin/pricing-plans/{{ $plan->id }}/edit" class="px-3 py-1 rounded text-xs font-sans font-medium bg-foreground text-background">Edit</a><form method="POST" action="/admin/pricing-plans/{{ $plan->id }}" style="display:inline" onsubmit="return confirm('Are you sure?')">@csrf @method('DELETE')<button type="submit" class="px-3 py-1 rounded text-xs font-sans font-medium bg-destructive/15 text-destructive">Delete</button></form></div></td></tr>
+@empty
+<tr><td colspan="5" class="px-5 py-3 text-center text-paragraph">No plans found</td></tr>
+@endforelse</tbody></table></div>
+    </div>
+  </div>
+  @endsection
+  

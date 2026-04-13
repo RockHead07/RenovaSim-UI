@@ -79,7 +79,7 @@
                 designed for <em class="leading-[0.75] italic font-serif font-normal">real life</em>
             </h1>
 
-            <p class="mt-6 max-w-xl text-muted-foreground/70 text-base md:text-lg font-light leading-relaxed animate-fade-up opacity-0 font-sans"
+            <p class="mt-6 max-w-xl text-muted-foreground/70 text-base md:text-lg leading-relaxed animate-fade-up opacity-0 font-sans"
                 style="animation-delay: 0.5s">
                 Where material honesty meets spatial intelligence — interiors
                 crafted with intention, clarity, and quiet confidence.

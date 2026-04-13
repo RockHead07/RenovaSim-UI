@@ -1,90 +1,11 @@
 @extends('admin.layout')
-
-@section('title', 'Dashboard')
-
-@section('content')
-
-<!-- HEADER -->
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-lg font-semibold text-white">Materials</h2>
-
-    <button class="bg-white text-black px-4 py-2 rounded-lg text-sm hover:opacity-90">
-        + Add Material
-    </button>
-</div>
-
-<!-- TABLE -->
-<div class="bg-[#1a1a1a] border border-gray-800 rounded-xl overflow-hidden">
-
-    <table class="w-full text-sm">
-
-        <thead class="text-gray-500 border-b border-gray-800 bg-[#161616]">
-            <tr>
-                <th class="text-left py-3 px-4">ID</th>
-                <th class="text-left px-4">Name</th>
-                <th class="text-left px-4">Category</th>
-                <th class="text-center">Price</th>
-                <th class="text-center">Unit</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Actions</th>
-            </tr>
-        </thead>
-
-        <tbody class="text-gray-300">
-
-            @foreach([
-                ['#1','Ceramic Tile','Flooring','$25','m²'],
-                ['#2','Oak Hardwood','Flooring','$45','m²'],
-                ['#3','Granite Countertop','Surfaces','$80','m²'],
-                ['#4','LED Panel Light','Lighting','$35','piece'],
-                ['#5','Latex Paint','Paint','$12','liter'],
-            ] as $m)
-
-            <tr class="border-b border-gray-800 hover:bg-[#161616] transition">
-
-                <td class="py-3 px-4 text-gray-400">{{ $m[0] }}</td>
-
-                <td class="px-4 font-medium text-white">
-                    {{ $m[1] }}
-                </td>
-
-                <td class="px-4 text-gray-400">
-                    {{ $m[2] }}
-                </td>
-
-                <td class="text-center text-white">
-                    {{ $m[3] }}
-                </td>
-
-                <td class="text-center text-gray-400">
-                    {{ $m[4] }}
-                </td>
-
-                <!-- STATUS -->
-                <td class="text-center">
-                    <span class="bg-green-700 text-green-200 px-2 py-1 rounded text-xs">
-                        Active
-                    </span>
-                </td>
-
-                <!-- ACTION -->
-                <td class="text-center space-x-1">
-                    <button class="bg-gray-200 text-black px-2 py-1 rounded text-xs hover:opacity-80">
-                        Edit
-                    </button>
-                    <button class="bg-red-600 px-2 py-1 rounded text-xs hover:bg-red-500">
-                        Delete
-                    </button>
-                </td>
-
-            </tr>
-
-            @endforeach
-
-        </tbody>
-
-    </table>
-
-</div>
-
-@endsection
+  @section('title', 'Materials')
+  @section('page-title', 'Materials')
+  @section('content')
+  <div class="space-y-4">
+    <div class="hidden sm:block bg-card rounded-[10px] overflow-hidden border border-border/10">
+      <div class="flex items-center justify-between px-5 py-4"><h3 class="font-serif text-foreground text-base">Materials</h3><a href="/admin/materials/create" class="px-3 py-1.5 rounded-lg text-xs font-sans font-medium bg-foreground text-background">+ Add Material</a></div>
+      <div class="overflow-x-auto"><table class="w-full"><thead><tr class="border-b border-border/10"><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">ID</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Name</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Category</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Price/Unit</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Unit</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Actions</th></tr></thead><tbody>@forelse($materials as $material)<tr class="hover:bg-muted/50 transition-colors duration-200 border-b border-border/5"><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">#{{ $material->id }}</span></td><td class="px-5 py-3 text-sm font-sans text-foreground">{{ $material->name }}</td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">{{ $material->category }}</span></td><td class="px-5 py-3 text-sm font-sans text-foreground">${{ $material->price_per_unit }}</td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">{{ $material->unit }}</span></td><td class="px-5 py-3 text-sm font-sans text-foreground"><div class="flex gap-2"><a href="/admin/materials/{{ $material->id }}/edit" class="px-3 py-1 rounded text-xs font-sans font-medium bg-foreground text-background">Edit</a><form method="POST" action="/admin/materials/{{ $material->id }}" style="display:inline" onsubmit="return confirm('Are you sure?');">@csrf @method('DELETE')<button type="submit" class="px-3 py-1 rounded text-xs font-sans font-medium bg-destructive/15 text-destructive">Delete</button></form></div></td></tr>@empty<tr><td colspan="6" class="px-5 py-8 text-center text-paragraph">No materials found</td></tr>@endforelse</tbody></table></div>
+    </div>
+  </div>
+  @endsection

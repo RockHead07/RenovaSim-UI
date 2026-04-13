@@ -1,0 +1,15 @@
+@extends('admin.layout')
+  @section('title', 'Partners')
+  @section('page-title', 'Partners')
+  @section('content')
+  <div class="space-y-4">
+    
+    
+    <div class="hidden sm:block bg-card rounded-[10px] overflow-hidden border border-border/10">
+      <div class="flex items-center justify-between px-5 py-4"><h3 class="font-serif text-foreground text-base">Partners</h3><a href="/admin/partners/create" class="px-3 py-1.5 rounded-lg text-xs font-sans font-medium bg-foreground text-background">+ Add Partner</a></div>
+      <div class="overflow-x-auto"><table class="w-full"><thead><tr class="border-b border-border/10"><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Name</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Logo</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Order</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Status</th><th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Actions</th></tr></thead><tbody><tr class="hover:bg-muted/50 transition-colors duration-200 border-b border-border/5"><td class="px-5 py-3 text-sm font-sans text-foreground">BuildMax</td><td class="px-5 py-3 text-sm font-sans text-foreground"><div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-foreground text-xs font-sans font-medium">BM</div></td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">1</span></td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium bg-status-active/15 text-status-active">Active</span></td><td class="px-5 py-3 text-sm font-sans text-foreground"><div class="flex gap-2"><a href="#" class="px-3 py-1 rounded text-xs font-sans font-medium bg-foreground text-background">Edit</a><button class="px-3 py-1 rounded text-xs font-sans font-medium bg-destructive/15 text-destructive">Delete</button></div></td></tr>
+<tr class="hover:bg-muted/50 transition-colors duration-200 "><td class="px-5 py-3 text-sm font-sans text-foreground">HomeReno Co</td><td class="px-5 py-3 text-sm font-sans text-foreground"><div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-foreground text-xs font-sans font-medium">HR</div></td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="text-paragraph">2</span></td><td class="px-5 py-3 text-sm font-sans text-foreground"><span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium bg-status-active/15 text-status-active">Active</span></td><td class="px-5 py-3 text-sm font-sans text-foreground"><div class="flex gap-2"><a href="#" class="px-3 py-1 rounded text-xs font-sans font-medium bg-foreground text-background">Edit</a><button class="px-3 py-1 rounded text-xs font-sans font-medium bg-destructive/15 text-destructive">Delete</button></div></td></tr></tbody></table></div>
+    </div>
+  </div>
+  @endsection
+  

@@ -32,12 +32,10 @@ class ProjectController extends Controller
             'name'       => $request->name,
             'room_type'  => $request->room_type,
             'area_size'  => $request->area_size,
-            'total_cost' => 0,
             'status'     => 'draft',
         ]);
 
-        return redirect()->route('admin.projects.index')
-                         ->with('success', 'Project added successfully.');
+        return redirect('/admin/projects')->with('success', 'Project added successfully.');
     }
 
     public function show(string $id)
@@ -60,13 +58,11 @@ class ProjectController extends Controller
             'name'      => 'required|string|max:255',
             'room_type' => 'required|string|max:255',
             'area_size' => 'required|numeric|min:1',
-            'status'    => 'in:draft,estimated,completed',
         ]);
 
-        $project->update($request->only('name', 'room_type', 'area_size', 'status'));
+        $project->update($request->only('name', 'room_type', 'area_size'))
 
-        return redirect()->route('admin.projects.index')
-                         ->with('success', 'Project updated successfully.');
+        return redirect('/admin/projects')->with('success', 'Project updated successfully.');
     }
 
     public function destroy(string $id)
@@ -74,7 +70,6 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $project->delete();
 
-        return redirect()->route('admin.projects.index')
-                         ->with('success', 'Project deleted successfully.');
+        return redirect('/admin/projects')->with('success', 'Project deleted successfully.');
     }
 }

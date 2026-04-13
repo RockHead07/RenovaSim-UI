@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-  <html lang="en" id="html-root" class="dark">
+  <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,27 +7,13 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      (function() {
-        const htmlRoot = document.getElementById('html-root');
-        const stored = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const isDark = stored ? stored === 'dark' : prefersDark;
-        if (isDark) {
-          htmlRoot.classList.add('dark');
-        } else {
-          htmlRoot.classList.remove('dark');
-        }
-        window.currentTheme = isDark ? 'dark' : 'light';
-      })();
-    </script>
     <style>
       :root{--background:40 5% 96%;--foreground:30 5% 15%;--card:0 0% 100%;--card-foreground:30 5% 15%;--popover:0 0% 100%;--popover-foreground:30 5% 15%;--primary:78 37% 28%;--primary-foreground:0 0% 100%;--primary-accent:78 65% 38%;--secondary:40 5% 92%;--secondary-foreground:30 5% 15%;--muted:40 5% 92%;--muted-foreground:0 0% 40%;--accent:30 5% 15%;--accent-foreground:0 0% 100%;--destructive:0 60% 50%;--destructive-foreground:0 0% 100%;--border:30 5% 15%;--input:30 5% 15%;--ring:78 37% 28%;--radius:.5rem;--paragraph:0 0% 45%;--status-active:78 50% 35%;--status-warning:36 70% 45%}.dark{--background:30 2% 17.3%;--foreground:0 0% 96.1%;--card:30 2% 20%;--card-foreground:0 0% 96.1%;--popover:30 2% 20%;--popover-foreground:0 0% 96.1%;--primary:78 37% 18%;--primary-foreground:0 0% 96.1%;--primary-accent:78 65% 31%;--secondary:30 2% 22%;--secondary-foreground:0 0% 96.1%;--muted:30 2% 22%;--muted-foreground:0 0% 51.4%;--accent:0 0% 96.1%;--accent-foreground:30 2% 17.3%;--destructive:0 60% 59%;--destructive-foreground:0 0% 96.1%;--border:0 0% 96.1%;--input:0 0% 96.1%;--ring:78 37% 18%;--radius:.5rem;--paragraph:0 0% 51.4%;--status-active:78 65% 45%;--status-warning:36 70% 55%}h1,h2,h3,h4,h5,h6{font-family:var(--font-serif,'PP Editorial New',Georgia,serif)}body{font-family:var(--font-sans,'PP Neue Montreal',Inter,sans-serif)}
     </style>
     @stack('head')
   </head>
   <body class="bg-background text-foreground font-sans">
-    <div class="flex h-screen overflow-hidden" x-data="{ collapsed: false, mobileOpen: false, darkMode: window.currentTheme === 'dark' }" x-init="$watch('darkMode', (val) => { const html = document.getElementById('html-root'); if (val) { html.classList.add('dark'); localStorage.setItem('theme', 'dark'); } else { html.classList.remove('dark'); localStorage.setItem('theme', 'light'); } })">
+    <div class="flex h-screen overflow-hidden" x-data="{ collapsed: false, mobileOpen: false }">
       <div x-show="mobileOpen" x-transition.opacity x-on:click="mobileOpen=false" class="fixed inset-0 z-40 bg-black/50 sm:hidden"></div>
       <aside :class="[collapsed ? 'sm:w-14' : 'sm:w-56', mobileOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0']" class="fixed sm:static left-0 top-0 z-50 h-screen w-56 bg-background border-r border-border/10 flex flex-col transition-all duration-300">
         <div class="flex items-center justify-between px-4 h-14 shrink-0">
@@ -85,7 +71,7 @@
             <h1 class="font-serif text-foreground text-lg">@yield('page-title', 'Dashboard')</h1>
           </div>
           <div class="flex items-center gap-3 sm:gap-4">
-            <button type="button" x-on:click="darkMode = !darkMode" class="text-paragraph hover:text-foreground transition-colors duration-200" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"><svg x-show="darkMode" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg x-show="!darkMode" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+            <button type="button" class="text-paragraph hover:text-foreground transition-colors duration-200"><svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
             <button type="button" class="text-paragraph hover:text-foreground transition-colors duration-200"><svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></button>
             <div class="w-px h-6 bg-border/10"></div>
             <div class="flex items-center gap-2 sm:gap-3"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-sans font-medium shrink-0">AD</div><div class="hidden sm:block"><p class="text-sm text-foreground font-sans leading-none">Admin</p><p class="text-xs text-paragraph font-sans">Administrator</p></div></div>
