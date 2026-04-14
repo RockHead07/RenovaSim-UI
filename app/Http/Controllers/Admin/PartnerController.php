@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Partner;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PartnerController extends Controller
 {
@@ -46,10 +47,21 @@ class PartnerController extends Controller
     {
         $request->validate([
             'name'  => 'required|string|max:255',
+            'logo'  => 'nullable|string|max:10',
             'order' => 'required|integer|min:1',
+            'logo_image' => 'nullable|image|mimes:png,jpg,jpeg,gif,webp|max:5120',
         ]);
 
-        Partner::create($request->only('name', 'order'));
+        $data = $request->only('name', 'order', 'logo');
+        $data['is_active'] = true;
+
+        if ($request->hasFile('logo_image')) {
+            $file = $request->file('logo_image');
+            $path = $file->store('partners', 'public');
+            $data['logo_image'] = $path;
+        }
+
+        Partner::create($data);
 
         return redirect('/admin/partners')->with('success', 'Partner added successfully.');
     }
@@ -72,10 +84,26 @@ class PartnerController extends Controller
 
         $request->validate([
             'name'  => 'required|string|max:255',
+            'logo'  => 'nullable|string|max:10',
             'order' => 'required|integer|min:1',
+            'logo_image' => 'nullable|image|mimes:png,jpg,jpeg,gif,webp|max:5120',
         ]);
 
-        $partner->update($request->only('name', 'order', 'logo'));
+        $data = $request->only('name', 'order', 'logo');
+        $data['is_active'] = $request->input('status') === 'Active';
+
+        if ($request->hasFile('logo_image')) {
+            // Delete old image if exists
+            if ($partner->logo_image && Storage::disk('public')->exists($partner->logo_image)) {
+                Storage::disk('public')->delete($partner->logo_image);
+            }
+
+            $file = $request->file('logo_image');
+            $path = $file->store('partners', 'public');
+            $data['logo_image'] = $path;
+        }
+
+        $partner->update($data);
 
         return redirect('/admin/partners')->with('success', 'Partner updated successfully.');
     }
@@ -83,6 +111,12 @@ class PartnerController extends Controller
     public function destroy(string $id)
     {
         $partner = Partner::findOrFail($id);
+        
+        // Delete logo image if exists
+        if ($partner->logo_image && Storage::disk('public')->exists($partner->logo_image)) {
+            Storage::disk('public')->delete($partner->logo_image);
+        }
+        
         $partner->delete();
 
         return redirect('/admin/partners')->with('success', 'Partner deleted successfully.');

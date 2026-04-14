@@ -60,7 +60,7 @@ class ProjectController extends Controller
             'area_size' => 'required|numeric|min:1',
         ]);
 
-        $project->update($request->only('name', 'room_type', 'area_size'))
+        $project->update($request->only('name', 'room_type', 'area_size'));
 
         return redirect('/admin/projects')->with('success', 'Project updated successfully.');
     }

@@ -49,22 +49,24 @@
                 @foreach ($partners as $partner)
                     <div class="flex items-center justify-center px-10 md:px-14">
                         @php
-                            // Determine logo path
-                            if (isset($partner->logo)) {
-                                // Database partner - check if logo is stored or public
-                                if ($partner->logo) {
-                                    // Check if logo is a full path (from storage) or just a filename (from public)
-                                    $logoPath = str_contains($partner->logo, '/') 
-                                        ? asset('storage/' . $partner->logo)
-                                        : asset('images/partners/' . $partner->logo);
-                                } else {
-                                    $logoPath = asset('images/logo.svg');
-                                }
+                            // Determine logo path - prioritize logo_image
+                            if (isset($partner->logo_image) && $partner->logo_image) {
+                                // Use the actual logo image from storage
+                                $logoPath = asset('storage/' . $partner->logo_image);
                                 $partnerName = $partner->name;
-                            } else {
+                            } elseif (isset($partner->logo) && $partner->logo) {
+                                // Fallback to logo field
+                                $logoPath = str_contains($partner->logo, '/') 
+                                    ? asset('storage/' . $partner->logo)
+                                    : asset('images/partners/' . $partner->logo);
+                                $partnerName = $partner->name;
+                            } elseif (isset($partner['logo'])) {
                                 // Static partner array fallback
                                 $logoPath = asset($partner['logo']);
                                 $partnerName = $partner['name'];
+                            } else {
+                                $logoPath = asset('images/logo.svg');
+                                $partnerName = $partner->name ?? $partner['name'] ?? 'Partner';
                             }
                         @endphp
                         <img src="{{ $logoPath }}" alt="{{ $partnerName }}"

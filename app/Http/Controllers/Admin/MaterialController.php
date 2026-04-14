@@ -28,7 +28,7 @@ class MaterialController extends Controller
             'unit'           => 'required|string|max:50',
         ]);
 
-        Material::create($request->only('name', 'category', 'price_per_unit', 'unit'))
+        Material::create($request->only('name', 'category', 'price_per_unit', 'unit'));
 
         return redirect('/admin/materials')->with('success', 'Material added successfully.');
     }
@@ -56,7 +56,7 @@ class MaterialController extends Controller
             'unit'           => 'required|string|max:50',
         ]);
 
-        $material->update($request->only('name', 'category', 'price_per_unit', 'unit'))
+        $material->update($request->only('name', 'category', 'price_per_unit', 'unit'));
 
         return redirect('/admin/materials')->with('success', 'Material updated successfully.');
     }

@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'RenovaSim Admin')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -27,7 +28,7 @@
     @stack('head')
   </head>
   <body class="bg-background text-foreground font-sans">
-    <div class="flex h-screen overflow-hidden" x-data="{ collapsed: false, mobileOpen: false, darkMode: window.currentTheme === 'dark' }" x-init="$watch('darkMode', (val) => { const html = document.getElementById('html-root'); if (val) { html.classList.add('dark'); localStorage.setItem('theme', 'dark'); } else { html.classList.remove('dark'); localStorage.setItem('theme', 'light'); } })">
+    <div class="flex h-screen overflow-hidden" x-data="{ collapsed: false, mobileOpen: false, darkMode: window.currentTheme === 'dark' }">
       <div x-show="mobileOpen" x-transition.opacity x-on:click="mobileOpen=false" class="fixed inset-0 z-40 bg-black/50 sm:hidden"></div>
       <aside :class="[collapsed ? 'sm:w-14' : 'sm:w-56', mobileOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0']" class="fixed sm:static left-0 top-0 z-50 h-screen w-56 bg-background border-r border-border/10 flex flex-col transition-all duration-300">
         <div class="flex items-center justify-between px-4 h-14 shrink-0">
@@ -85,7 +86,6 @@
             <h1 class="font-serif text-foreground text-lg">@yield('page-title', 'Dashboard')</h1>
           </div>
           <div class="flex items-center gap-3 sm:gap-4">
-            <button type="button" x-on:click="darkMode = !darkMode" class="text-paragraph hover:text-foreground transition-colors duration-200" :title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"><svg x-show="darkMode" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg x-show="!darkMode" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
             <button type="button" class="text-paragraph hover:text-foreground transition-colors duration-200"><svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></button>
             <div class="w-px h-6 bg-border/10"></div>
             <div class="flex items-center gap-2 sm:gap-3"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-sans font-medium shrink-0">AD</div><div class="hidden sm:block"><p class="text-sm text-foreground font-sans leading-none">Admin</p><p class="text-xs text-paragraph font-sans">Administrator</p></div></div>
