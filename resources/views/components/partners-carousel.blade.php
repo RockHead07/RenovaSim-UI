@@ -10,6 +10,10 @@
     .animate-scroll-left {
         animation: scroll-left 20s linear infinite;
     }
+    .modal-backdrop {
+        backdrop-filter: blur(4px);
+        background-color: rgba(0, 0, 0, 0.5);
+    }
 </style>
 
 @php
@@ -32,7 +36,7 @@
     }
 @endphp
 
-<section class="py-16 bg-background" style="border-bottom: 1px solid rgba(245, 245, 245, 0.1);">
+<section class="py-16 bg-background" style="border-bottom: 1px solid rgba(245, 245, 245, 0.1);" x-data="partnerCarousel()">
     <h3 class="text-center font-sans text-xl md:text-2xl tracking-widest uppercase mb-10 text-paragraph">
         Our Partners
     </h3>
@@ -69,12 +73,53 @@
                                 $partnerName = $partner->name ?? $partner['name'] ?? 'Partner';
                             }
                         @endphp
-                        <img src="{{ $logoPath }}" alt="{{ $partnerName }}"
-                            class="h-8 md:h-10 w-auto object-contain opacity-50 grayscale brightness-150 hover:opacity-100 hover:grayscale-0 hover:brightness-100 transition-all duration-300" 
-                            onerror="this.src='{{ asset('images/logo.svg') }}'"/>
+                        <button @click="openModal('{{ $logoPath }}', '{{ $partnerName }}')" type="button"
+                            class="cursor-pointer bg-none border-none p-0 hover:scale-110 transition-transform duration-200">
+                            <img src="{{ $logoPath }}" alt="{{ $partnerName }}"
+                                class="h-8 md:h-10 w-auto object-contain opacity-50 grayscale brightness-150 hover:opacity-100 hover:grayscale-0 hover:brightness-100 transition-all duration-300" 
+                                onerror="this.src='{{ asset('images/logo.svg') }}'"/>
+                        </button>
                     </div>
                 @endforeach
             @endfor
         </div>
     </div>
+
+    {{-- Image Modal --}}
+    <div x-show="showModal" x-transition class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop" 
+        @click="showModal = false" @keydown.escape="showModal = false" style="display: none;">
+        <div @click.stop class="relative bg-card rounded-xl border border-border/20 p-6 max-w-3xl max-h-[85vh] overflow-auto">
+            {{-- Close Button --}}
+            <button @click="showModal = false" type="button" 
+                class="absolute top-4 right-4 p-2 rounded-lg hover:bg-muted transition-colors z-10">
+                <svg class="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            {{-- Modal Content --}}
+            <div class="text-center">
+                <p class="text-sm text-paragraph mb-4" x-text="partnerName"></p>
+                <img :src="modalImage" :alt="partnerName" 
+                    class="w-full h-auto rounded-lg mb-4"/>
+                <p class="text-xs text-paragraph/70">Click outside, press ESC, or click X to close</p>
+            </div>
+        </div>
+    </div>
 </section>
+
+<script>
+function partnerCarousel() {
+    return {
+        showModal: false,
+        modalImage: '',
+        partnerName: '',
+        
+        openModal(imagePath, name) {
+            this.modalImage = imagePath;
+            this.partnerName = name;
+            this.showModal = true;
+        }
+    }
+}
+</script>

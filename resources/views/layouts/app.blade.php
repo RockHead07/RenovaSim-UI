@@ -156,7 +156,7 @@
     id="sidebar"
     :style="{ width: collapsed ? '56px' : '220px' }"
     :class="mobileOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'"
-    class="fixed left-0 top-0 h-screen flex flex-col bg-background z-50 border-r border-border/10 transition-all duration-300 ease-in-out"
+    class="fixed left-0 top-0 h-screen flex flex-col bg-background z-50 border-r border-border transition-all duration-300 ease-in-out"
 >
     {{-- Logo + Toggle --}}
     <div class="flex items-center justify-between px-4 h-14 shrink-0">
