@@ -44,6 +44,7 @@
                         <div>
                             <p class="text-sm font-medium text-foreground leading-tight" x-text="u.name"></p>
                             <p class="text-[11px] text-paragraph" x-text="u.email"></p>
+                            <p class="text-[10px] text-paragraph mt-0.5">Role: <span class="text-foreground" x-text="u.roleLabel"></span></p>
                         </div>
                     </div>
                     <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium bg-lime-400 text-black" x-text="u.status"></span>
@@ -89,6 +90,7 @@
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">ID</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Name</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Email</th>
+                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Role</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Plan</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Joined</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Status</th>
@@ -97,13 +99,16 @@
                     </thead>
                     <tbody>
                         <template x-if="paginated().length === 0">
-                            <tr><td colspan="7" class="text-center text-paragraph text-sm py-8">No users found.</td></tr>
+                            <tr><td colspan="8" class="text-center text-paragraph text-sm py-8">No users found.</td></tr>
                         </template>
                         <template x-for="(u, i) in paginated()" :key="u.id">
                             <tr class="hover:bg-muted/50 transition-colors duration-200 border-b border-border/5">
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="'#' + u.id"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-foreground" x-text="u.name"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="u.email"></td>
+                                <td class="px-5 py-3">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="roleBadgeClass(u.role)" x-text="u.roleLabel"></span>
+                                </td>
                                 <td class="px-5 py-3">
                                     <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="planBadgeClass(u.plan)" x-text="u.plan"></span>
                                 </td>
@@ -146,14 +151,7 @@ function usersPage() {
         perPage: 10,
         plans: ['All', 'Free', 'Smart', 'Pro'],
         planColors: { Free: '#838383', Smart: '#8BA023', Pro: '#d4941a' },
-        users: {!! json_encode($users->map(fn($user) => [
-            'id' => $user->id,
-            'name' => $user->username,
-            'email' => $user->email,
-            'plan' => $user->plan ?? 'Free',
-            'joined' => $user->created_at->format('Y-m-d'),
-            'status' => 'Active',
-        ])->toArray()) !!},
+        users: {!! json_encode($usersData->toArray()) !!},
         fetchUsers() {
             const params = new URLSearchParams();
             if (this.search) params.append('search', this.search);
@@ -187,6 +185,12 @@ function usersPage() {
         },
         planBadgeClass(plan) {
             return { Free:'bg-muted text-muted-foreground', Smart:'bg-status-active/15 text-status-active', Pro:'bg-status-warning/15 text-status-warning' }[plan] ?? 'bg-muted text-muted-foreground';
+        },
+        roleBadgeClass(role) {
+            if (role === 'owner') return 'bg-amber-500/20 text-amber-400';
+            if (role === 'super_admin') return 'bg-purple-500/20 text-purple-300';
+            if (role === 'admin') return 'bg-primary text-primary-accent';
+            return 'bg-muted text-muted-foreground';
         },
         filtered() {
             const q = this.search.toLowerCase();

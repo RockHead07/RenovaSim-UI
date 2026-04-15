@@ -10,6 +10,7 @@ class PricingPlan extends Model
         'name',
         'description',
         'price',
+        'original_price',
         'is_popular',
         'is_active',
     ];
@@ -18,6 +19,7 @@ class PricingPlan extends Model
         'is_popular' => 'boolean',
         'is_active'  => 'boolean',
         'price'      => 'decimal:2',
+        'original_price' => 'decimal:2',
     ];
 
     public function features()

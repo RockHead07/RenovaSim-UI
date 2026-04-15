@@ -29,8 +29,23 @@ class UserController extends Controller
         }
 
         $users = $query->latest()->paginate(10)->withQueryString();
+        $usersData = $users->map(fn ($user) => [
+            'id' => $user->id,
+            'name' => $user->username,
+            'email' => $user->email,
+            'role' => $user->role ?? 'user',
+            'roleLabel' => match ($user->role ?? 'user') {
+                'admin' => 'Admin',
+                'super_admin' => 'Super Admin',
+                'owner' => 'Owner',
+                default => 'User',
+            },
+            'plan' => $user->plan ?? 'Free',
+            'joined' => $user->created_at->format('Y-m-d'),
+            'status' => 'Active',
+        ])->values();
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'usersData'));
     }
 
     // SHOW CREATE FORM
@@ -46,12 +61,14 @@ class UserController extends Controller
             'username' => 'required|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
+            'role' => 'required|in:user,admin,super_admin,owner',
         ]);
 
         User::create([
             'username' => $request->username,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'role' => $request->role,
             'plan' => 'Free',
         ]);
 
@@ -70,9 +87,10 @@ class UserController extends Controller
         $request->validate([
             'username' => 'required|unique:users,username,' . $user->id,
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:user,admin,super_admin,owner',
         ]);
 
-        $user->update($request->only(['username', 'email']));
+        $user->update($request->only(['username', 'email', 'role']));
 
         return redirect('/admin/users')->with('success', 'User updated successfully');
     }

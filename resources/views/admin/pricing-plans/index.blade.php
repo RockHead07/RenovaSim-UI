@@ -29,14 +29,14 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-foreground leading-tight" x-text="p.name"></p>
-                        <p class="text-[11px] text-paragraph" x-text="'$' + p.price + '/mo'"></p>
+                        <p class="text-[11px] text-paragraph" x-text="`$${p.price}/mo • ${p.featuresCount} features`"></p>
                     </div>
                     <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.popular ? 'bg-status-warning/15 text-status-warning' : 'bg-muted text-muted-foreground'" x-text="p.popular ? 'Popular' : 'Standard'"></span>
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-2 border-t border-border/10 text-center">
                     <div>
                         <p class="text-[9px] uppercase tracking-widest text-paragraph mb-0.5">Status</p>
-                        <p class="text-xs font-medium text-status-active">Active</p>
+                        <p class="text-xs font-medium" :class="p.active ? 'text-status-active' : 'text-destructive'" x-text="p.active ? 'Active' : 'Inactive'"></p>
                     </div>
                     <div>
                         <p class="text-[9px] uppercase tracking-widest text-paragraph mb-0.5">ID</p>
@@ -61,6 +61,7 @@
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">ID</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Name</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Price</th>
+                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Features</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Popular</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Status</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Actions</th>
@@ -68,18 +69,19 @@
                     </thead>
                     <tbody>
                         <template x-if="filtered().length === 0">
-                            <tr><td colspan="6" class="text-center text-paragraph text-sm py-8">No plans found.</td></tr>
+                            <tr><td colspan="7" class="text-center text-paragraph text-sm py-8">No plans found.</td></tr>
                         </template>
                         <template x-for="p in filtered()" :key="p.id">
                             <tr class="hover:bg-muted/50 transition-colors duration-200 border-b border-border/5">
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="'#' + p.id"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-foreground" x-text="p.name"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="'$' + p.price + '/mo'"></td>
+                                <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="p.featuresCount"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-foreground">
                                     <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.popular ? 'bg-status-warning/15 text-status-warning' : 'bg-muted text-muted-foreground'" x-text="p.popular ? 'Yes' : 'No'"></span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium bg-status-active/15 text-status-active">Active</span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.active ? 'bg-status-active/15 text-status-active' : 'bg-destructive/15 text-destructive'" x-text="p.active ? 'Active' : 'Inactive'"></span>
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex gap-2">
@@ -110,6 +112,8 @@ function pricingPlansPage() {
                 name: '{{ addslashes($p->name) }}',
                 price: '{{ number_format($p->price, 2) }}',
                 popular: {{ $p->is_popular ? 'true' : 'false' }},
+                active: {{ $p->is_active ? 'true' : 'false' }},
+                featuresCount: {{ $p->features->count() }},
             },
             @endforeach
         ],
