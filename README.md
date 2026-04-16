@@ -13,17 +13,47 @@
 
 ## About RenovaSim
 
-This project idea purpose, is to make an **Web Platform** named **RenovaSim**. However, on this repo, I'll only focus on building the **RenovaSim UI** as a landing page prototype for a web-based renovation cost estimation platform. 
+This repository contains the **RenovaSim web app**: a **public landing page** plus a **dark-mode Admin Dashboard** for managing core data (Users, Projects, Materials, Pricing Plans, Partners).
 
-Therefore, this repository focuses **only on the user interface (UI)** and visual presentation of the product idea. It does not include the propper backend logic, database integration, or actual cost calculation features (yet). In a nutshell, this project purpose are:
+While the product vision is a renovation cost estimation platform, this codebase already includes a working Laravel backend structure (routing, controllers, models, migrations) to support the admin panel.
+
+In a nutshell, this project's purpose are:
 
 - Design and present the core idea of RenovaSim
 - Build a clean and modern landing page
-- Translate product concepts into a visual experience
-- Serve as a foundation berfore moving into full dev
+- Provide an admin interface to manage platform data
+- Serve as a foundation before moving into full product development
 
 > [!NOTE]
 > Tbh, this project happened because it's related with my college assignment :P.
+
+## Admin Dashboard (Modules)
+
+The admin dashboard lives under the `/admin` routes (protected by `auth` + `admin` middleware) and includes:
+
+- **Users**: manage accounts, roles, and extended profile fields (status, timezone/language, avatar, assigned projects)
+- **Projects**: manage projects (room type, area size, etc.)
+- **Materials**: manage materials catalog (category, price/unit)
+- **Pricing Plans**: manage subscription plans and features
+- **Partners**: manage partner list and logos
+
+## UI Consistency (Reusable Admin Form Components)
+
+All Admin **Add/Edit** screens are standardized using reusable Blade components:
+
+- `resources/views/components/admin/form/card.blade.php`
+- `resources/views/components/admin/form/errors.blade.php`
+- `resources/views/components/admin/form/input.blade.php`
+- `resources/views/components/admin/form/textarea.blade.php`
+- `resources/views/components/admin/form/select.blade.php`
+- `resources/views/components/admin/form/actions.blade.php`
+
+These components enforce consistent dark-theme styling for:
+
+- **Inputs**: border radius, background, focus states, placeholder typography
+- **Spacing**: uniform padding/margins between labels and fields
+- **Actions**: standardized Save/Update + Cancel button styling/alignment
+- **Layout**: consistent container max width and header typography
 
 # Design Overview
 
@@ -93,7 +123,19 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-4. Run development server
+4. Setup database & run migrations
+
+```bash
+php artisan migrate
+```
+
+5. (Optional) Enable local uploads (avatars/logos)
+
+```bash
+php artisan storage:link
+```
+
+6. Run development server
 
 ```bash
 php artisan serve

@@ -379,7 +379,7 @@ function dashboardPage() {
             });
 
             // Projects Growth line
-            new Chart(document.getElementById('projectsGrowthChart'), {
+        new Chart(document.getElementById('projectsGrowthChart'), {
                 type: 'line',
                 data: {
                     labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'],

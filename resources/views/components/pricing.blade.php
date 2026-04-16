@@ -37,7 +37,7 @@
                         @if($hasDiscount)
                             <div class="mb-1 flex items-center gap-2">
                                 <span class="text-paragraph text-sm line-through">${{ number_format($originalPrice, floor($originalPrice) == $originalPrice ? 0 : 2) }}</span>
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-status-active/15 text-status-active">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-status-warning/15 text-primary-accent">
                                     Save {{ $discountPercent }}%
                                 </span>
                             </div>

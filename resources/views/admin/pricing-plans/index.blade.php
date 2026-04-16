@@ -31,18 +31,9 @@
                         <p class="text-sm font-medium text-foreground leading-tight" x-text="p.name"></p>
                         <p class="text-[11px] text-paragraph" x-text="`$${p.price}/mo • ${p.featuresCount} features`"></p>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.popular ? 'bg-status-warning/15 text-status-warning' : 'bg-muted text-muted-foreground'" x-text="p.popular ? 'Popular' : 'Standard'"></span>
+                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.popular ? 'bg-primary-accent/15 text-primary-accent' : 'bg-primary-accent/15 text-primary-accent'" x-text="p.popular ? 'Popular' : 'Standard'"></span>
                 </div>
-                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-border/10 text-center">
-                    <div>
-                        <p class="text-[9px] uppercase tracking-widest text-paragraph mb-0.5">Status</p>
-                        <p class="text-xs font-medium" :class="p.active ? 'text-status-active' : 'text-destructive'" x-text="p.active ? 'Active' : 'Inactive'"></p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] uppercase tracking-widest text-paragraph mb-0.5">ID</p>
-                        <p class="text-xs font-medium text-foreground" x-text="'#' + p.id"></p>
-                    </div>
-                </div>
+                
                 <div class="flex gap-2 pt-1">
                     <a :href="'/admin/pricing-plans/' + p.id + '/edit'" class="flex-1 py-1.5 rounded-lg text-xs font-sans font-medium bg-foreground text-background text-center">Edit</a>
                     <button @click="deletePlan(p.id)" class="flex-1 py-1.5 rounded-lg text-xs font-sans font-medium" style="background:rgba(220,50,50,0.15);color:hsl(var(--destructive))">Delete</button>
@@ -78,10 +69,10 @@
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="'$' + p.price + '/mo'"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="p.featuresCount"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-foreground">
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.popular ? 'bg-status-warning/15 text-status-warning' : 'bg-muted text-muted-foreground'" x-text="p.popular ? 'Yes' : 'No'"></span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.popular ? 'bg-status-warning/15 text-status-warning' : 'bg-red-500/15 text-red-500'" x-text="p.popular ? 'Yes' : 'No'"></span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.active ? 'bg-status-active/15 text-status-active' : 'bg-destructive/15 text-destructive'" x-text="p.active ? 'Active' : 'Inactive'"></span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.active ? 'bg-primary-accent/15 text-primary-accent' : 'bg-destructive/15 text-destructive'" x-text="p.active ? 'Active' : 'Inactive'"></span>
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex gap-2">
