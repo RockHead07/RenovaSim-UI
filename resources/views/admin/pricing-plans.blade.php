@@ -121,12 +121,14 @@
 
 @push('scripts')
 <script>
-const plansData = {!! json_encode($plans->map(p => [
-    'name' => p.name,
-    'price' => '$' . p.price . '/mo',
-    'popular' => p.is_popular ? 'Yes' : 'No',
-    'active' => p.is_active ? 'Yes' : 'No'
-])->toArray() ?? []) !!};
+const plansData = {!! json_encode($plans->map(function($p) {
+    return [
+        'name' => $p->name,
+        'price' => '$' . $p->price . '/mo',
+        'popular' => $p->is_popular ? 'Yes' : 'No',
+        'active' => $p->is_active ? 'Yes' : 'No'
+    ];
+})
 
 function pricingPlansPage() {
     return {

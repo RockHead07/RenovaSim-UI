@@ -82,30 +82,17 @@
 @endpush
 
 @section('content')
-<div class="bg-card rounded-xl w-full max-w-4xl border border-border/10 shadow-xl shadow-black/10 mx-auto" x-data="planForm()">
-  <div class="p-5 sm:p-6 pb-0"><h2 class="font-serif text-foreground text-lg sm:text-xl">Add Plan</h2></div>
-  <form method="POST" action="/admin/pricing-plans" class="p-5 sm:p-6 space-y-5 sm:space-y-6">
-    @csrf
+<div x-data="planForm()">
+<x-admin.form.card title="Add Plan" action="/admin/pricing-plans" method="POST" maxWidth="max-w-4xl">
+    <x-admin.form.errors />
 
-    <div class="space-y-1.5">
-      <label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Name</label>
-      <input name="name" type="text" value="{{ old('name') }}" placeholder="Enter plan name" class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2.5 text-sm font-sans transition-colors hover:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary" required>
-    </div>
+    <x-admin.form.input name="name" label="Name" placeholder="Enter plan name" required />
 
-    <div class="space-y-1.5">
-      <label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Description</label>
-      <textarea name="description" rows="3" placeholder="Brief description for the landing page" class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2.5 text-sm font-sans transition-colors hover:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary">{{ old('description') }}</textarea>
-    </div>
+    <x-admin.form.textarea name="description" label="Description" rows="3" placeholder="Brief description for the landing page" />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div class="space-y-1.5">
-        <label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Current Price ($/mo)</label>
-        <input name="price" type="number" step="0.01" min="0" value="{{ old('price', '0') }}" x-model.number="finalPrice" placeholder="Enter current monthly price" class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2.5 text-sm font-sans transition-colors hover:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary" required>
-      </div>
-      <div class="space-y-1.5">
-        <label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Original Price (Optional)</label>
-        <input name="original_price" type="number" step="0.01" min="0" value="{{ old('original_price') }}" x-model.number="originalPrice" placeholder="Example: 50" class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2.5 text-sm font-sans transition-colors hover:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary">
-      </div>
+      <x-admin.form.input name="price" label="Current Price ($/mo)" type="number" step="0.01" min="0" :value="old('price', '0')" placeholder="Enter current monthly price" required x-model.number="finalPrice" />
+      <x-admin.form.input name="original_price" label="Original Price (Optional)" type="number" step="0.01" min="0" :value="old('original_price')" placeholder="Example: 50" x-model.number="originalPrice" />
     </div>
 
     <div class="tidy-panel rounded-lg p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
@@ -170,11 +157,10 @@
       </template>
     </div>
 
-    <div class="flex flex-col-reverse sm:flex-row gap-3 pt-2">
-      <button type="submit" :disabled="hasInvalidDiscount()" :class="hasInvalidDiscount() ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'" class="bg-foreground text-background rounded-lg px-6 py-2 text-sm font-sans font-medium">Save</button>
-      <a href="/admin/pricing-plans" class="border border-destructive/40 bg-destructive/10 text-destructive rounded-lg px-6 py-2 text-sm font-sans hover:bg-destructive/20">Cancel</a>
+    <div class="pt-2">
+      <x-admin.form.actions primaryLabel="Save" cancelHref="/admin/pricing-plans" />
     </div>
-  </form>
+</x-admin.form.card>
 </div>
 @endsection
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Project extends Model
 {
@@ -30,5 +31,10 @@ class Project extends Model
         return $this->belongsToMany(Material::class, 'project_materials')
                     ->withPivot('quantity', 'subtotal')
                     ->withTimestamps();
+    }
+
+    public function assignedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
     }
 }

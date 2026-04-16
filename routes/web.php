@@ -24,6 +24,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         return view('admin.dashboard');
     })->name('dashboard');
 
+    // Users API (used by admin.users.index search/filter)
+    Route::get('/users-api', [UserController::class, 'api']);
+
     // CRUD Routes with full resource control
     Route::resource('/users', UserController::class);
     Route::resource('/projects', ProjectController::class);

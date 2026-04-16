@@ -1,16 +1,123 @@
 @extends('admin.layout')
-  @section('title', 'Add User')
-  @section('page-title', 'Add User')
-  @section('content')
-  <div class="bg-card rounded-xl w-full max-w-2xl border border-border/10">
-    <div class="p-6 pb-0"><h2 class="font-serif text-foreground text-lg">Add User</h2></div>
-    <form method="POST" action="/admin/users" class="p-6 space-y-5">
-      @csrf
-      <div class="space-y-1.5"><label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Username</label><input name="username" type="text" placeholder="Enter username" class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary" required></div>
-<div class="space-y-1.5"><label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Email</label><input name="email" type="email" placeholder="Enter email address" class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary" required></div>
-<div class="space-y-1.5"><label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Password</label><input name="password" type="password" placeholder="Enter password" class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary" required></div>
-<div class="space-y-1.5"><label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Role</label><select name="role" class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary" required><option value="user" selected>User</option><option value="admin">Admin (Daily Operations)</option><option value="super_admin">Super Admin</option><option value="owner">Owner</option></select></div>
-      <div class="flex gap-3 pt-2"><button type="submit" class="bg-foreground text-background rounded-lg px-6 py-2 text-sm font-sans font-medium hover:opacity-90">Save</button><a href="/admin/users" class="border border-border text-paragraph rounded-lg px-6 py-2 text-sm font-sans hover:text-foreground">Cancel</a></div>
-    </form>
-  </div>
-  @endsection
+@section('title', 'Add User')
+@section('page-title', 'Add User')
+@section('content')
+<x-admin.form.card title="Add User" action="/admin/users" method="POST" enctype="multipart/form-data" maxWidth="max-w-4xl">
+  <x-admin.form.errors />
+
+    <details open class="rounded-xl border border-border/10 bg-background/40">
+      <summary class="cursor-pointer select-none px-4 py-3 text-sm font-sans font-medium text-foreground flex items-center justify-between">
+        <span>Account Settings</span>
+        <span class="text-paragraph text-xs">Username, role, status</span>
+      </summary>
+      <div class="px-4 pb-4 pt-2 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <x-admin.form.input name="username" label="Username" placeholder="Enter username" required />
+          <x-admin.form.select name="role" label="Role" required>
+              <option value="user" {{ old('role', 'user') === 'user' ? 'selected' : '' }}>User</option>
+              <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin (Daily Operations)</option>
+              <option value="super_admin" {{ old('role') === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+              <option value="owner" {{ old('role') === 'owner' ? 'selected' : '' }}>Owner</option>
+          </x-admin.form.select>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <x-admin.form.input name="email" label="Email" type="email" placeholder="Enter email address" required />
+          <x-admin.form.input name="password" label="Password" type="password" placeholder="Enter password" required />
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Account Status</label>
+          <div class="inline-flex rounded-lg border border-border/10 overflow-hidden">
+            @php($status = old('account_status', 'active'))
+            <label class="px-3 py-2 text-sm font-sans cursor-pointer {{ $status === 'active' ? 'bg-foreground text-background' : 'text-paragraph hover:text-foreground hover:bg-muted' }}">
+              <input type="radio" name="account_status" value="active" class="sr-only" {{ $status === 'active' ? 'checked' : '' }}>
+              Active
+            </label>
+            <label class="px-3 py-2 text-sm font-sans cursor-pointer {{ $status === 'suspended' ? 'bg-foreground text-background' : 'text-paragraph hover:text-foreground hover:bg-muted' }}">
+              <input type="radio" name="account_status" value="suspended" class="sr-only" {{ $status === 'suspended' ? 'checked' : '' }}>
+              Suspended
+            </label>
+            <label class="px-3 py-2 text-sm font-sans cursor-pointer {{ $status === 'inactive' ? 'bg-foreground text-background' : 'text-paragraph hover:text-foreground hover:bg-muted' }}">
+              <input type="radio" name="account_status" value="inactive" class="sr-only" {{ $status === 'inactive' ? 'checked' : '' }}>
+              Inactive
+            </label>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-xl border border-border/10 bg-background/40">
+      <summary class="cursor-pointer select-none px-4 py-3 text-sm font-sans font-medium text-foreground flex items-center justify-between">
+        <span>Personal Information</span>
+        <span class="text-paragraph text-xs">Name, phone, avatar</span>
+      </summary>
+      <div class="px-4 pb-4 pt-2 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <x-admin.form.input name="first_name" label="First Name" placeholder="Enter first name" />
+          <x-admin.form.input name="last_name" label="Last Name" placeholder="Enter last name" />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <x-admin.form.input name="phone" label="Phone Number" type="tel" placeholder="Enter phone number" />
+          <div class="space-y-1.5">
+            <label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Profile Picture / Avatar</label>
+            <input name="avatar" type="file" accept="image/*"
+                   class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2.5 text-sm font-sans placeholder:text-paragraph/70 focus:outline-none focus:ring-1 focus:ring-primary transition-colors file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-sans file:text-foreground hover:file:bg-muted/70">
+            <p class="text-[11px] text-paragraph">PNG/JPG/WebP. Max 5MB.</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-xl border border-border/10 bg-background/40">
+      <summary class="cursor-pointer select-none px-4 py-3 text-sm font-sans font-medium text-foreground flex items-center justify-between">
+        <span>Preferences</span>
+        <span class="text-paragraph text-xs">Timezone, language</span>
+      </summary>
+      <div class="px-4 pb-4 pt-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <x-admin.form.select name="timezone" label="Timezone">
+              <option value="">System default</option>
+              @foreach ($timezones as $tz)
+                <option value="{{ $tz }}" {{ old('timezone') === $tz ? 'selected' : '' }}>{{ $tz }}</option>
+              @endforeach
+          </x-admin.form.select>
+          <x-admin.form.select name="language" label="Language">
+              <option value="">System default</option>
+              @foreach ($languages as $code => $label)
+                <option value="{{ $code }}" {{ old('language') === $code ? 'selected' : '' }}>{{ $label }}</option>
+              @endforeach
+          </x-admin.form.select>
+        </div>
+      </div>
+    </details>
+
+    <details class="rounded-xl border border-border/10 bg-background/40">
+      <summary class="cursor-pointer select-none px-4 py-3 text-sm font-sans font-medium text-foreground flex items-center justify-between">
+        <span>Organizational Details</span>
+        <span class="text-paragraph text-xs">Title, assigned projects</span>
+      </summary>
+      <div class="px-4 pb-4 pt-2 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <x-admin.form.input name="job_title" label="Job Title / Position" placeholder="e.g. Project Manager" />
+          <div class="space-y-1.5">
+            <label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Assigned Projects</label>
+            <select name="assigned_projects[]" multiple
+                    class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2.5 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary transition-colors h-40">
+              @php($selected = collect(old('assigned_projects', []))->map(fn($v) => (int) $v)->all())
+              @foreach ($projects as $project)
+                <option value="{{ $project->id }}" {{ in_array($project->id, $selected, true) ? 'selected' : '' }}>
+                  {{ $project->name }}
+                </option>
+              @endforeach
+            </select>
+            <p class="text-[11px] text-paragraph">Hold Ctrl (Windows) / Cmd (Mac) to select multiple.</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <x-admin.form.actions primaryLabel="Save" cancelHref="/admin/users" />
+</x-admin.form.card>
+@endsection
