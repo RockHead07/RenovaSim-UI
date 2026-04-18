@@ -60,7 +60,7 @@ $navLinks = [
                 onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;"
                 class="shrink-0 w-0 h-0 opacity-0 overflow-hidden pointer-events-none transition-all duration-500"
             >
-                <img src="{{ asset('images/logo.svg') }}" alt="RenovaSim" class="h-5 w-auto object-contain" style="filter: brightness(0) invert(1) brightness(0.95);" />
+                <img src="{{ asset('images/small_logo.svg') }}" alt="RenovaSim" class="h-5 w-auto object-contain" style="filter: brightness(0) invert(1) brightness(0.95);" />
             </a>
         </div>
 
