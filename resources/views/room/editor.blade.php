@@ -330,11 +330,8 @@
             <div class="section-title">Status</div>
             <div class="info-text" id="status-message">Ready</div>
             <div class="info-text" id="fps-counter">FPS: 60</div>
-        </div>
     </div>
-</divThree.js from CDN -->
-<script src="https://cdn.jsdelivr.net/npm/three@r128/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/controls/TransformControls.js"></script>
+</div>
 
 <!-- Initialize room data from Blade -->
 <script>
@@ -352,9 +349,21 @@
     window.saveUrl = '{{ route("room.save", $room) }}';
 </script>
 
-<!-- 1. Load AdvancedRoom3DEditor class definition first -->
+<!-- Load THREE.js and GLTFLoader as ES modules -->
+<script type="module">
+    import * as THREE from '/three-lib/three.module.min.js';
+    import { GLTFLoader } from '/three-examples/jsm/loaders/GLTFLoader.js';
+    
+    // Make them globally available
+    window.THREE = THREE;
+    window.GLTFLoader = GLTFLoader;
+    
+    console.log('✅ THREE.js and GLTFLoader loaded as modules');
+</script>
+
+<!-- 1. Load AdvancedRoom3DEditor class definition -->
 <script src="/js/editor-advanced.js?v={{ time() }}"></script>
 
-<!-- 2. Load and initialize everything -->
-<script type="module" src="/js/loader.js?v={{ time() }}"></script>
+<!-- 2. Initialize editor -->
+<script src="/js/loader.js?v={{ time() }}"></script>
 @endsection

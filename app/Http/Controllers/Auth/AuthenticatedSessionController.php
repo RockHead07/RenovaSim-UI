@@ -28,6 +28,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Redirect admin to admin profile, regular users to dashboard
+        $user = Auth::user();
+        if ($user && ($user->is_admin || $user->email === 'admin@gmail.com')) {
+            return redirect()->intended(route('profile.edit', absolute: false));
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
