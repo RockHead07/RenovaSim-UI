@@ -1,5 +1,5 @@
 <div align="center">
-<img width="400" alt="Image" src="https://github.com/user-attachments/assets/2eda46a2-212f-4f42-8ff3-39d6ac0c02f9" />
+    <img width="402" alt="Image" src="https://github.com/user-attachments/assets/9385ef6e-b1e5-4761-a77a-bbf68eb04ea9" />
 </div>
 <p align="center">
 <a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
