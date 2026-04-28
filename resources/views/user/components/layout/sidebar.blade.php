@@ -5,13 +5,12 @@
 ============================================================ --}}
 @php
     $items = [
-        ['label' => 'Dashboard',           'subtitle' => null,                    'icon' => 'layout-dashboard', 'path' => '/'],
-        ['label' => 'RAI',                 'subtitle' => 'Renovasim Estimate AI', 'icon' => 'sparkles',         'path' => '/ai-estimation'],
-        ['label' => 'Projects',            'subtitle' => null,                    'icon' => 'folder-kanban',    'path' => '/project-overview'],
-        ['label' => '3D Design Modeling',  'subtitle' => 'House',                 'icon' => 'box',              'path' => '/3d'],
+        ['label' => 'Dashboard',           'subtitle' => null,                    'icon' => 'layout-dashboard', 'path' => '/user/dashboard'],
+        ['label' => 'RAI',                 'subtitle' => 'Renovasim Estimate AI', 'icon' => 'sparkles',         'path' => '/user/ai-estimation'],
+        ['label' => 'Projects',            'subtitle' => null,                    'icon' => 'folder-kanban',    'path' => '/user/project-overview'],
+        ['label' => '3D Design Modeling',  'subtitle' => 'House',                 'icon' => 'box',              'path' => '/user/3d'],
     ];
     $current = '/' . trim(request()->path(), '/');
-    if ($current === '/') {} elseif (request()->path() === '/') { $current = '/'; }
 @endphp
 
 <aside
@@ -61,7 +60,7 @@
                 :title="effectiveCollapsed ? '{{ $it['label'] }}' : null"
                 @class([
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors',
-                    'bg-secondary text-secondary-foreground' => $active,
+                    'bg-primary/10 text-secondary ring-1 ring-primary/25 shadow-[0_10px_24px_rgba(139,160,35,0.28)]' => $active,
                     'text-card-foreground hover:bg-muted'    => ! $active,
                 ])
                 :class="effectiveCollapsed ? 'md:w-11 md:h-11 md:px-0 md:py-0 md:gap-0 md:justify-center' : ''"
@@ -69,7 +68,7 @@
                 <span
                     @class([
                         'shrink-0',
-                        'text-primary-foreground' => $active,
+                        'text-secondary' => $active,
                         'text-muted-foreground'   => ! $active,
                     ])
                 >

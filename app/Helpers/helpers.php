@@ -2,11 +2,12 @@
 
 if (!function_exists('format_rp')) {
     /**
-     * Format an integer as Indonesian Rupiah, e.g. 1500000 → "Rp 1.500.000".
+     * Format a numeric value as Indonesian Rupiah, e.g. 1500000 → "Rp 1.500.000".
      */
-    function format_rp(int|float $n): string
+    function format_rp(int|float|string $n): string
     {
-        return 'Rp ' . number_format((float) $n, 0, ',', '.');
+        $value = is_string($n) ? (float) preg_replace('/[^0-9.-]/', '', $n) : (float) $n;
+        return 'Rp ' . number_format($value, 0, ',', '.');
     }
 }
 

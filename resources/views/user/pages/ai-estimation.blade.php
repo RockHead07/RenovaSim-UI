@@ -53,7 +53,7 @@
                         <x-user::components.estimation.cost-range-card :range="$result['total_range']" :confidence="$result['confidence']" />
 
                         <div id="assumptions-section">
-                            <x-user.components.estimation.assumptions-card :assumptions="$result['assumptions']" />
+                            <x-user::components.estimation.assumptions-card :assumptions="$result['assumptions']" />
                         </div>
                     </div>
 
