@@ -2,8 +2,7 @@
 @import "@fontsource/dm-sans/500.css";
 @import "@fontsource/playfair-display/400-italic.css";
 
-@tailwind base;
-@tailwind components;
+@import "tailwindcss/preflight";
 @tailwind utilities;
 
 @layer base {
