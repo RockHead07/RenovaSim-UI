@@ -5,7 +5,7 @@
     $TOTAL_STEPS = 5;
 @endphp
 
-<x-user.layouts.app title="RenovaSim — Project Details" :hideFooter="true">
+<x-user::layouts.app title="RenovaSim — Project Details" :hideFooter="true">
     <div
         x-data="{
             step: 1,
@@ -272,4 +272,4 @@
             </div>
         </div>
     </div>
-</x-user.layouts.app>
+</x-user::layouts.app>

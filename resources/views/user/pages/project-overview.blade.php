@@ -57,7 +57,7 @@
     $activeStep = 1;
 @endphp
 
-<x-user.layouts.app title="RenovaSim — Project Overview" :hideNav="true">
+<x-user::layouts.app title="RenovaSim — Project Overview" :hideNav="true">
     {{-- Top Navbar (custom — has back arrow at title row, plain logo here) --}}
     <nav class="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
         <a href="/" class="font-['Playfair_Display'] italic text-xl text-card-foreground hover:opacity-80 transition-opacity">RenovaSim</a>
@@ -219,4 +219,4 @@
             </div>
         </div>
     </div>
-</x-user.layouts.app>
+</x-user::layouts.app>

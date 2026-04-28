@@ -12,13 +12,13 @@
 </head>
 <body class="theme-user min-h-screen bg-background flex flex-col">
     @if (! ($hideNav ?? false))
-        <x-user.components.layout.app-nav />
+        <x-user::components.layout.app-nav />
     @endif
 
-    {!! $slot !!}
+    {{ $slot }}
 
     @if (! ($hideFooter ?? false))
-        <x-user.components.layout.app-footer :class="$footerClass ?? ''" />
+        <x-user::components.layout.app-footer :class="$footerClass ?? ''" />
     @endif
 </body>
 </html>

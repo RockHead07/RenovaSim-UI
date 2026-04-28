@@ -12,7 +12,8 @@
     <title>{{ $title ?? 'RenovaSim' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/user/theme/css/user.css', 'resources/user/theme/js/user.js'])
 </head>
-<body class="theme-user
+<body
+    class="theme-user min-h-screen bg-background"
     x-data="{
         collapsed: false,
         mobileOpen: false,
@@ -25,7 +26,6 @@
         get effectiveCollapsed() { return this.isTablet ? true : this.collapsed; },
         get canToggle() { return !this.isTablet; }
     }"
-    class="min-h-screen bg-background"
 >
     {{-- Mobile top bar (only below tablet) --}}
     <div class="md:hidden sticky top-0 z-30 flex items-center justify-between bg-card/95 backdrop-blur px-4 py-3 border-b border-border">
@@ -54,7 +54,7 @@
         style="display:none"
     ></div>
 
-    <x-user.components.layout.sidebar />
+    <x-user::components.layout.sidebar />
 
     <main
         :class="effectiveCollapsed ? 'md:pl-[112px] lg:pl-[112px]' : 'md:pl-[112px] lg:pl-[264px]'"

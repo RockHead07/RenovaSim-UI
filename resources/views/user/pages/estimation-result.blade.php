@@ -8,7 +8,7 @@
     $avg = (int) round(($result['total_range']['min'] + $result['total_range']['max']) / 2);
 @endphp
 
-<x-user.layouts.app title="RenovaSim — Estimation Result">
+<x-user::layouts.app title="RenovaSim — Estimation Result">
     @if ($result['mode'] === 'incomplete')
         <div class="flex-1 flex items-center justify-center px-4">
             <div class="max-w-md w-full bg-card rounded-2xl p-8 text-center">
@@ -43,10 +43,10 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-user.components.estimation.cost-range-card :range="$result['total_range']" :confidence="$result['confidence']" />
-                    <x-user.components.estimation.breakdown-card :breakdown="$result['breakdown']" :totalRange="$result['total_range']" />
+                    <x-user::components.estimation.cost-range-card :range="$result['total_range']" :confidence="$result['confidence']" />
+                    <x-user::components.estimation.breakdown-card :breakdown="$result['breakdown']" :totalRange="$result['total_range']" />
                 </div>
             </div>
         </div>
     @endif
-</x-user.layouts.app>
+</x-user::layouts.app>

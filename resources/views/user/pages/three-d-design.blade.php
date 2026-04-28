@@ -1,5 +1,5 @@
 {{-- pages.three-d-design — port of ThreeDDesign.tsx --}}
-<x-user.layouts.dashboard title="RenovaSim — 3D Design">
+<x-user::layouts.dashboard title="RenovaSim — 3D Design">
     <div class="flex flex-col gap-6">
         <div>
             <h1 class="font-['Playfair_Display'] italic text-[28px] text-secondary">3D Design Modeling House</h1>
@@ -21,4 +21,4 @@
             </button>
         </div>
     </div>
-</x-user.layouts.dashboard>
+</x-user::layouts.dashboard>

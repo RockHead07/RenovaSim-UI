@@ -8,7 +8,7 @@
     $avg = (int) round(($result['total_range']['min'] + $result['total_range']['max']) / 2);
 @endphp
 
-<x-user.layouts.app title="RenovaSim — Estimation Result">
+<x-user::layouts.app title="RenovaSim — Estimation Result">
     @if ($result['mode'] === 'incomplete')
         <div class="flex-1 flex items-center justify-center px-4">
             <div class="max-w-md w-full bg-card rounded-2xl p-8 text-center shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
@@ -50,7 +50,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="flex flex-col gap-6">
-                        <x-user.components.estimation.cost-range-card :range="$result['total_range']" :confidence="$result['confidence']" />
+                        <x-user::components.estimation.cost-range-card :range="$result['total_range']" :confidence="$result['confidence']" />
 
                         <div id="assumptions-section">
                             <x-user.components.estimation.assumptions-card :assumptions="$result['assumptions']" />
@@ -58,7 +58,7 @@
                     </div>
 
                     <div class="flex flex-col gap-6">
-                        <x-user.components.estimation.breakdown-card :breakdown="$result['breakdown']" :totalRange="$result['total_range']" />
+                        <x-user::components.estimation.breakdown-card :breakdown="$result['breakdown']" :totalRange="$result['total_range']" />
 
                         <div class="flex gap-2.5">
                             <a href="/project-details" class="flex-1 border-[1.5px] border-card-foreground text-card-foreground bg-card rounded-lg py-2.5 text-sm flex items-center justify-center gap-1.5 hover:bg-muted">
@@ -77,7 +77,7 @@
             </div>
         </div>
     @endif
-</x-user.layouts.app>
+</x-user::layouts.app>
 {{-- pages.ai-estimation — port of AIEstimation.tsx --}}
 @php
     $renovationTypes = config('renovasim.renovation_types');
@@ -94,7 +94,7 @@
     ];
 @endphp
 
-<x-user.layouts.app title="RenovaSim — AI Estimation">
+<x-user::layouts.app title="RenovaSim — AI Estimation">
     <div
         x-data="{
             step1: @js($step1),

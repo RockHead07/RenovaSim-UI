@@ -1,4 +1,3 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
 
 /** @type {import('tailwindcss').Config} */
@@ -9,16 +8,6 @@ export default {
         "./resources/views/**/*.blade.php",
         "./resources/user/**/*.blade.php",  // ← ADD
     ],
-
-    theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-            },
-        },
-    },
-
-    plugins: [forms],
 
     prefix: "",
     theme: {
@@ -94,5 +83,5 @@ export default {
             },
         },
     },
-    plugins: [require("tailwindcss-animate")],
+    plugins: [forms, require("tailwindcss-animate")],
 };

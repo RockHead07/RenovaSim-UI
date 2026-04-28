@@ -18,6 +18,17 @@ Route::get('/', function () {
     return view('welcome', compact('pricingPlans'));
 });
 
+Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
+    Route::view('/dashboard', 'user.pages.dashboard');
+    Route::view('/ai-estimation', 'user.pages.ai-estimation');
+    Route::view('/project-stage', 'user.pages.project-stage');
+    Route::view('/project-details', 'user.pages.project-details');
+    Route::view('/estimation-result', 'user.pages.estimation-result');
+    Route::view('/project-overview', 'user.pages.project-overview');
+    Route::view('/project-rab', 'user.pages.project-rab');
+    Route::view('/3d', 'user.pages.three-d-design');
+});
+
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
