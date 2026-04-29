@@ -33,7 +33,7 @@
                 </button>
 
                 <a
-                    href="/project-details"
+                    href="/user/project-details"
                     @click="selected = 'planning'"
                     :class="selected === 'planning' ? 'border-[1.5px] border-primary shadow-sm' : 'border-[1.5px] border-transparent shadow-sm'"
                     class="w-full flex items-center gap-4 bg-card rounded-xl p-[18px_20px] text-left transition-all hover:shadow-md"

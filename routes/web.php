@@ -29,6 +29,10 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
     Route::view('/3d', 'user.pages.three-d-design');
 });
 
+Route::get('/project/{id}/rab', function ($id) {
+    return view('user.pages.project-rab');
+})->middleware(['auth', 'role:user'])->name('project-rab');
+
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {

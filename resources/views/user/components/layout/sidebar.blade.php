@@ -16,10 +16,10 @@
 <aside
     :class="[
         mobileOpen ? 'translate-x-0' : '-translate-x-full',
-        effectiveCollapsed ? 'md:w-[80px] md:items-center md:px-3 md:py-4' : 'md:w-[240px] md:p-4'
+        effectiveCollapsed ? 'md:w-20 md:items-center md:px-3 md:py-4' : 'md:w-60 md:p-4'
     ]"
     class="bg-card shadow-sm flex-col z-40 transition-[width,transform] duration-300 ease-in-out overflow-hidden
-        fixed top-0 left-0 bottom-0 w-[260px] flex p-4
+        fixed top-0 left-0 bottom-0 w-65 flex p-4
         md:translate-x-0 md:top-4 md:left-4 md:bottom-4 md:rounded-[20px]"
 >
     {{-- Mobile close --}}

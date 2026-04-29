@@ -57,7 +57,7 @@
     $activeStep = 1;
 @endphp
 
-<x-user::layouts.app title="RenovaSim — Project Overview" :hideNav="true">
+<x-layouts.app title="RenovaSim — Project Overview" :hideNav="true">
     {{-- Top Navbar (custom — has back arrow at title row, plain logo here) --}}
     <nav class="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
         <a href="/" class="font-['Playfair_Display'] italic text-xl text-card-foreground hover:opacity-80 transition-opacity">RenovaSim</a>
@@ -152,14 +152,36 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {{-- LEFT --}}
                 <div class="md:col-span-2 flex flex-col gap-6">
+                    {{-- Description accordion --}}
+                    <div class="bg-card rounded-2xl shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+                        <button @click="descriptionOpen = !descriptionOpen" class="w-full flex items-center justify-between px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <x-lucide-clipboard-list class="w-4 h-4 text-muted-foreground" />
+                                <span class="font-['DM_Sans'] font-medium text-sm text-card-foreground">Project Description</span>
+                            </div>
+                            <template x-if="descriptionOpen"><x-lucide-chevron-up   class="w-4 h-4 text-muted-foreground" /></template>
+                            <template x-if="!descriptionOpen"><x-lucide-chevron-down class="w-4 h-4 text-muted-foreground" /></template>
+                        </button>
+                        <div x-show="descriptionOpen" x-collapse class="px-6 pb-4">
+                            <p class="font-['DM_Sans'] text-sm text-muted-foreground leading-relaxed">
+                                {{ $projectName }} — {{ Str::lower($renovationType) }} in {{ $city }} with {{ Str::lower($quality) }} quality finishes.
+                                Budget inherited from your accepted AI estimate.
+                            </p>
+                        </div>
+                    </div>
+
                     {{-- Estimated Budget Card --}}
                     <div class="bg-card rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
                         <h2 class="font-['Playfair_Display'] italic text-xl text-card-foreground">Your Estimated Budget</h2>
+                        <p class="font-['DM_Sans'] text-sm text-muted-foreground mt-1">
+                            Here's your baseline estimate. Next, use AI to refine your project or request proposals from professionals.
+                        </p>
 
                         <p class="font-['DM_Sans'] text-[10px] uppercase tracking-[0.15em] text-muted-foreground mt-5">TOTAL ESTIMATED BUDGET</p>
                         <p class="font-['Playfair_Display'] italic text-[36px] font-bold text-card-foreground mt-1 transition-all duration-500" x-text="formatRp(totalBudget)"></p>
 
                         <div class="mt-5 space-y-3">
+                            {{-- Professionals --}}
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
                                     <div class="flex items-center gap-2">
@@ -173,6 +195,7 @@
                                 </div>
                             </div>
 
+                            {{-- Purchases --}}
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
                                     <div class="flex items-center gap-2">
@@ -186,6 +209,50 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="mt-5 flex flex-wrap items-center gap-2.5">
+                            <a href="/estimation-result" class="bg-primary text-primary-foreground font-['DM_Sans'] font-medium text-sm rounded-lg px-5 py-3 hover:opacity-90 transition-opacity">
+                                View Detailed Breakdown
+                            </a>
+                            <a
+                                href="{{ url('/project/' . $projectId . '/rab?' . http_build_query([
+                                    'projectName' => $projectName,
+                                    'city' => $city,
+                                    'renovationType' => $renovationType,
+                                    'quality' => $quality,
+                                    'totalCost' => $baseTotal,
+                                    'materialCost' => $basePurchases,
+                                    'laborCost' => $baseLabor,
+                                ])) }}"
+                                class="border-[1.5px] border-primary/60 text-primary bg-primary/5 font-['DM_Sans'] font-medium text-sm rounded-lg px-5 py-3 hover:bg-primary/10 transition-colors inline-flex items-center gap-1.5"
+                            >
+                                <x-lucide-file-text class="w-[14px] h-[14px]" /> Lihat Detail RAB
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- AI Insight --}}
+                    <div class="bg-[hsl(40,100%,96%)] border-[1.5px] border-[hsl(40,96%,53%)] rounded-2xl p-5">
+                        <div class="w-9 h-9 rounded-full bg-[hsl(40,96%,53%)] flex items-center justify-center">
+                            <x-lucide-lightbulb class="w-[18px] h-[18px] text-white" />
+                        </div>
+                        <h3 class="font-['Playfair_Display'] italic text-lg text-card-foreground mt-2.5">AI Savings Insight</h3>
+                        <p class="font-['DM_Sans'] text-[13px] text-card-foreground leading-relaxed mt-2">
+                            AI analysis of <span class="font-semibold">{{ $projectName }}</span> indicates switching the specified
+                            'Purchases' items to vetted alternative brands could reduce cost by
+                            <span class="font-semibold text-[hsl(36,90%,45%)]">~12%</span>. Our recommended alternative would save you approximately
+                            <span class="font-semibold text-[hsl(36,90%,45%)]">{{ format_rp($savingsAmount) }}</span>.
+                        </p>
+                        <button
+                            @click="savingsApplied = true"
+                            :disabled="savingsApplied"
+                            class="w-full bg-card-foreground text-card font-['DM_Sans'] font-semibold text-sm rounded-lg py-3.5 mt-4 hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                            <span x-text="savingsApplied ? 'Savings Applied ✓' : 'Apply Suggested Savings'"></span>
+                        </button>
+                        <p x-show="!savingsApplied" class="font-['DM_Sans'] text-[11px] text-muted-foreground text-center mt-2">
+                            Reduce total budget by ~{{ format_rp($savingsAmount) }}
+                        </p>
                     </div>
                 </div>
 
@@ -215,8 +282,38 @@
                     <button class="w-full bg-primary text-primary-foreground font-['Playfair_Display'] italic text-base rounded-lg py-4 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
                         <x-lucide-save class="w-4 h-4" /> Save Project
                     </button>
+                    <a href="/ai-estimation" class="font-['DM_Sans'] text-[13px] text-muted-foreground text-center flex items-center justify-center gap-1.5 -mt-3 hover:text-card-foreground transition-colors">
+                        <x-lucide-rotate-ccw class="w-[13px] h-[13px]" /> Recalculate
+                    </a>
+                </div>
+            </div>
+
+            {{-- Continue Building --}}
+            <div class="mt-10">
+                <h2 class="font-['Playfair_Display'] italic text-xl text-card-foreground">Continue building your renovation with RenovaSim</h2>
+                <p class="font-['DM_Sans'] text-sm text-muted-foreground mt-1 mb-5">Use your estimate as a starting point. Refine your plan, get quotes, and track your project.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    @foreach ($continueCards as $card)
+                        <div class="bg-card rounded-2xl border-t-[3px] {{ $card['borderColor'] }} p-5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] flex flex-col gap-4">
+                            <p class="font-['DM_Sans'] text-[10px] uppercase tracking-[0.12em] font-semibold {{ $card['titleColor'] }}">{{ $card['title'] }}</p>
+                            <div class="flex flex-col gap-3">
+                                @foreach ($card['items'] as $item)
+                                    <button class="flex items-start gap-2.5 text-left hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors">
+                                        <div class="w-6 h-6 rounded-md bg-muted flex-shrink-0 flex items-center justify-center mt-0.5">
+                                            <x-dynamic-component :component="'lucide-' . $item['icon']" class="w-[13px] h-[13px] text-muted-foreground" />
+                                        </div>
+                                        <div>
+                                            <p class="font-['DM_Sans'] font-medium text-[13px] text-card-foreground">{{ $item['title'] }}</p>
+                                            <p class="font-['DM_Sans'] text-[11px] text-muted-foreground leading-snug mt-0.5">{{ $item['desc'] }}</p>
+                                        </div>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
-</x-user::layouts.app>
+</x-layouts.app>

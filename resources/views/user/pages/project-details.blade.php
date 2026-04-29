@@ -43,7 +43,7 @@
                     quality: this.quality,
                 });
                 if (includeBudget && this.budgetValue > 0) params.set('budget', this.budgetValue);
-                return '/ai-estimation?' + params.toString();
+                return '/user/ai-estimation?' + params.toString();
             },
             transition(cb) {
                 this.animating = true;
@@ -62,7 +62,7 @@
                 if (this.step === 5) window.location.href = this.buildEstimationUrl(false);
             },
             back() {
-                if (this.step === 1) { window.location.href = '/project-stage'; return; }
+                if (this.step === 1) { window.location.href = '/user/project-stage'; return; }
                 this.direction = 'back';
                 this.transition(() => this.step--);
             },
