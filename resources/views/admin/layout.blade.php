@@ -30,7 +30,7 @@
   <body class="bg-background text-foreground font-sans">
     <div class="flex h-screen overflow-hidden" x-data="{ collapsed: false, mobileOpen: false, darkMode: window.currentTheme === 'dark' }">
       <div x-show="mobileOpen" x-transition.opacity x-on:click="mobileOpen=false" class="fixed inset-0 z-40 bg-black/50 sm:hidden"></div>
-      <aside :class="[collapsed ? 'sm:w-14' : 'sm:w-56', mobileOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0']" class="fixed sm:static left-0 top-0 z-50 h-screen w-56 bg-background border-r border-border/10 flex flex-col transition-all duration-300">
+      <aside :class="[collapsed ? 'sm:w-14' : 'sm:w-56', mobileOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0']" class="fixed sm:static left-0 top-0 z-50 h-screen w-56 bg-black/10 border-r border-border/5 flex flex-col transition-all duration-300 rounded-tr-lg rounded-br-lg overflow-hidden" >
         <div class="flex items-center justify-between px-4 h-14 shrink-0">
           <span x-show="!collapsed" x-transition class="font-serif text-foreground text-lg tracking-tight">RenovaSim</span>
           <button type="button" x-on:click="collapsed=!collapsed" class="p-1 rounded transition-colors duration-200 hover:bg-muted hidden sm:flex text-paragraph"><svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path x-show="!collapsed" d="m15 18-6-6 6-6"/><path x-show="collapsed" d="m9 18 6-6-6-6"/></svg></button>
