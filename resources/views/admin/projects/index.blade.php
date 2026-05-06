@@ -125,19 +125,24 @@ function projectsPage() {
         statusFilter: 'All',
         statuses: ['All', 'Draft', 'Estimated', 'Completed'],
         avatarColors: { Completed:'#8BA023', Estimated:'#d4941a', Draft:'#838383' },
-        projects: [
-            @foreach($projects as $p)
-            {
-                id: {{ $p->id }},
-                name: '{{ addslashes($p->name) }}',
-                user: '{{ addslashes($p->user->username ?? 'N/A') }}',
-                room: '{{ addslashes($p->room_type) }}',
-                area: '{{ $p->area_size }} m²',
-                cost: '{{ $p->status === 'completed' ? '$' . number_format($p->area_size * 500) : '—' }}',
-                status: '{{ ucfirst($p->status) }}',
-            },
-            @endforeach
-        ],
+        projects: [],
+        async init() {
+            try {
+                const res = await apiFetch('/api/projects?per_page=200');
+                const raw = res.data ?? [];
+                this.projects = raw.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    user: p.user?.username ?? 'N/A',
+                    room: p.room_type,
+                    area: p.area_size + ' m\u00B2',
+                    cost: p.status === 'completed' && p.total_cost ? '$' + Number(p.total_cost).toLocaleString() : '\u2014',
+                    status: p.status ? p.status.charAt(0).toUpperCase() + p.status.slice(1) : 'Draft',
+                }));
+            } catch (e) {
+                console.error('Failed to fetch projects:', e);
+            }
+        },
         initials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); },
         avatarColor(status) { return this.avatarColors[status] ?? '#838383'; },
         statusBadgeClass(status) {
@@ -151,10 +156,13 @@ function projectsPage() {
                 return ms && mf;
             });
         },
-        deleteProject(id) {
-            if (confirm('Are you sure?')) {
-                fetch(`/admin/projects/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content } })
-                .then(() => location.reload());
+        async deleteProject(id) {
+            if (!confirm('Are you sure?')) return;
+            try {
+                await apiFetch(`/api/projects/${id}`, { method: 'DELETE' });
+                this.projects = this.projects.filter(p => p.id !== id);
+            } catch (e) {
+                alert('Error deleting project');
             }
         }
     }

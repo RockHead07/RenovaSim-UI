@@ -96,26 +96,34 @@
 function pricingPlansPage() {
     return {
         search: '',
-        plans: [
-            @foreach($plans as $p)
-            {
-                id: {{ $p->id }},
-                name: '{{ addslashes($p->name) }}',
-                price: '{{ number_format($p->price, 2) }}',
-                popular: {{ $p->is_popular ? 'true' : 'false' }},
-                active: {{ $p->is_active ? 'true' : 'false' }},
-                featuresCount: {{ $p->features->count() }},
-            },
-            @endforeach
-        ],
+        plans: [],
+        async init() {
+            try {
+                const res = await apiFetch('/api/pricing-plans');
+                const raw = res.data ?? [];
+                this.plans = raw.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    price: Number(p.price).toFixed(2),
+                    popular: !!p.is_popular,
+                    active: !!p.is_active,
+                    featuresCount: p.features_count ?? (p.features ? p.features.length : 0),
+                }));
+            } catch (e) {
+                console.error('Failed to fetch pricing plans:', e);
+            }
+        },
         filtered() {
             const q = this.search.toLowerCase();
             return this.plans.filter(p => p.name.toLowerCase().includes(q));
         },
-        deletePlan(id) {
-            if (confirm('Are you sure?')) {
-                fetch(`/admin/pricing-plans/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content } })
-                .then(() => location.reload());
+        async deletePlan(id) {
+            if (!confirm('Are you sure?')) return;
+            try {
+                await apiFetch(`/api/pricing-plans/${id}`, { method: 'DELETE' });
+                this.plans = this.plans.filter(p => p.id !== id);
+            } catch (e) {
+                alert('Error deleting plan');
             }
         }
     }

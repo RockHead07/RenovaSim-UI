@@ -151,34 +151,43 @@ function usersPage() {
         perPage: 10,
         plans: ['All', 'Free', 'Smart', 'Pro'],
         planColors: { Free: '#838383', Smart: '#8BA023', Pro: '#d4941a' },
-        users: {!! json_encode($usersData->toArray()) !!},
-        fetchUsers() {
-            const params = new URLSearchParams();
-            if (this.search) params.append('search', this.search);
-            if (this.planFilter !== 'All') params.append('plan', this.planFilter);
-            
-            fetch(`/admin/users-api?${params}`)
-                .then(r => r.json())
-                .then(data => {
-                    this.users = data;
-                    this.page = 1;
-                });
+        users: [],
+        async init() {
+            await this.fetchUsers();
         },
-        deleteUser(id) {
+        async fetchUsers() {
+            try {
+                const params = new URLSearchParams();
+                if (this.search) params.append('search', this.search);
+                if (this.planFilter !== 'All') params.append('plan', this.planFilter);
+                params.append('per_page', '200');
+
+                const res = await apiFetch(`/api/users?${params}`);
+                const raw = res.data ?? [];
+                this.users = raw.map(u => ({
+                    id: u.id,
+                    name: u.username,
+                    email: u.email,
+                    role: u.role ?? 'user',
+                    roleLabel: { admin:'Admin', super_admin:'Super Admin', owner:'Owner' }[u.role] ?? 'User',
+                    plan: u.plan_name ?? u.plan?.name ?? 'Free',
+                    joined: u.created_at ? u.created_at.substring(0, 10) : '',
+                    status: { inactive:'Inactive', suspended:'Suspended' }[u.account_status] ?? 'Active',
+                }));
+                this.page = 1;
+            } catch (e) {
+                console.error('Failed to fetch users:', e);
+            }
+        },
+        async deleteUser(id) {
             if (!confirm('Are you sure you want to delete this user?')) return;
-            
-            fetch(`/admin/users/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                }
-            })
-            .then(r => r.json())
-            .then(data => {
+            try {
+                await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
                 this.users = this.users.filter(u => u.id !== id);
                 this.page = 1;
-            })
-            .catch(e => alert('Error deleting user'));
+            } catch (e) {
+                alert('Error deleting user');
+            }
         },
         initials(name) {
             return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);

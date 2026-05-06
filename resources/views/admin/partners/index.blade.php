@@ -155,23 +155,26 @@ function partnersPage() {
         showModal: false,
         modalImage: '',
         partnerName: '',
-        partners: [
-            @foreach($partners as $p)
-            {
-                id: {{ $p->id }},
-                name: '{{ addslashes($p->name) }}',
-                order: {{ $p->order }},
-                logo_image: '{{ $p->logo_image ? asset('storage/' . $p->logo_image) : '' }}',
-            },
-            @endforeach
-        ],
+        partners: [],
+        async init() {
+            try {
+                const res = await apiFetch('/api/partners');
+                const raw = res.data ?? [];
+                this.partners = raw.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    order: p.order,
+                    logo_image: p.logo_image ?? '',
+                }));
+            } catch (e) {
+                console.error('Failed to fetch partners:', e);
+            }
+        },
         initials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); },
         toggleSort(field) {
             if (this.sortBy === field) {
-                // Toggle between asc and desc
                 this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
             } else {
-                // New field, start with asc
                 this.sortBy = field;
                 this.sortOrder = 'asc';
             }
@@ -180,7 +183,6 @@ function partnersPage() {
             const q = this.search.toLowerCase();
             let result = this.partners.filter(p => p.name.toLowerCase().includes(q));
             
-            // Sort
             result.sort((a, b) => {
                 let aVal = a[this.sortBy];
                 let bVal = b[this.sortBy];
@@ -206,10 +208,13 @@ function partnersPage() {
                 this.showModal = true;
             }
         },
-        deletePartner(id) {
-            if (confirm('Are you sure?')) {
-                fetch(`/admin/partners/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content } })
-                .then(() => location.reload());
+        async deletePartner(id) {
+            if (!confirm('Are you sure?')) return;
+            try {
+                await apiFetch(`/api/partners/${id}`, { method: 'DELETE' });
+                this.partners = this.partners.filter(p => p.id !== id);
+            } catch (e) {
+                alert('Error deleting partner');
             }
         }
     }

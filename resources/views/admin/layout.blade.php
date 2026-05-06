@@ -22,6 +22,33 @@
         window.currentTheme = isDark ? 'dark' : 'light';
       })();
     </script>
+    <script>
+      window.apiFetch = async function(url, options = {}) {
+        const token = document.querySelector('meta[name="csrf-token"]')?.content;
+        const method = (options.method || 'GET').toUpperCase();
+        const hasBody = method !== 'GET' && method !== 'HEAD';
+        const defaults = {
+          headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'X-Requested-With': 'XMLHttpRequest',
+            ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+          },
+          credentials: 'same-origin',
+        };
+        const merged = {
+          ...defaults,
+          ...options,
+          headers: { ...defaults.headers, ...(options.headers || {}) },
+        };
+        const res = await fetch(url, merged);
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw { status: res.status, ...err };
+        }
+        return res.json();
+      };
+    </script>
     <style>
       :root{--background:40 5% 96%;--foreground:30 5% 15%;--card:0 0% 100%;--card-foreground:30 5% 15%;--popover:0 0% 100%;--popover-foreground:30 5% 15%;--primary:78 37% 28%;--primary-foreground:0 0% 100%;--primary-accent:78 65% 38%;--secondary:40 5% 92%;--secondary-foreground:30 5% 15%;--muted:40 5% 92%;--muted-foreground:0 0% 40%;--accent:30 5% 15%;--accent-foreground:0 0% 100%;--destructive:0 60% 50%;--destructive-foreground:0 0% 100%;--border:30 5% 15%;--input:30 5% 15%;--ring:78 37% 28%;--radius:.5rem;--paragraph:0 0% 45%;--status-active:78 50% 35%;--status-warning:36 70% 45%}.dark{--background:30 2% 17.3%;--foreground:0 0% 96.1%;--card:30 2% 20%;--card-foreground:0 0% 96.1%;--popover:30 2% 20%;--popover-foreground:0 0% 96.1%;--primary:78 37% 18%;--primary-foreground:0 0% 96.1%;--primary-accent:78 65% 31%;--secondary:30 2% 22%;--secondary-foreground:0 0% 96.1%;--muted:30 2% 22%;--muted-foreground:0 0% 51.4%;--accent:0 0% 96.1%;--accent-foreground:30 2% 17.3%;--destructive:0 60% 59%;--destructive-foreground:0 0% 96.1%;--border:0 0% 96.1%;--input:0 0% 96.1%;--ring:78 37% 18%;--radius:.5rem;--paragraph:0 0% 51.4%;--status-active:78 65% 45%;--status-warning:36 70% 55%}h1,h2,h3,h4,h5,h6{font-family:var(--font-serif,'PP Editorial New',Georgia,serif)}body{font-family:var(--font-sans,'PP Neue Montreal',Inter,sans-serif)}
     </style>
