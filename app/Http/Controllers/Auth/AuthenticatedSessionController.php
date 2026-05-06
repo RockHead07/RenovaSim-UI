@@ -30,11 +30,18 @@ class AuthenticatedSessionController extends Controller
 
         // Redirect admin to admin profile, regular users to dashboard
         $user = Auth::user();
-        if ($user && ($user->is_admin || $user->email === 'admin@gmail.com')) {
-            return redirect()->intended(route('profile.edit', absolute: false));
+        
+        // Auto-assign 'user' role if empty for backward compatibility
+        if ($user && empty($user->role) && !$user->is_admin && $user->email !== 'admin@gmail.com') {
+            $user->role = 'user';
+            $user->save();
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        if ($user && ($user->is_admin || $user->email === 'admin@gmail.com' || $user->role === 'admin' || $user->role === 'owner')) {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        }
+
+        return redirect()->intended('/user/dashboard');
     }
 
     /**

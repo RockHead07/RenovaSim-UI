@@ -25,7 +25,6 @@
                     src="{{ asset('images/logo.svg') }}"
                     alt="RenovaSim"
                     class="object-contain h-6 w-auto cursor-pointer"
-                    style="filter: brightness(0) invert(1) brightness(0.95);"
                 />
             </a>
 

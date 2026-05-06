@@ -30,7 +30,7 @@
   <body class="bg-background text-foreground font-sans">
     <div class="flex h-screen overflow-hidden" x-data="{ collapsed: false, mobileOpen: false, darkMode: window.currentTheme === 'dark' }">
       <div x-show="mobileOpen" x-transition.opacity x-on:click="mobileOpen=false" class="fixed inset-0 z-40 bg-black/50 sm:hidden"></div>
-      <aside :class="[collapsed ? 'sm:w-14' : 'sm:w-56', mobileOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0']" class="fixed sm:static left-0 top-0 z-50 h-screen w-56 bg-background border-r border-border/10 flex flex-col transition-all duration-300">
+      <aside :class="[collapsed ? 'sm:w-14' : 'sm:w-56', mobileOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0']" class="fixed sm:static left-0 top-0 z-50 h-screen w-56 bg-black/10 border-r border-border/5 flex flex-col transition-all duration-300 rounded-tr-lg rounded-br-lg overflow-hidden" >
         <div class="flex items-center justify-between px-4 h-14 shrink-0">
           <span x-show="!collapsed" x-transition class="font-serif text-foreground text-lg tracking-tight">RenovaSim</span>
           <button type="button" x-on:click="collapsed=!collapsed" class="p-1 rounded transition-colors duration-200 hover:bg-muted hidden sm:flex text-paragraph"><svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path x-show="!collapsed" d="m15 18-6-6 6-6"/><path x-show="collapsed" d="m9 18 6-6-6-6"/></svg></button>
@@ -56,6 +56,11 @@
   <a href="/admin/projects" class="{{ request()->is('admin/projects*') ? 'bg-primary text-primary-foreground border-l-2 border-primary-accent' : 'text-paragraph hover:text-foreground hover:bg-muted' }} flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 transition-all duration-200 text-sm font-sans">
     <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
     <span x-show="!collapsed" x-transition>Projects</span>
+  </a>
+
+  <a href="/admin/rooms" class="{{ request()->is('admin/rooms*') ? 'bg-primary text-primary-foreground border-l-2 border-primary-accent' : 'text-paragraph hover:text-foreground hover:bg-muted' }} flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 transition-all duration-200 text-sm font-sans">
+    <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+    <span x-show="!collapsed" x-transition>3D Saves</span>
   </a>
             
   <a href="/admin/materials" class="{{ request()->is('admin/materials*') ? 'bg-primary text-primary-foreground border-l-2 border-primary-accent' : 'text-paragraph hover:text-foreground hover:bg-muted' }} flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 transition-all duration-200 text-sm font-sans">

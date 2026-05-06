@@ -49,6 +49,7 @@ class GoogleController extends Controller
                     'google_email' => $googleUser->getEmail(),
                     'password' => bcrypt(uniqid()), // Random password for OAuth users
                     'account_status' => 'active',
+                    'role' => 'user',
                 ]);
             }
 

@@ -1,0 +1,507 @@
+/* Editor 3D Extended Styles */
+
+:root {
+    --primary: #3b82f6;
+    --primary-dark: #1e40af;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --dark: #1f2937;
+    --light: #f3f4f6;
+    --border: #e5e7eb;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--dark);
+    color: #333;
+    overflow: hidden;
+}
+
+#canvas {
+    display: block;
+    width: 100%;
+    height: calc(100vh - 60px);
+}
+
+/* ==================== UI Container ==================== */
+
+#ui-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: rgba(31, 41, 55, 0.95);
+    border-bottom: 2px solid var(--primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+/* ==================== Top Bar ==================== */
+
+.ui-section {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.mode-badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.mode-badge.exploration {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    color: white;
+}
+
+.mode-badge.interior {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+}
+
+.mode-badge.build {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+    color: #333;
+}
+
+#mode-display {
+    min-width: 150px;
+}
+
+#mode-description {
+    font-size: 12px;
+    color: #d1d5db;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ==================== Buttons ==================== */
+
+.button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    background: var(--primary);
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.button:active {
+    transform: translateY(0);
+}
+
+.button.secondary {
+    background: #6b7280;
+}
+
+.button.secondary:hover {
+    background: #4b5563;
+}
+
+.button.danger {
+    background: var(--danger);
+}
+
+.button.danger:hover {
+    background: #dc2626;
+}
+
+.button.success {
+    background: var(--success);
+}
+
+.button.success:hover {
+    background: #059669;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==================== Mode Controls ==================== */
+
+#mode-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.mode-btn {
+    padding: 6px 12px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.mode-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* ==================== Status Display ==================== */
+
+#status-message {
+    padding: 6px 12px;
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+#status-message.error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+/* ==================== Gizmo Controls ==================== */
+
+#gizmo-panel {
+    position: fixed;
+    top: 70px;
+    left: 20px;
+    background: rgba(31, 41, 55, 0.95);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+    z-index: 50;
+    backdrop-filter: blur(10px);
+    display: none;
+    box-shadow: var(--shadow);
+}
+
+#gizmo-panel.visible {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+#transform-modes {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.gizmo-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: rgba(107, 114, 128, 0.2);
+    color: #e5e7eb;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.gizmo-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.gizmo-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+#gizmo-mode {
+    font-size: 12px;
+    color: #d1d5db;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+/* ==================== Sidebar (Right) ==================== */
+
+#right-sidebar {
+    position: fixed;
+    top: 60px;
+    right: 0;
+    width: 300px;
+    height: calc(100vh - 60px);
+    background: rgba(31, 41, 55, 0.95);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 50;
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    display: none;
+}
+
+#right-sidebar.visible {
+    display: block;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.sidebar-section {
+    margin-bottom: 20px;
+}
+
+.sidebar-section h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+#furniture-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.furniture-item {
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    background: rgba(107, 114, 128, 0.1);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    color: #e5e7eb;
+}
+
+.furniture-item:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.furniture-item.selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.furniture-item > div:first-child {
+    font-size: 24px;
+    margin-bottom: 6px;
+}
+
+.furniture-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+/* ==================== Object Info Panel ==================== */
+
+#object-info {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #d1d5db;
+}
+
+.info-label {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #e5e7eb;
+    font-weight: 600;
+}
+
+/* ==================== Responsive Design ==================== */
+
+@media (max-width: 768px) {
+    #ui-container {
+        flex-direction: column;
+        height: auto;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .ui-section {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    #right-sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 50vh;
+        top: 60px;
+        right: 0;
+        border: none;
+        border-top: 1px solid var(--border);
+    }
+
+    #gizmo-panel {
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
+        bottom: 20px;
+    }
+}
+
+/* ==================== Loading Spinner ==================== */
+
+.loading-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==================== Scroll Bar ==================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(107, 114, 128, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.4);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.6);
+}
+
+/* ==================== Tooltip ==================== */
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+/* ==================== Animations ==================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+.scale-in {
+    animation: scaleIn 0.3s ease;
+}

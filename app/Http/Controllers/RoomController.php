@@ -156,6 +156,15 @@ class RoomController extends Controller
     }
 
     /**
+     * List all users' rooms for admin
+     */
+    public function adminIndex()
+    {
+        $rooms = Room::with('user')->orderBy('created_at', 'desc')->get();
+        return view('admin.rooms.index', compact('rooms'));
+    }
+
+    /**
      * Create new room
      */
     public function create()

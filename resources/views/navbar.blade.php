@@ -51,7 +51,7 @@ $navLinks = [
                 src="{{ asset('images/logo.svg') }}"
                 alt="RenovaSim"
                 class="object-contain h-6 w-auto opacity-0 transition-all duration-500 animate-fade-in"
-                style="filter: brightness(0) invert(1) brightness(0.95); animation-delay: 0ms;"
+                style="filter: animation-delay: 0ms;"
             />
             {{-- Compact logo — visible in pill --}}
             <a
@@ -60,7 +60,7 @@ $navLinks = [
                 onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;"
                 class="shrink-0 w-0 h-0 opacity-0 overflow-hidden pointer-events-none transition-all duration-500"
             >
-                <img src="{{ asset('images/small_logo.svg') }}" alt="RenovaSim" class="h-5 w-auto object-contain" style="filter: brightness(0) invert(1) brightness(0.95);" />
+                <img src="{{ asset('images/small_logo.svg') }}" alt="RenovaSim" class="h-5 w-auto object-contain"/>
             </a>
         </div>
 

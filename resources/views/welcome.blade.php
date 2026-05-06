@@ -85,7 +85,7 @@
                 crafted with intention, clarity, and quiet confidence.
             </p>
 
-            <a href="#"
+            <a href="{{ route('login') }}"
                 class="mt-10 inline-flex items-center gap-2 rounded-full bg-accent/90 backdrop-blur px-7 py-3.5 text-sm font-bold text-accent-foreground hover:bg-accent transition-all duration-200 active:scale-[0.97] shadow-xl shadow-black/15 animate-fade-up opacity-0 font-sans"
                 style="animation-delay: 0.7s">
                 Start exploring

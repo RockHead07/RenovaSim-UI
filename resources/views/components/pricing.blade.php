@@ -62,7 +62,7 @@
                             @endforeach
                         </ul>
 
-                        <a href="#" class="block text-center py-3.5 rounded-xl text-sm font-medium tracking-wide transition-all duration-200 active:scale-[0.97] {{ $plan->is_popular ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-accent text-accent-foreground hover:bg-accent/80' }}">
+                        <a href="{{ route('login') }}" class="block text-center py-3.5 rounded-xl text-sm font-medium tracking-wide transition-all duration-200 active:scale-[0.97] {{ $plan->is_popular ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-accent text-accent-foreground hover:bg-accent/80' }}">
                             Get {{ $plan->name }} Access
                         </a>
                     </div>

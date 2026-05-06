@@ -1,0 +1,110 @@
+{
+  "id": "0ef0e464-914",
+  "name": "Room 0ef0e4",
+  "width": 7.2,
+  "length": 6.8,
+  "height": 3.1,
+  "wall_color": "#f5f0eb",
+  "floor_color": "#c4a882",
+  "objects": [
+    {
+      "id": "d8b68631",
+      "type": "plant_small",
+      "name": "Small Plant",
+      "category": "decor",
+      "position": [
+        -2.54,
+        0.23,
+        -1.7
+      ],
+      "rotation": [
+        0,
+        5.35,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.45,
+        0.3
+      ],
+      "color": "#228b22",
+      "detected": true,
+      "confidence": 0.78
+    },
+    {
+      "id": "cdceaff7",
+      "type": "oven",
+      "name": "Oven",
+      "category": "kitchen",
+      "position": [
+        -0.07,
+        0.42,
+        -0.81
+      ],
+      "rotation": [
+        0,
+        0.37,
+        0
+      ],
+      "scale": [
+        0.7,
+        0.85,
+        0.7
+      ],
+      "color": "#bebec3",
+      "detected": true,
+      "confidence": 0.92
+    },
+    {
+      "id": "73301343",
+      "type": "painting",
+      "name": "Wall Painting",
+      "category": "decor",
+      "position": [
+        -0.27,
+        0.3,
+        1.87
+      ],
+      "rotation": [
+        0,
+        3.11,
+        0
+      ],
+      "scale": [
+        0.8,
+        0.6,
+        0.05
+      ],
+      "color": "#b4643c",
+      "detected": true,
+      "confidence": 0.73
+    }
+  ],
+  "detected_assets": [
+    {
+      "type": "plant_small",
+      "name": "Small Plant",
+      "confidence": 0.78,
+      "category": "decor"
+    },
+    {
+      "type": "oven",
+      "name": "Oven",
+      "confidence": 0.92,
+      "category": "kitchen"
+    },
+    {
+      "type": "painting",
+      "name": "Wall Painting",
+      "confidence": 0.73,
+      "category": "decor"
+    }
+  ],
+  "recommended_type": "decor",
+  "recommended_templates": [],
+  "images": [
+    "0ef0e464-914_c9ec43.jpg"
+  ],
+  "created_at": "2026-05-06T09:07:25.724826",
+  "status": "generated"
+}
