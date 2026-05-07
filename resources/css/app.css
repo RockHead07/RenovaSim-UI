@@ -132,6 +132,11 @@
     --color-signin-border: hsl(0 0% 96.1% / 0.15);
 }
 
+.status-badge-inactive {
+    background: rgba(220, 50, 50, 0.18);
+    color: #f87171;
+}
+
 /* =========================
    CUSTOM CURSOR
 ========================= */

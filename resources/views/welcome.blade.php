@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/small_logo.svg') }}" />
     <title>RenovaSim — A visual space designed for real life</title>
     <meta name="description"
         content="Where material honesty meets spatial intelligence — interiors crafted with intention, clarity, and quiet confidence.">

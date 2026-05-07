@@ -47,7 +47,7 @@
                             <p class="text-[10px] text-paragraph mt-0.5">Role: <span class="text-foreground" x-text="u.roleLabel"></span></p>
                         </div>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium bg-lime-400 text-black" x-text="u.status"></span>
+                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="statusBadgeClass(u.status)" x-text="u.status"></span>
                 </div>
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-border/10 text-center">
                     <div>
@@ -114,7 +114,7 @@
                                 </td>
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="u.joined"></td>
                                 <td class="px-5 py-3">
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium bg-primary text-primary-accent" x-text="u.status"></span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="statusBadgeClass(u.status)" x-text="u.status"></span>
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex gap-2">
@@ -194,6 +194,9 @@ function usersPage() {
         },
         planBadgeClass(plan) {
             return { Free:'bg-muted text-muted-foreground', Smart:'bg-status-active/15 text-status-active', Pro:'bg-status-warning/15 text-status-warning' }[plan] ?? 'bg-muted text-muted-foreground';
+        },
+        statusBadgeClass(status) {
+            return { Active:'bg-primary text-primary-accent', Inactive:'status-badge-inactive', Suspended:'bg-status-warning/15 text-status-warning' }[status] ?? 'bg-muted text-muted-foreground';
         },
         roleBadgeClass(role) {
             if (role === 'owner') return 'bg-amber-500/20 text-amber-400';
