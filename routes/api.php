@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\PartnerController;
 use App\Http\Controllers\Api\PricingPlanController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PlanFeatureController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,5 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('materials', MaterialController::class);
         Route::apiResource('pricing-plans', PricingPlanController::class);
         Route::apiResource('partners', PartnerController::class);
+        Route::apiResource('plan-features', PlanFeatureController::class);
     });
 });

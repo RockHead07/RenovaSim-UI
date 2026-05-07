@@ -17,6 +17,9 @@ class PlanFeatureResource extends JsonResource
             'pricing_plan_id' => $this->pricing_plan_id,
             'feature' => $this->feature,
             'is_available' => $this->is_available,
+            'plan' => new PricingPlanResource($this->whenLoaded('plan')),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }
