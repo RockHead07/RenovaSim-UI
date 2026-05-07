@@ -3,6 +3,13 @@ import * as THREE from 'three';
 let fpCamera, moveState, euler, velocity;
 let locked = false;
 
+// Eye-level height: lowered per user request
+const EYE_HEIGHT = 1.1;
+const JUMP_VELOCITY = 3.8;
+const GRAVITY = 12;
+const MOVE_SPEED = 4.2;
+const MOUSE_SENSITIVITY = 0.002;
+
 export function initExplore(camera) {
     fpCamera = camera;
     moveState = { forward: false, backward: false, left: false, right: false };
@@ -24,8 +31,8 @@ export function setupExploreEvents(canvas) {
     document.addEventListener('mousemove', (e) => {
         if (!locked) return;
         euler.setFromQuaternion(fpCamera.quaternion);
-        euler.y -= e.movementX * 0.002;
-        euler.x -= e.movementY * 0.002;
+        euler.y -= e.movementX * MOUSE_SENSITIVITY;
+        euler.x -= e.movementY * MOUSE_SENSITIVITY;
         euler.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, euler.x));
         fpCamera.quaternion.setFromEuler(euler);
     });
@@ -36,7 +43,7 @@ export function setupExploreEvents(canvas) {
             case 'KeyS': case 'ArrowDown': moveState.backward = val; break;
             case 'KeyA': case 'ArrowLeft': moveState.left = val; break;
             case 'KeyD': case 'ArrowRight': moveState.right = val; break;
-            case 'Space': if (val && fpCamera && fpCamera.position.y <= 1.71) velocity.y = 4.5; break;
+            case 'Space': if (val && fpCamera && fpCamera.position.y <= EYE_HEIGHT + 0.01) velocity.y = JUMP_VELOCITY; break;
         }
     };
     document.addEventListener('keydown', (e) => onKey(e, true));
@@ -45,10 +52,9 @@ export function setupExploreEvents(canvas) {
 
 export function updateExplore(delta) {
     if (!locked || !fpCamera) return;
-    const speed = 5;
     
     // Apply Gravity
-    velocity.y -= 15 * delta;
+    velocity.y -= GRAVITY * delta;
     
     // Horizontal movement vector
     const hVelocity = new THREE.Vector3();
@@ -58,10 +64,10 @@ export function updateExplore(delta) {
     dir.normalize();
     const side = new THREE.Vector3().crossVectors(fpCamera.up, dir).normalize();
 
-    if (moveState.forward) hVelocity.add(dir.clone().multiplyScalar(speed));
-    if (moveState.backward) hVelocity.add(dir.clone().multiplyScalar(-speed));
-    if (moveState.left) hVelocity.add(side.clone().multiplyScalar(speed));
-    if (moveState.right) hVelocity.add(side.clone().multiplyScalar(-speed));
+    if (moveState.forward) hVelocity.add(dir.clone().multiplyScalar(MOVE_SPEED));
+    if (moveState.backward) hVelocity.add(dir.clone().multiplyScalar(-MOVE_SPEED));
+    if (moveState.left) hVelocity.add(side.clone().multiplyScalar(MOVE_SPEED));
+    if (moveState.right) hVelocity.add(side.clone().multiplyScalar(-MOVE_SPEED));
 
     velocity.x = hVelocity.x;
     velocity.z = hVelocity.z;
@@ -70,15 +76,15 @@ export function updateExplore(delta) {
     fpCamera.position.z += velocity.z * delta;
     fpCamera.position.y += velocity.y * delta;
 
-    // Floor collision
-    if (fpCamera.position.y < 1.7) {
-        fpCamera.position.y = 1.7;
+    // Floor collision — eye height
+    if (fpCamera.position.y < EYE_HEIGHT) {
+        fpCamera.position.y = EYE_HEIGHT;
         velocity.y = 0;
     }
 }
 
 export function enterExploreMode(camera) {
-    camera.position.set(0, 1.7, 0);
+    camera.position.set(0, EYE_HEIGHT, 0);
     camera.rotation.set(0, 0, 0);
     initExplore(camera);
 }
