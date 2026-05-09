@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\User;
 
 class UpdateLastActiveAt
 {
@@ -15,10 +16,11 @@ class UpdateLastActiveAt
         $response = $next($request);
 
         $user = Auth::user();
-        if ($user && Schema::hasColumn('users', 'last_active_at')) {
+        if ($user instanceof User && Schema::hasColumn('users', 'last_active_at')) {
             $updates = ['last_active_at' => now()];
 
-            if ($user->account_status !== 'suspended') {
+            $accountStatus = (string) $user->getAttribute('account_status');
+            if ($accountStatus !== 'suspended') {
                 $updates['account_status'] = 'active';
             }
 

@@ -84,9 +84,9 @@
             <div class="relative h-2 bg-[#E8E6E0] w-full rounded-full overflow-hidden shadow-inner mb-5">
                 <div
                     :style="`width: ${progressPct}%`"
-                    class="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary via-primary to-[#A8C547] transition-all duration-700 ease-out"
+                    class="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-primary via-primary to-[#A8C547] transition-all duration-700 ease-out"
                 >
-                    <div class="absolute inset-0 opacity-40 animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent bg-[length:200%_100%]"></div>
+                    <div class="absolute inset-0 opacity-40 animate-shimmer bg-linear-to-r from-transparent via-white to-transparent bg-size-[200%_100%]"></div>
                 </div>
                 <div class="absolute inset-0 flex">
                     @for ($i = 0; $i < $TOTAL_STEPS; $i++)

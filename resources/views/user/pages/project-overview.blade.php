@@ -300,7 +300,7 @@
                             <div class="flex flex-col gap-3">
                                 @foreach ($card['items'] as $item)
                                     <button class="flex items-start gap-2.5 text-left hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors">
-                                        <div class="w-6 h-6 rounded-md bg-muted flex-shrink-0 flex items-center justify-center mt-0.5">
+                                        <div class="w-6 h-6 rounded-md bg-muted shrink-0 flex items-center justify-center mt-0.5">
                                             <x-dynamic-component :component="'lucide-' . $item['icon']" class="w-[13px] h-[13px] text-muted-foreground" />
                                         </div>
                                         <div>

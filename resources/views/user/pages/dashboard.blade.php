@@ -9,7 +9,7 @@
             <x-user::components.shared.portfolio-metrics />
         </div>
 
-        <div class="md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2 order-3 md:order-none">
+        <div class="md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2 order-3 md:order-0">
             <x-user::components.shared.mini-calendar />
         </div>
 

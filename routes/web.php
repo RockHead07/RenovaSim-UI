@@ -59,4 +59,9 @@ Route::post('/newsletter', function () {
     return back()->with('success', 'Subscribed!');
 })->name('newsletter.subscribe');
 
+Route::get('/_phpinfo', function () {
+    phpinfo();
+    return '';
+});
+
 require __DIR__.'/auth.php';

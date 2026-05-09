@@ -1,6 +1,6 @@
 {{-- Glassmorphism CTA card — port of HeroWidget.tsx --}}
 <div class="relative overflow-hidden rounded-[20px] sm:rounded-[24px] shadow-sm p-6 sm:p-10 bg-card min-h-[240px] sm:min-h-[280px] flex flex-col justify-between">
-    <div class="absolute inset-0 -z-0">
+    <div class="absolute inset-0 z-0">
         <div class="absolute -top-20 -right-16 w-72 h-72 rounded-full bg-primary/30 blur-3xl"></div>
         <div class="absolute -bottom-24 -left-10 w-80 h-80 rounded-full bg-secondary/15 blur-3xl"></div>
         <div class="absolute inset-0 backdrop-blur-2xl bg-white/40"></div>

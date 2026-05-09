@@ -16,7 +16,7 @@
                 </label>
 
                 <div x-show="!editing" class="flex items-center justify-between gap-2 group">
-                    <div class="text-sm text-card-foreground break-words flex-1">
+                    <div class="text-sm text-card-foreground wrap-break-word flex-1">
                         {{ $assum['value'] }}
                     </div>
                     <button

@@ -87,7 +87,7 @@
                 {{-- LEFT --}}
                 <div class="flex flex-col gap-6">
                     {{-- Banner / video placeholder --}}
-                    <div class="rounded-2xl bg-gradient-to-b from-[hsl(75,30%,18%)] to-[hsl(75,30%,12%)] h-[170px] sm:h-[190px] shadow-sm overflow-hidden relative">
+                    <div class="rounded-2xl bg-linear-to-b from-[hsl(75,30%,18%)] to-[hsl(75,30%,12%)] h-[170px] sm:h-[190px] shadow-sm overflow-hidden relative">
                         <div class="absolute inset-0 opacity-25" style="background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.20), transparent 55%);"></div>
                         <div class="absolute bottom-3 left-3 inline-flex items-center gap-2 bg-black/35 text-white rounded-full px-3 py-1 text-[11px]">
                             <span class="w-1.5 h-1.5 rounded-full bg-[hsl(110,70%,60%)]"></span>
