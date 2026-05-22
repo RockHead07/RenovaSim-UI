@@ -1,0 +1,826 @@
+{
+  "id": "098468c9-74b",
+  "name": "Room 098468",
+  "width": 8,
+  "length": 10,
+  "height": 3,
+  "wall_color": "#f5f0eb",
+  "floor_color": "#c4a882",
+  "objects": [
+    {
+      "id": "16711b56",
+      "type": "sofa",
+      "name": "Sofa",
+      "category": "living",
+      "position": [
+        0,
+        0.4,
+        -1.8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        2.0,
+        0.8,
+        0.9
+      ],
+      "color": "#6b5b4f",
+      "detected": false,
+      "template": "modern_living"
+    },
+    {
+      "id": "42ff328b",
+      "type": "coffee_table",
+      "name": "Coffee Table",
+      "category": "living",
+      "position": [
+        0,
+        0.2,
+        -0.3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.0,
+        0.4,
+        0.6
+      ],
+      "color": "#a0826d",
+      "detected": false,
+      "template": "modern_living"
+    },
+    {
+      "id": "09f8482f",
+      "type": "tv_stand",
+      "name": "TV Stand",
+      "category": "living",
+      "position": [
+        0,
+        0.25,
+        3.0
+      ],
+      "rotation": [
+        0,
+        3.14,
+        0
+      ],
+      "scale": [
+        1.4,
+        0.5,
+        0.4
+      ],
+      "color": "#323232",
+      "detected": false,
+      "template": "modern_living"
+    },
+    {
+      "id": "526ed8a8",
+      "type": "rug",
+      "name": "Rug",
+      "category": "living",
+      "position": [
+        0,
+        0.01,
+        -0.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        2.5,
+        0.02,
+        3.5
+      ],
+      "color": "#a05050",
+      "detected": false,
+      "template": "modern_living"
+    },
+    {
+      "id": "b86aba80",
+      "type": "lamp_floor",
+      "name": "Floor Lamp",
+      "category": "decor",
+      "position": [
+        -2.8,
+        0.75,
+        -2.2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.3,
+        1.5,
+        0.3
+      ],
+      "color": "#ffdc50",
+      "detected": false,
+      "template": "modern_living"
+    },
+    {
+      "id": "e03dac90",
+      "type": "plant_large",
+      "name": "Large Plant",
+      "category": "decor",
+      "position": [
+        2.8,
+        0.6,
+        -2.8
+      ],
+      "rotation": [
+        0,
+        0.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        1.2,
+        0.5
+      ],
+      "color": "#1a7a1a",
+      "detected": false,
+      "template": "modern_living"
+    },
+    {
+      "id": "67add7d7",
+      "type": "painting",
+      "name": "Wall Painting",
+      "category": "decor",
+      "position": [
+        0,
+        1.8,
+        -3.47
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.8,
+        0.6,
+        0.05
+      ],
+      "color": "#b4643c",
+      "detected": false,
+      "template": "modern_living"
+    },
+    {
+      "id": "87021f10",
+      "type": "armchair",
+      "name": "Armchair",
+      "category": "living",
+      "position": [
+        -2.2,
+        0.425,
+        0
+      ],
+      "rotation": [
+        0,
+        1.2,
+        0
+      ],
+      "scale": [
+        0.9,
+        0.85,
+        0.9
+      ],
+      "color": "#7a6955",
+      "detected": false,
+      "template": "modern_living"
+    },
+    {
+      "id": "e759d5f7",
+      "type": "bookshelf",
+      "name": "Bookshelf",
+      "category": "living",
+      "position": [
+        3.2,
+        0.9,
+        0
+      ],
+      "rotation": [
+        0,
+        -1.57,
+        0
+      ],
+      "scale": [
+        0.8,
+        1.8,
+        0.35
+      ],
+      "color": "#654321",
+      "detected": false,
+      "template": "modern_living"
+    },
+    {
+      "id": "726f3429",
+      "type": "curtain",
+      "name": "Curtain",
+      "category": "decor",
+      "position": [
+        -3.47,
+        1.4,
+        -1.5
+      ],
+      "rotation": [
+        0,
+        1.57,
+        0
+      ],
+      "scale": [
+        1.2,
+        2.2,
+        0.08
+      ],
+      "color": "#d4a574",
+      "detected": false,
+      "template": "modern_living"
+    }
+  ],
+  "detected_assets": [],
+  "recommended_type": "living",
+  "recommended_templates": [
+    {
+      "category": "living",
+      "description": "Minimalist living room with clean lines and neutral tones",
+      "floor_color": "#c4a882",
+      "id": "modern_living",
+      "name": "Modern Living Room",
+      "objects": [
+        {
+          "position": [
+            0,
+            0.4,
+            -1.8
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "sofa"
+        },
+        {
+          "position": [
+            0,
+            0.2,
+            -0.3
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "coffee_table"
+        },
+        {
+          "position": [
+            0,
+            0.25,
+            3
+          ],
+          "rotation": [
+            0,
+            3.14,
+            0
+          ],
+          "type": "tv_stand"
+        },
+        {
+          "position": [
+            0,
+            0.01,
+            -0.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "rug"
+        },
+        {
+          "position": [
+            -2.8,
+            0.75,
+            -2.2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            2.8,
+            0.6,
+            -2.8
+          ],
+          "rotation": [
+            0,
+            0.5,
+            0
+          ],
+          "type": "plant_large"
+        },
+        {
+          "position": [
+            0,
+            1.8,
+            -3.47
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "painting"
+        },
+        {
+          "position": [
+            -2.2,
+            0.425,
+            0
+          ],
+          "rotation": [
+            0,
+            1.2,
+            0
+          ],
+          "type": "armchair"
+        },
+        {
+          "position": [
+            3.2,
+            0.9,
+            0
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "bookshelf"
+        },
+        {
+          "position": [
+            -3.47,
+            1.4,
+            -1.5
+          ],
+          "rotation": [
+            0,
+            1.57,
+            0
+          ],
+          "type": "curtain"
+        }
+      ],
+      "thumbnail": "\ud83d\udecb",
+      "wall_color": "#f5f0eb"
+    },
+    {
+      "category": "living",
+      "description": "Productive workspace with comfortable setup",
+      "floor_color": "#b89a7d",
+      "id": "home_office",
+      "name": "Home Office",
+      "objects": [
+        {
+          "position": [
+            0,
+            0.2,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "coffee_table"
+        },
+        {
+          "position": [
+            0,
+            0.425,
+            -1.2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "armchair"
+        },
+        {
+          "position": [
+            3,
+            0.9,
+            0
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "bookshelf"
+        },
+        {
+          "position": [
+            3,
+            0.9,
+            -1.5
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "bookshelf"
+        },
+        {
+          "position": [
+            -2.8,
+            0.75,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            2.5,
+            0.225,
+            3
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "plant_small"
+        },
+        {
+          "position": [
+            0,
+            2,
+            -3.47
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "clock"
+        },
+        {
+          "position": [
+            0,
+            0.01,
+            -1.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "rug"
+        }
+      ],
+      "thumbnail": "\ud83d\udda5",
+      "wall_color": "#eae6e0"
+    },
+    {
+      "category": "living",
+      "description": "Spacious luxury living with premium furnishings",
+      "floor_color": "#a08060",
+      "id": "luxury_living",
+      "name": "Luxury Living Room",
+      "objects": [
+        {
+          "position": [
+            0,
+            0.4,
+            -2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "sofa"
+        },
+        {
+          "position": [
+            -2.5,
+            0.4,
+            0.5
+          ],
+          "rotation": [
+            0,
+            1.57,
+            0
+          ],
+          "type": "sofa"
+        },
+        {
+          "position": [
+            -0.8,
+            0.2,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "coffee_table"
+        },
+        {
+          "position": [
+            3.2,
+            0.25,
+            0
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "tv_stand"
+        },
+        {
+          "position": [
+            -0.5,
+            0.01,
+            -0.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "rug"
+        },
+        {
+          "position": [
+            1.5,
+            0.75,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            -3.5,
+            0.75,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            3.5,
+            0.6,
+            -3.2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "plant_large"
+        },
+        {
+          "position": [
+            0,
+            1.8,
+            -3.97
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "painting"
+        },
+        {
+          "position": [
+            -3.97,
+            1.4,
+            0
+          ],
+          "rotation": [
+            0,
+            1.57,
+            0
+          ],
+          "type": "curtain"
+        },
+        {
+          "position": [
+            2,
+            0.425,
+            -2
+          ],
+          "rotation": [
+            0,
+            -0.8,
+            0
+          ],
+          "type": "armchair"
+        },
+        {
+          "position": [
+            3.5,
+            0.9,
+            3
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "bookshelf"
+        }
+      ],
+      "thumbnail": "\u2728",
+      "wall_color": "#f0ece5"
+    },
+    {
+      "category": "living",
+      "description": "Compact multi-functional living space",
+      "floor_color": "#c0a880",
+      "id": "studio_apartment",
+      "name": "Studio Apartment",
+      "objects": [
+        {
+          "position": [
+            -2.5,
+            0.25,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "bed_single"
+        },
+        {
+          "position": [
+            1.5,
+            0.4,
+            -1
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "sofa"
+        },
+        {
+          "position": [
+            0,
+            0.2,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "coffee_table"
+        },
+        {
+          "position": [
+            -3,
+            0.25,
+            0
+          ],
+          "rotation": [
+            0,
+            1.57,
+            0
+          ],
+          "type": "tv_stand"
+        },
+        {
+          "position": [
+            0,
+            0.39,
+            2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "dining_table"
+        },
+        {
+          "position": [
+            -0.5,
+            0.45,
+            1.8
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "dining_chair"
+        },
+        {
+          "position": [
+            0.5,
+            0.45,
+            3.2
+          ],
+          "rotation": [
+            0,
+            3.14,
+            0
+          ],
+          "type": "dining_chair"
+        },
+        {
+          "position": [
+            2.8,
+            0.75,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            0,
+            0.01,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "rug"
+        },
+        {
+          "position": [
+            -3,
+            0.225,
+            3
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "plant_small"
+        }
+      ],
+      "thumbnail": "\ud83c\udfe0",
+      "wall_color": "#f5f2ed"
+    }
+  ],
+  "images": [
+    "098468c9-74b_2d5b4d.jpg"
+  ],
+  "created_at": "2026-05-08T13:06:01.414288",
+  "status": "generated",
+  "updated_at": "2026-05-08T15:40:42.476568",
+  "applied_template": "modern_living"
+}

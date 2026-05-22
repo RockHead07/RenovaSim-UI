@@ -25,15 +25,18 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name(
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
 Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
-    Route::view('/dashboard', 'user.pages.editor')->name('dashboard');
-    Route::view('/editor', 'user.pages.editor')->name('user.editor');
+    Route::view('/dashboard', 'user.pages.dashboard')->name('dashboard');
     Route::view('/ai-estimation', 'user.pages.ai-estimation');
     Route::view('/project-stage', 'user.pages.project-stage');
     Route::view('/project-details', 'user.pages.project-details');
-    Route::view('/estimation-result', 'user.pages.estimation-result');
+    Route::get('/estimation-result', [App\Http\Controllers\EstimationController::class, 'result']);
     Route::view('/project-overview', 'user.pages.project-overview');
     Route::view('/project-rab', 'user.pages.project-rab');
-    Route::view('/3d', 'user.pages.three-d-design');
+    Route::view('/3d', 'user.pages.three-d-design')->name('user.3d');
+    Route::view('/editor', 'user.pages.editor')->name('user.editor');
+    Route::get('/editor/{projectId}', function ($projectId) {
+        return view('user.pages.editor', ['projectId' => $projectId]);
+    })->name('user.editor.project');
 });
 
 Route::get('/project/{id}/rab', function ($id) {
@@ -50,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/room/{room}', [RoomController::class, 'show'])->name('room.show');
     Route::post('/api/room/{room}/save', [RoomController::class, 'save'])->name('room.save');
 });
+
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {

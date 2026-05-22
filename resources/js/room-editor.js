@@ -1,16 +1,25 @@
 import * as THREE from 'three';
 import { createScene, buildRoom } from './editor/scene.js';
 import { createFurniture, handleClick, startDrag, doDrag, endDrag, getDragging, getSelected, setSelected, deleteSelected, serializeObjects, clearObjects, getObjects } from './editor/objects.js';
-import { initExplore, setupExploreEvents, lockPointer, isLocked, updateExplore, enterExploreMode, exitExploreMode } from './editor/explore.js';
+import { initExplore, setupExploreEvents, lockPointer, isLocked, updateExplore, enterExploreMode, exitExploreMode, applyGravityToObjects } from './editor/explore.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import * as API from './editor/api.js';
 
 let engine, roomGroup, catalog = {}, currentRoom = null, mode = 'build';
 let savedCamPos = null, savedCamTarget = null;
 let heldObject = null, heldDistance = 2.0;
+let transformControl = null;
 const timer = new THREE.Timer();
 
+// Wall Drawing State
+let drawingWall = false;
+let wallStartPoint = null;
+let wallPreview = null;
+const wallHeight = 3.2;
+const wallThickness = 0.15;
+
 // ── Init ──
-window.RenovaEditor = { init, uploadAndGenerate, switchMode, addFurniture, deleteObj, applyTemplate, paintWall, saveProject };
+window.RenovaEditor = { init, uploadAndGenerate, switchMode, addFurniture, deleteObj, applyTemplate, paintWall, saveProject, spawnFurniture, startWallDraw, cancelWallDraw, getCatalog: () => catalog };
 
 async function init() {
     const container = document.getElementById('editor-canvas');
@@ -39,6 +48,15 @@ async function init() {
     // Render catalog to UI
     renderCatalog(catalog);
 
+    // TransformControls for Build mode
+    transformControl = new TransformControls(engine.camera, engine.renderer.domElement);
+    transformControl.addEventListener('dragging-changed', function (event) {
+        engine.controls.enabled = !event.value;
+    });
+    // Set to translate mode by default
+    transformControl.setMode('translate');
+    engine.scene.add(transformControl.getHelper());
+
     // Setup explore mode events
     setupExploreEvents(engine.renderer.domElement);
 
@@ -54,7 +72,23 @@ async function init() {
     // Animation loop
     animate();
 
-    // Show upload overlay initially
+    // Check if loading an existing project
+    const projectId = document.body.dataset.projectId;
+    if (projectId && online) {
+        try {
+            const room = await API.getRoom(projectId);
+            if (room && room.id) {
+                currentRoom = room;
+                loadRoomIntoScene(currentRoom);
+                toast(`Loaded: ${room.name || 'Room'}`, 'success');
+                return; // Skip upload overlay
+            }
+        } catch(e) {
+            console.warn('Could not load project:', projectId, e);
+        }
+    }
+
+    // Show upload overlay for new projects
     showUpload();
 }
 
@@ -63,17 +97,92 @@ function animate() {
     timer.update();
     const dt = timer.getDelta();
     if (mode === 'build') {
-        engine.controls.enabled = !getDragging();
+        if (!transformControl || !transformControl.dragging) {
+            engine.controls.enabled = true;
+        }
         engine.controls.update();
     } else {
         engine.controls.enabled = false;
         updateExplore(dt);
+        
+        // Apply gravity and stacking to all placement objects except the held one
+        applyGravityToObjects(getObjects(), heldObject, dt);
+        
         if (heldObject) {
-            const dir = new THREE.Vector3();
-            engine.camera.getWorldDirection(dir);
-            heldObject.position.copy(engine.camera.position).add(dir.multiplyScalar(heldDistance));
-            const sy = heldObject.userData.scale ? heldObject.userData.scale[1] : 1;
-            if (heldObject.position.y < sy / 2) heldObject.position.y = sy / 2;
+            const ft = heldObject.userData.furnitureType || '';
+            const isWallMounted = ['mirror', 'painting', 'clock', 'curtain'].some(t => ft.includes(t));
+            
+            if (isWallMounted) {
+                // Snapping wall-mounted items to room walls and partition walls
+                const wallMeshes = [];
+                engine.scene.traverse(child => {
+                    if (child.isMesh && child.userData && child.userData.type === 'wall') {
+                        wallMeshes.push(child);
+                    }
+                });
+                
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), engine.camera);
+                const intersects = raycaster.intersectObjects(wallMeshes, true);
+                
+                if (intersects.length > 0 && intersects[0].distance < 6.0) {
+                    const hit = intersects[0];
+                    // Get world normal of hit face
+                    const normal = hit.face.normal.clone();
+                    normal.transformDirection(hit.object.matrixWorld);
+                    normal.normalize();
+                    
+                    const s = heldObject.userData.scale || [1, 1, 1];
+                    const offset = s[2] / 2; // Offset by half thickness
+                    heldObject.position.copy(hit.point).add(normal.clone().multiplyScalar(offset));
+                    
+                    // Rotate to face outward
+                    const angle = Math.atan2(normal.x, normal.z);
+                    heldObject.rotation.y = angle;
+                } else {
+                    // Fallback in front of player
+                    const dir = new THREE.Vector3();
+                    engine.camera.getWorldDirection(dir);
+                    heldObject.position.copy(engine.camera.position).add(dir.multiplyScalar(heldDistance));
+                }
+            } else {
+                // Snapping floor items to ground or other furniture surfaces
+                const targetMeshes = [];
+                const floorMesh = engine.scene.getObjectByName('floor') || engine.scene.children.find(c => c.name === 'floor');
+                if (floorMesh) targetMeshes.push(floorMesh);
+                
+                getObjects().forEach(obj => {
+                    if (obj !== heldObject) {
+                        const oft = obj.userData.furnitureType || '';
+                        // Do not stack on rugs, carpets, or wall-mounted items
+                        if (!oft.includes('rug') && !oft.includes('carpet') && !['mirror', 'painting', 'clock', 'curtain'].some(t => oft.includes(t))) {
+                            obj.traverse(child => {
+                                if (child.isMesh && child.material && child.material.visible !== false) {
+                                    targetMeshes.push(child);
+                                }
+                            });
+                        }
+                    }
+                });
+                
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), engine.camera);
+                const intersects = raycaster.intersectObjects(targetMeshes, true);
+                
+                if (intersects.length > 0 && intersects[0].distance < 6.0) {
+                    const hit = intersects[0];
+                    heldObject.position.copy(hit.point);
+                    if (heldObject.position.y < 0) heldObject.position.y = 0;
+                } else {
+                    // Fallback to floor baseline
+                    const dir = new THREE.Vector3();
+                    engine.camera.getWorldDirection(dir);
+                    const dest = new THREE.Vector3().copy(engine.camera.position).add(dir.multiplyScalar(heldDistance));
+                    heldObject.position.x = dest.x;
+                    heldObject.position.z = dest.z;
+                    heldObject.position.y = 0;
+                }
+            }
         }
     }
     engine.renderer.render(engine.scene, engine.camera);
@@ -142,11 +251,15 @@ function loadRoomIntoScene(room) {
 
     // Build room geometry
     roomGroup = buildRoom(engine.scene, room.width, room.length, room.height, room.wall_color, room.floor_color);
+    
+    // Hide ceiling in build mode
+    const ceiling = engine.scene.getObjectByName('ceiling');
+    if (ceiling) ceiling.visible = false;
 
     // Place objects
     if (room.objects) {
         room.objects.forEach(obj => {
-            const mesh = createFurniture(obj.type, catalog, obj.position, obj.rotation, obj.id);
+            const mesh = createFurniture(obj.type, catalog, obj.position, obj.rotation, obj.id, obj.scale);
             if (mesh) engine.scene.add(mesh);
         });
     }
@@ -175,6 +288,12 @@ function switchMode(newMode) {
     const hint = document.getElementById('transform-hint');
 
     if (newMode === 'explore') {
+        // Cancel active wall drawing before entering explore mode
+        cancelWallDraw();
+        
+        if (transformControl) transformControl.detach();
+        const ceiling = engine.scene.getObjectByName('ceiling');
+        if (ceiling) ceiling.visible = true;
         savedCamPos = engine.camera.position.clone();
         savedCamTarget = engine.controls.target.clone();
         setSelected(null);
@@ -188,6 +307,12 @@ function switchMode(newMode) {
         if (hint) hint.style.display = 'none';
         lockPointer(engine.renderer.domElement);
     } else {
+        // Hide explore catalog overlay if visible
+        const expCat = document.getElementById('explore-catalog');
+        if (expCat) expCat.style.display = 'none';
+        
+        const ceiling = engine.scene.getObjectByName('ceiling');
+        if (ceiling) ceiling.visible = false;
         exitExploreMode();
         if (savedCamPos) engine.camera.position.copy(savedCamPos);
         if (savedCamTarget) engine.controls.target.copy(savedCamTarget);
@@ -218,22 +343,136 @@ function onMouseDown(e) {
         }
         return;
     }
+    
+    // Build mode - Wall Drawing Tool click handling
+    if (mode === 'build' && drawingWall) {
+        if (e.button === 0) { // Left click
+            const floorMesh = engine.scene.getObjectByName('floor') || engine.scene.children.find(c => c.name === 'floor');
+            if (!floorMesh) return;
+            
+            const rect = engine.renderer.domElement.getBoundingClientRect();
+            const mouse = new THREE.Vector2(
+                ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                -((e.clientY - rect.top) / rect.height) * 2 + 1
+            );
+            
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, engine.camera);
+            const intersects = raycaster.intersectObject(floorMesh, true);
+            
+            if (intersects.length > 0) {
+                const pt = intersects[0].point;
+                // Snap to 0.1m grid for precision architectural drawing
+                pt.x = Math.round(pt.x * 10) / 10;
+                pt.z = Math.round(pt.z * 10) / 10;
+                
+                if (!wallStartPoint) {
+                    wallStartPoint = pt.clone();
+                    const txt = document.getElementById('draw-wall-text');
+                    if (txt) txt.textContent = "Wall Drawing: Click floor again to set Wall End Point";
+                    toast('Start point set. Click to draw the wall.', 'success');
+                } else {
+                    const p1 = wallStartPoint;
+                    const p2 = pt;
+                    const dir = new THREE.Vector3().subVectors(p2, p1);
+                    const L = dir.length();
+                    
+                    if (L < 0.2) {
+                        toast('Wall is too short! Minimum length is 0.2m.', 'warning');
+                        return;
+                    }
+                    
+                    const C = new THREE.Vector3().copy(p1).add(dir.clone().multiplyScalar(0.5));
+                    const angle = -Math.atan2(dir.z, dir.x);
+                    
+                    // Temporarily store dynamic wall details in catalog to instantiate custom partition wall
+                    catalog['partition_wall'] = {
+                        name: "Partition Wall",
+                        category: "build",
+                        color: "#f5f0eb",
+                        scale: [L, wallHeight, wallThickness]
+                    };
+                    
+                    const mesh = createFurniture('partition_wall', catalog, [C.x, wallHeight / 2, C.z], [0, angle, 0]);
+                    if (mesh) {
+                        engine.scene.add(mesh);
+                        updateAssetList();
+                        toast('Partition wall added!', 'success');
+                    }
+                    
+                    // Reset start point to support multi-wall chaining/continuation
+                    wallStartPoint = null;
+                    const txt = document.getElementById('draw-wall-text');
+                    if (txt) txt.textContent = "Wall Drawing: Click floor to set Wall Start Point";
+                }
+            }
+        }
+        return;
+    }
+
     if (mode !== 'build') return;
+    if (transformControl && transformControl.axis !== null) return; // Prevent selection when clicking transform arrows
     handleClick(e, engine.camera, engine.scene, engine.renderer.domElement, mode, onObjSelected);
-    if (getSelected()) startDrag(e, engine.camera, engine.renderer.domElement);
 }
 
 function onMouseMove(e) {
-    if (mode !== 'build' || !getDragging()) return;
-    doDrag(e, engine.camera, engine.renderer.domElement);
+    if (mode !== 'build') return;
+    
+    // Live preview for Wall Drawing Tool
+    if (drawingWall && wallStartPoint) {
+        const floorMesh = engine.scene.getObjectByName('floor') || engine.scene.children.find(c => c.name === 'floor');
+        if (!floorMesh) return;
+        
+        const rect = engine.renderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2(
+            ((e.clientX - rect.left) / rect.width) * 2 - 1,
+            -((e.clientY - rect.top) / rect.height) * 2 + 1
+        );
+        
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, engine.camera);
+        const intersects = raycaster.intersectObject(floorMesh, true);
+        
+        if (intersects.length > 0) {
+            const pt = intersects[0].point;
+            pt.x = Math.round(pt.x * 10) / 10;
+            pt.z = Math.round(pt.z * 10) / 10;
+            
+            const p1 = wallStartPoint;
+            const p2 = pt;
+            const dir = new THREE.Vector3().subVectors(p2, p1);
+            const L = dir.length();
+            const C = new THREE.Vector3().copy(p1).add(dir.clone().multiplyScalar(0.5));
+            const angle = -Math.atan2(dir.z, dir.x);
+            
+            if (!wallPreview) {
+                const wallMat = new THREE.MeshStandardMaterial({
+                    color: 0x7cb342,
+                    transparent: true,
+                    opacity: 0.45,
+                    roughness: 0.5
+                });
+                const geo = new THREE.BoxGeometry(1, 1, 1);
+                wallPreview = new THREE.Mesh(geo, wallMat);
+                engine.scene.add(wallPreview);
+            }
+            
+            wallPreview.scale.set(L, wallHeight, wallThickness);
+            wallPreview.position.set(C.x, wallHeight / 2, C.z);
+            wallPreview.rotation.set(0, angle, 0);
+        }
+    }
 }
 
 function onMouseUp() {
     if (mode !== 'build') return;
-    endDrag();
 }
 
 function onObjSelected(obj) {
+    if (transformControl) {
+        if (obj) transformControl.attach(obj);
+        else transformControl.detach();
+    }
     const propPanel = document.getElementById('props-content');
     if (!propPanel) return;
     if (!obj) { propPanel.innerHTML = '<p style="color:var(--editor-text-muted);font-size:13px;text-align:center;padding:20px;">Click an object to select it</p>'; return; }
@@ -278,12 +517,23 @@ window.RenovaEditor._updateScale = (input) => {
 function onKeyDown(e) {
     if (e.key === 'Delete' || e.key === 'Backspace') deleteObj();
     if (e.key === 'Escape') { 
-        if (mode === 'explore') { switchMode('build'); heldObject = null; } 
-        else setSelected(null); 
+        if (drawingWall) {
+            cancelWallDraw();
+        } else if (mode === 'explore') { 
+            switchMode('build'); 
+            heldObject = null; 
+        } else {
+            setSelected(null); 
+        }
     }
     if (e.key === 'r' || e.key === 'R') {
         if (mode === 'build' && getSelected()) getSelected().rotation.y += Math.PI / 8;
         if (mode === 'explore' && heldObject) heldObject.rotation.y += Math.PI / 8;
+    }
+    if ((e.key === 'c' || e.key === 'C') && mode === 'explore') {
+        if (typeof window.toggleExploreCatalog === 'function') {
+            window.toggleExploreCatalog();
+        }
     }
 }
 
@@ -344,6 +594,20 @@ async function saveProject() {
     if (!currentRoom) { toast('No room to save', 'warning'); return; }
     currentRoom.objects = serializeObjects();
     try {
+        // Capture thumbnail from canvas
+        try {
+            engine.renderer.render(engine.scene, engine.camera);
+            const thumbCanvas = document.createElement('canvas');
+            thumbCanvas.width = 400;
+            thumbCanvas.height = 250;
+            const tctx = thumbCanvas.getContext('2d');
+            tctx.drawImage(engine.renderer.domElement, 0, 0, 400, 250);
+            const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.7);
+            currentRoom.thumbnail = thumbnail;
+            // Also save thumbnail separately
+            await API.saveThumbnail(currentRoom.id, thumbnail);
+        } catch(e) { console.warn('Thumbnail capture failed:', e); }
+
         await API.saveRoom(currentRoom.id, currentRoom);
         toast('Project saved!', 'success');
     } catch(e) {
@@ -433,6 +697,70 @@ function toast(msg, type = 'success') {
     el.textContent = msg;
     container.appendChild(el);
     setTimeout(() => el.remove(), 3000);
+}
+
+// ── New Features: Catalog Spawning & Wall Drawing ──
+function spawnFurniture(type) {
+    if (!catalog[type]) return;
+    const info = catalog[type];
+    
+    // Calculate a position in front of the camera
+    const dir = new THREE.Vector3();
+    engine.camera.getWorldDirection(dir);
+    const pos = new THREE.Vector3().copy(engine.camera.position).add(dir.multiplyScalar(heldDistance));
+    
+    const mesh = createFurniture(type, catalog, [pos.x, pos.y, pos.z], [0, 0, 0]);
+    if (mesh) {
+        engine.scene.add(mesh);
+        heldObject = mesh;
+        updateAssetList();
+        
+        // Close explore catalog overlay
+        const expCat = document.getElementById('explore-catalog');
+        if (expCat) expCat.style.display = 'none';
+        
+        // Re-lock pointer to return to explore movement/controls
+        lockPointer(engine.renderer.domElement);
+        toast(`Spawned ${info.name}`, 'success');
+    }
+}
+
+function startWallDraw() {
+    drawingWall = true;
+    wallStartPoint = null;
+    if (wallPreview) {
+        engine.scene.remove(wallPreview);
+        wallPreview = null;
+    }
+    
+    // Hide transform controls if attached
+    if (transformControl) transformControl.detach();
+    setSelected(null);
+    onObjSelected(null);
+    
+    // Show banner UI
+    const banner = document.getElementById('draw-wall-banner');
+    if (banner) banner.style.display = 'flex';
+    
+    const txt = document.getElementById('draw-wall-text');
+    if (txt) txt.textContent = "Wall Drawing: Click floor to set Wall Start Point";
+    
+    toast('Wall drawing tool active. Click floor to start.', 'info');
+}
+
+function cancelWallDraw() {
+    drawingWall = false;
+    wallStartPoint = null;
+    if (wallPreview) {
+        engine.scene.remove(wallPreview);
+        wallPreview = null;
+    }
+    
+    // Hide banner UI
+    const banner = document.getElementById('draw-wall-banner');
+    if (banner) banner.style.display = 'none';
+    
+    toast('Wall drawing cancelled.', 'info');
 }
 
 // Auto-init

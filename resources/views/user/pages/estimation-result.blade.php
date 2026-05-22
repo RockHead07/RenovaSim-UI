@@ -1,42 +1,59 @@
 {{-- pages.estimation-result — port-style results page --}}
 @php
-    $inputs = [
-        'projectName'    => request()->query('projectName', 'Renovasi Rumah Pak Budi'),
-        'city'           => request()->query('city', 'Jakarta'),
-        'renovationType' => request()->query('renovationType', 'Pengecatan'),
-        'quality'        => request()->query('quality', 'Standar'),
-        'area'           => request()->query('area', '9'),
-        'unit'           => request()->query('unit', 'm²'),
-        'description'    => request()->query('description', ''),
-        'mode'           => request()->query('mode', 'detailed'),
-        'budget'         => (int) request()->query('budget', 0),
+    // Read from response passed by EstimationController
+    $min = $response['total_range']['min'] ?? 8_000_000;
+    $max = $response['total_range']['max'] ?? 12_000_000;
+    $display = ($min + $max) / 2;
+    $range = [
+        'min' => $min,
+        'max' => $max,
+        'display' => $response['total_range']['display'] ?? ('Rp ' . number_format($display, 0, ',', '.'))
     ];
 
-    // Demo-ish ranges (replace later with real calc/service)
-    $min = 8_000_000;
-    $max = 12_000_000;
-    $display = 10_000_000;
-    $range = ['min' => $min, 'max' => $max, 'display' => $display];
-
-    $confidence = ['label' => 'Tinggi', 'score' => 73, 'message' => 'Estimasi perlu beberapa asumsi tambahan.'];
-
-    $assumptions = [
-        ['field' => 'Luas Area', 'value' => $inputs['area'] . ' ' . $inputs['unit'], 'reason' => 'Luas didasarkan dari input Anda', 'needs_clarification' => false],
-        ['field' => 'Lokasi', 'value' => $inputs['city'], 'reason' => 'Dari data input Anda', 'needs_clarification' => false],
-        ['field' => 'Kualitas Material', 'value' => $inputs['quality'], 'reason' => 'Material kualitas standar pasaran', 'needs_clarification' => false],
+    $confidence = [
+        'label' => $response['confidence']['label'] ?? 'Tinggi',
+        'score' => $response['confidence']['score'] ?? 73,
+        'message' => $response['confidence']['message'] ?? ''
     ];
 
-    $breakdown = [
-        ['job_type' => 'planning', 'min' => 3_000_000, 'max' => 4_500_000, 'area' => $inputs['area']],
-        ['job_type' => 'tiling',   'min' => 5_000_000, 'max' => 7_500_000, 'area' => $inputs['area']],
-    ];
+    $assumptions = array_map(function($item) {
+        return [
+            'field' => $item['field'],
+            'value' => $item['value'],
+            'reason' => $item['reason'] ?? '',
+            'needs_clarification' => $item['needs_clarification'] ?? false
+        ];
+    }, $response['assumptions'] ?? []);
+
+    $breakdown = array_map(function($item) {
+        return [
+            'job_type' => $item['job_type'],
+            'min' => $item['min'],
+            'max' => $item['max'],
+            'area' => $item['area']
+        ];
+    }, $response['breakdown'] ?? []);
 
     $budgetWarning = null;
     if ($inputs['budget'] > 0 && $inputs['budget'] < $min) {
-        $budgetWarning = ['severity' => 'warning', 'message' => 'Budget Anda kemungkinan tidak cukup untuk scope ini.'];
+        $budgetWarning = ['severity' => 'warning', 'message' => 'Budget Anda (' . number_format($inputs['budget'], 0, ',', '.') . ') kemungkinan tidak cukup untuk scope ini.'];
     }
 
-    $infoTip = ['severity' => 'info', 'message' => 'Banyak yang mengira biaya cat hanya untuk catnya saja, padahal persiapan permukaan dan upah tukang sering jadi porsi terbesar.'];
+    // Check for other warnings returned from API
+    if (!empty($response['warnings'])) {
+        // Find the first matching warning
+        foreach ($response['warnings'] as $warn) {
+            if ($warn['severity'] === 'danger' || $warn['severity'] === 'warning') {
+                $budgetWarning = ['severity' => $warn['severity'], 'message' => $warn['message']];
+                break;
+            }
+        }
+    }
+
+    $infoTip = [
+        'severity' => 'info',
+        'message' => $response['pre_framing'] ?? 'Banyak yang mengira biaya cat hanya untuk catnya saja, padahal persiapan permukaan dan upah tukang sering jadi porsi terbesar.'
+    ];
 
     $aiUrl = '/user/ai-estimation?' . http_build_query([
         'projectName'    => $inputs['projectName'],
@@ -107,9 +124,13 @@
                             <h3 class="font-['Playfair_Display'] italic text-lg text-secondary">Dasar Perhitungan</h3>
                         </div>
                         <ul class="text-[12px] text-muted-foreground leading-relaxed list-disc pl-4 space-y-2">
-                            <li>Upah tukang di Jakarta ~30% lebih tinggi dari rata-rata nasional</li>
-                            <li>Pemasangan keramik butuh ketelitian lebih → biaya & waktu lebih tinggi</li>
-                            <li>Ditambahkan 5% untuk material cadangan dan waste selama pengerjaan</li>
+                            @foreach ($response['explanation'] ?? [] as $exp)
+                                <li>{{ $exp }}</li>
+                            @endforeach
+                            @if (empty($response['explanation']))
+                                <li>Upah tukang disesuaikan dengan tingkat regional kota {{ $inputs['city'] ?? 'Jakarta' }}</li>
+                                <li>Ditambahkan 5% untuk material cadangan dan waste selama pengerjaan</li>
+                            @endif
                         </ul>
                     </div>
                 </div>

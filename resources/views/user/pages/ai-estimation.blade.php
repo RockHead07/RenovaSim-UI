@@ -17,6 +17,7 @@
         'city'           => request()->query('city', 'Jakarta'),
         'renovationType' => request()->query('renovationType', 'Pengecatan'),
         'quality'        => request()->query('quality', 'Standar'),
+        'budget'         => request()->query('budget', ''),
     ];
 @endphp
 
@@ -59,6 +60,7 @@
                         unit: this.unit,
                         description: this.mode === 'ai' ? this.aiPrompt : this.notes,
                         mode: this.mode || '',
+                        budget: this.step1.budget || '',
                     });
                     window.location.href = '/user/estimation-result?' + params.toString();
                 }, 2000);

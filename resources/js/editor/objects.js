@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { createWallTexture } from './scene.js';
 
 const gltfLoader = new GLTFLoader();
 const raycaster = new THREE.Raycaster();
@@ -40,16 +41,24 @@ function removeOutline() {
     outlineMesh = null;
 }
 
-export function createFurniture(type, catalog, pos, rot, id) {
-    const info = catalog[type];
+export function createFurniture(type, catalog, pos, rot, id, customScale) {
+    let info = catalog[type];
+    if (type === 'partition_wall') {
+        info = info || { name: "Partition Wall", category: "build", color: "#f5f0eb", scale: [2.0, 3.2, 0.15] };
+    }
     if (!info) return null;
-    const s = info.scale || [1, 1, 1];
+    const s = customScale || info.scale || [1, 1, 1];
     
     const group = new THREE.Group();
     const color = new THREE.Color(info.color || '#888888');
-    const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.1 });
-    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.9, metalness: 0.0 });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4, metalness: 0.8 });
+    // Realistic PBR materials
+    const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.75, metalness: 0.02, envMapIntensity: 0.3 });
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x7a4e2d, roughness: 0.85, metalness: 0.0, envMapIntensity: 0.2 });
+    const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1a, roughness: 0.8, metalness: 0.0 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.25, metalness: 0.85, envMapIntensity: 0.6 });
+    const fabricMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(info.color || '#6b5b4f'), roughness: 0.95, metalness: 0.0 });
+    const chromeMat = new THREE.MeshStandardMaterial({ color: 0xd0d0d0, roughness: 0.1, metalness: 0.95, envMapIntensity: 0.8 });
+    const porcelainMat = new THREE.MeshStandardMaterial({ color: 0xf0ece8, roughness: 0.15, metalness: 0.05, envMapIntensity: 0.4 });
     
     // External asset loading if available
     if (info.asset_url) {
@@ -90,8 +99,8 @@ export function createFurniture(type, catalog, pos, rot, id) {
             group.add(fallback);
         });
     } else if (type.includes('sofa') || type.includes('chair')) {
-        const cushMat = new THREE.MeshStandardMaterial({color: new THREE.Color(info.color||'#6b5b4f').multiplyScalar(1.1), roughness: 0.92, metalness: 0});
-        const legMat = new THREE.MeshStandardMaterial({color: 0x5a3a1a, roughness: 0.7, metalness: 0.1});
+        const cushMat = new THREE.MeshStandardMaterial({color: new THREE.Color(info.color||'#6b5b4f').multiplyScalar(1.1), roughness: 0.95, metalness: 0, envMapIntensity: 0.1});
+        const legMat = new THREE.MeshStandardMaterial({color: 0x5a3a1a, roughness: 0.75, metalness: 0.02});
         const legH = s[1]*0.15, legR = 0.025;
         // 4 tapered legs
         [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([lx,lz]) => {
@@ -288,18 +297,18 @@ export function createFurniture(type, catalog, pos, rot, id) {
             group.add(base, pole, shade);
         }
     } else if (type.includes('fridge')) {
-        const fridgeMat = new THREE.MeshStandardMaterial({color: 0xdcdce1, roughness: 0.3, metalness: 0.4});
+        const fridgeMat = new THREE.MeshStandardMaterial({color: 0xdcdce1, roughness: 0.2, metalness: 0.5, envMapIntensity: 0.5});
         const body = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1], s[2]), fridgeMat);
         body.position.y = s[1]/2;
         // Door line
         const line = new THREE.Mesh(new THREE.BoxGeometry(s[0]*0.9, 0.005, 0.005), darkMat);
         line.position.set(0, s[1]*0.6, s[2]/2+0.003);
         // Handle
-        const hdl = new THREE.Mesh(new THREE.BoxGeometry(0.02, s[1]*0.25, 0.03), new THREE.MeshStandardMaterial({color:0xc0c0c0, metalness:0.8}));
+        const hdl = new THREE.Mesh(new THREE.BoxGeometry(0.02, s[1]*0.25, 0.03), chromeMat.clone());
         hdl.position.set(s[0]*0.35, s[1]*0.4, s[2]/2+0.02);
         group.add(body, line, hdl);
     } else if (type.includes('toilet')) {
-        const porMat = new THREE.MeshStandardMaterial({color: 0xf0ece8, roughness: 0.25, metalness: 0.05});
+        const porMat = porcelainMat.clone();
         // Bowl
         const bowl = new THREE.Mesh(new THREE.CylinderGeometry(s[0]*0.4, s[0]*0.35, s[1]*0.4, 16), porMat);
         bowl.position.y = s[1]*0.2;
@@ -311,7 +320,7 @@ export function createFurniture(type, catalog, pos, rot, id) {
         tank.position.set(0, s[1]*0.55, -s[2]*0.3);
         group.add(bowl, seat, tank);
     } else if (type.includes('bath')) {
-        const bathMat = new THREE.MeshStandardMaterial({color: 0xf0ece8, roughness: 0.2, metalness: 0.1});
+        const bathMat = porcelainMat.clone();
         const outer = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1], s[2]), bathMat);
         outer.position.y = s[1]/2;
         // Inner (darker)
@@ -319,12 +328,25 @@ export function createFurniture(type, catalog, pos, rot, id) {
             new THREE.MeshStandardMaterial({color: 0xe8e4e0, roughness: 0.15}));
         inner.position.y = s[1]*0.55;
         // Faucet
-        const faucet = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.15, 8),
-            new THREE.MeshStandardMaterial({color: 0xc0c0c0, metalness: 0.9, roughness: 0.1}));
+        const faucet = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.15, 8), chromeMat.clone());
         faucet.position.set(0, s[1]+0.07, -s[2]*0.35);
         group.add(outer, inner, faucet);
+    } else if (type === 'partition_wall') {
+        const pColor = info.color || '#f5f0eb';
+        const wallTex = createWallTexture(pColor);
+        const wallMat = new THREE.MeshStandardMaterial({
+            map: wallTex,
+            color: new THREE.Color(pColor),
+            roughness: 0.82,
+            metalness: 0,
+            envMapIntensity: 0.15
+        });
+        const wallMesh = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1], s[2]), wallMat);
+        wallMesh.position.y = s[1]/2;
+        wallMesh.userData = { type: 'wall' };
+        group.add(wallMesh);
     } else if (type.includes('sink')) {
-        const sinkMat = new THREE.MeshStandardMaterial({color: 0xe8e4e0, roughness: 0.2});
+        const sinkMat = porcelainMat.clone();
         const cab = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1]*0.7, s[2]), woodMat);
         cab.position.y = s[1]*0.35;
         const top = new THREE.Mesh(new THREE.BoxGeometry(s[0]+0.02, 0.04, s[2]+0.02), sinkMat);
@@ -332,8 +354,7 @@ export function createFurniture(type, catalog, pos, rot, id) {
         const basin = new THREE.Mesh(new THREE.CylinderGeometry(s[0]*0.25, s[0]*0.2, 0.1, 16), sinkMat);
         basin.position.y = s[1]*0.68;
         // Faucet
-        const fc = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.18, 8),
-            new THREE.MeshStandardMaterial({color: 0xc0c0c0, metalness: 0.9}));
+        const fc = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.18, 8), chromeMat.clone());
         fc.position.set(0, s[1]*0.82, -s[2]*0.2);
         group.add(cab, top, basin, fc);
     } else {

@@ -47,7 +47,7 @@
                             <p class="text-[10px] text-paragraph mt-0.5">Role: <span class="text-foreground" x-text="u.roleLabel"></span></p>
                         </div>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium bg-lime-400 text-black" x-text="u.status"></span>
+                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="statusBadgeClass(u.status)" x-text="u.status"></span>
                 </div>
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-border/10 text-center">
                     <div>
@@ -114,7 +114,7 @@
                                 </td>
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="u.joined"></td>
                                 <td class="px-5 py-3">
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium bg-primary text-primary-accent" x-text="u.status"></span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="statusBadgeClass(u.status)" x-text="u.status"></span>
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex gap-2">
@@ -151,40 +151,52 @@ function usersPage() {
         perPage: 10,
         plans: ['All', 'Free', 'Smart', 'Pro'],
         planColors: { Free: '#838383', Smart: '#8BA023', Pro: '#d4941a' },
-        users: {!! json_encode($usersData->toArray()) !!},
-        fetchUsers() {
-            const params = new URLSearchParams();
-            if (this.search) params.append('search', this.search);
-            if (this.planFilter !== 'All') params.append('plan', this.planFilter);
-            
-            fetch(`/admin/users-api?${params}`)
-                .then(r => r.json())
-                .then(data => {
-                    this.users = data;
-                    this.page = 1;
-                });
+        users: [],
+        async init() {
+            await this.fetchUsers();
         },
-        deleteUser(id) {
+        async fetchUsers() {
+            try {
+                const params = new URLSearchParams();
+                if (this.search) params.append('search', this.search);
+                if (this.planFilter !== 'All') params.append('plan', this.planFilter);
+                params.append('per_page', '200');
+
+                const res = await apiFetch(`/api/users?${params}`);
+                const raw = res.data ?? [];
+                this.users = raw.map(u => ({
+                    id: u.id,
+                    name: u.username,
+                    email: u.email,
+                    role: u.role ?? 'user',
+                    roleLabel: { admin:'Admin', super_admin:'Super Admin', owner:'Owner' }[u.role] ?? 'User',
+                    plan: u.plan_name ?? u.plan?.name ?? 'Free',
+                    joined: u.created_at ? u.created_at.substring(0, 10) : '',
+                    status: { inactive:'Inactive', suspended:'Suspended' }[u.account_status] ?? 'Active',
+                }));
+                this.page = 1;
+            } catch (e) {
+                console.error('Failed to fetch users:', e);
+            }
+        },
+        async deleteUser(id) {
             if (!confirm('Are you sure you want to delete this user?')) return;
-            
-            fetch(`/admin/users/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                }
-            })
-            .then(r => r.json())
-            .then(data => {
+            try {
+                await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
                 this.users = this.users.filter(u => u.id !== id);
                 this.page = 1;
-            })
-            .catch(e => alert('Error deleting user'));
+            } catch (e) {
+                alert('Error deleting user');
+            }
         },
         initials(name) {
             return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
         },
         planBadgeClass(plan) {
             return { Free:'bg-muted text-muted-foreground', Smart:'bg-status-active/15 text-status-active', Pro:'bg-status-warning/15 text-status-warning' }[plan] ?? 'bg-muted text-muted-foreground';
+        },
+        statusBadgeClass(status) {
+            return { Active:'bg-primary text-primary-accent', Inactive:'status-badge-inactive', Suspended:'bg-status-warning/15 text-status-warning' }[status] ?? 'bg-muted text-muted-foreground';
         },
         roleBadgeClass(role) {
             if (role === 'owner') return 'bg-amber-500/20 text-amber-400';

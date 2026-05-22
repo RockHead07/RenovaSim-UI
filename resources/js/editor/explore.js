@@ -3,18 +3,26 @@ import * as THREE from 'three';
 let fpCamera, moveState, euler, velocity;
 let locked = false;
 
-// Eye-level height: lowered per user request
-const EYE_HEIGHT = 1.1;
+// Eye-level height: lower for a more realistic seating/standing feel (~1.45m)
+const EYE_HEIGHT = 1.45;
 const JUMP_VELOCITY = 3.8;
 const GRAVITY = 12;
-const MOVE_SPEED = 4.2;
-const MOUSE_SENSITIVITY = 0.002;
+const OBJ_GRAVITY = 9.8;
+const MOVE_SPEED = 3.5;
+const MOUSE_SENSITIVITY = 0.0018;
+
+// Wall-mounted items are exempt from gravity
+const WALL_MOUNTED_TYPES = ['mirror', 'painting', 'clock', 'curtain'];
+
+// Per-object vertical velocity for smooth physics
+const objVelocities = new Map();
 
 export function initExplore(camera) {
     fpCamera = camera;
     moveState = { forward: false, backward: false, left: false, right: false };
     euler = new THREE.Euler(0, 0, 0, 'YXZ');
     velocity = new THREE.Vector3();
+    objVelocities.clear();
 }
 
 export function lockPointer(canvas) {
@@ -93,4 +101,69 @@ export function exitExploreMode() {
     if (document.pointerLockElement) document.exitPointerLock();
     locked = false;
     moveState = { forward: false, backward: false, left: false, right: false };
+}
+
+/**
+ * Apply gravity and AABB stacking collision to all scene objects.
+ * Objects fall until they hit the floor (Y=0) or land on top of another object.
+ * Wall-mounted items (mirror, painting, clock, curtain) and rugs are exempt.
+ *
+ * @param {Array} objects - all furniture wrapper Groups from objectList
+ * @param {THREE.Object3D|null} heldObject - currently held object (skip gravity)
+ * @param {number} delta - frame delta time in seconds
+ */
+export function applyGravityToObjects(objects, heldObject, delta) {
+    for (const obj of objects) {
+        // Skip the object the player is currently holding
+        if (obj === heldObject) continue;
+
+        const ft = obj.userData.furnitureType || '';
+        // Skip wall-mounted types — they stick to walls
+        if (WALL_MOUNTED_TYPES.some(t => ft.includes(t))) continue;
+        // Skip rugs/carpets — they lie flat on the floor
+        if (ft.includes('rug') || ft.includes('carpet')) continue;
+
+        const s = obj.userData.scale || [1, 1, 1];
+
+        // Get or initialise vertical velocity for this object
+        if (!objVelocities.has(obj.uuid)) {
+            objVelocities.set(obj.uuid, 0);
+        }
+        let vy = objVelocities.get(obj.uuid);
+
+        // ── Find the highest surface below this object (floor or another object) ──
+        let landingY = 0; // floor baseline
+
+        for (const other of objects) {
+            if (other === obj || other === heldObject) continue;
+            const os = other.userData.scale || [1, 1, 1];
+            const oft = other.userData.furnitureType || '';
+            // Ignore rugs as landing surfaces
+            if (oft.includes('rug') || oft.includes('carpet')) continue;
+
+            // Horizontal AABB overlap test (slightly shrunk to avoid edge-sticking)
+            const overlapX = Math.abs(obj.position.x - other.position.x) < (s[0] + os[0]) * 0.4;
+            const overlapZ = Math.abs(obj.position.z - other.position.z) < (s[2] + os[2]) * 0.4;
+
+            if (overlapX && overlapZ) {
+                const otherTop = other.position.y + os[1];
+                // Only consider surfaces that are at or below our current position
+                if (otherTop <= obj.position.y + 0.02 && otherTop > landingY) {
+                    landingY = otherTop;
+                }
+            }
+        }
+
+        // ── Apply gravity ──
+        vy -= OBJ_GRAVITY * delta;
+        obj.position.y += vy * delta;
+
+        // ── Floor / stack collision ──
+        if (obj.position.y <= landingY) {
+            obj.position.y = landingY;
+            vy = 0;
+        }
+
+        objVelocities.set(obj.uuid, vy);
+    }
 }

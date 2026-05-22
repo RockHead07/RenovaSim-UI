@@ -58,3 +58,16 @@ export async function updateWall(roomId, wallId, color) {
     });
     return r.json();
 }
+
+export async function saveThumbnail(roomId, thumbnailDataUrl) {
+    const r = await fetch(`${API}/rooms/${roomId}/thumbnail`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ thumbnail: thumbnailDataUrl }),
+    });
+    return r.json();
+}
+
+export async function getProjects() {
+    const r = await fetch(`${API}/projects`);
+    return (await r.json()).projects;
+}

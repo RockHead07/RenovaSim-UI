@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "8bd95498671c38373a133ce07439c44c",
+=======
+    "content-hash": "2dcd64972c80c8f2701b6fc7f75dfe21",
+>>>>>>> origin/main
     "packages": [
         {
             "name": "blade-ui-kit/blade-icons",
@@ -1200,6 +1204,7 @@
         },
         {
             "name": "laravel/framework",
+<<<<<<< HEAD
             "version": "v13.7.0",
             "source": {
                 "type": "git",
@@ -1210,6 +1215,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/framework/zipball/f13b85b2cce7ef5e8f3bcdf2b6c6364bbdedae0b",
                 "reference": "f13b85b2cce7ef5e8f3bcdf2b6c6364bbdedae0b",
+=======
+            "version": "v13.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/framework.git",
+                "reference": "416a93ea9c53161e0d4b8a44045f447b65a7d2f1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/416a93ea9c53161e0d4b8a44045f447b65a7d2f1",
+                "reference": "416a93ea9c53161e0d4b8a44045f447b65a7d2f1",
+>>>>>>> origin/main
                 "shasum": ""
             },
             "require": {
@@ -1420,7 +1437,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
+<<<<<<< HEAD
             "time": "2026-04-28T17:18:25+00:00"
+=======
+            "time": "2026-04-21T13:32:11+00:00"
+>>>>>>> origin/main
         },
         {
             "name": "laravel/prompts",
@@ -1480,6 +1501,72 @@
                 "source": "https://github.com/laravel/prompts/tree/v0.3.17"
             },
             "time": "2026-04-20T16:07:33+00:00"
+<<<<<<< HEAD
+=======
+        },
+        {
+            "name": "laravel/sanctum",
+            "version": "v4.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/sanctum.git",
+                "reference": "e3b85d6e36ad00e5db2d1dcc27c81ffdf15cbf76"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/sanctum/zipball/e3b85d6e36ad00e5db2d1dcc27c81ffdf15cbf76",
+                "reference": "e3b85d6e36ad00e5db2d1dcc27c81ffdf15cbf76",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "illuminate/console": "^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^11.0|^12.0|^13.0",
+                "illuminate/database": "^11.0|^12.0|^13.0",
+                "illuminate/support": "^11.0|^12.0|^13.0",
+                "php": "^8.2",
+                "symfony/console": "^7.0|^8.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.15|^10.8|^11.0",
+                "phpstan/phpstan": "^1.10"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Sanctum\\SanctumServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Sanctum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "Laravel Sanctum provides a featherweight authentication system for SPAs and simple APIs.",
+            "keywords": [
+                "auth",
+                "laravel",
+                "sanctum"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/sanctum/issues",
+                "source": "https://github.com/laravel/sanctum"
+            },
+            "time": "2026-02-07T17:19:31+00:00"
+>>>>>>> origin/main
         },
         {
             "name": "laravel/sanctum",
@@ -5513,6 +5600,7 @@
                 }
             ],
             "time": "2026-04-26T13:10:57+00:00"
+<<<<<<< HEAD
         },
         {
             "name": "symfony/polyfill-php86",
@@ -5593,6 +5681,8 @@
                 }
             ],
             "time": "2026-04-26T13:13:48+00:00"
+=======
+>>>>>>> origin/main
         },
         {
             "name": "symfony/polyfill-uuid",
@@ -6341,6 +6431,7 @@
         },
         {
             "name": "technikermathe/blade-lucide-icons",
+<<<<<<< HEAD
             "version": "v3.150.0",
             "source": {
                 "type": "git",
@@ -6351,6 +6442,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/PascaleBeier/blade-lucide-icons/zipball/dbecb3c01ab856fc1b8e6e70c48c56a5bde7b40c",
                 "reference": "dbecb3c01ab856fc1b8e6e70c48c56a5bde7b40c",
+=======
+            "version": "v3.148.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PascaleBeier/blade-lucide-icons.git",
+                "reference": "51da2c74c4273badc3f550921496f2725ceb98b9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PascaleBeier/blade-lucide-icons/zipball/51da2c74c4273badc3f550921496f2725ceb98b9",
+                "reference": "51da2c74c4273badc3f550921496f2725ceb98b9",
+>>>>>>> origin/main
                 "shasum": ""
             },
             "require": {
@@ -6400,9 +6503,15 @@
             ],
             "support": {
                 "issues": "https://github.com/PascaleBeier/blade-lucide-icons/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/PascaleBeier/blade-lucide-icons/tree/v3.150.0"
             },
             "time": "2026-04-30T00:23:27+00:00"
+=======
+                "source": "https://github.com/PascaleBeier/blade-lucide-icons/tree/v3.148.0"
+            },
+            "time": "2026-04-25T00:17:37+00:00"
+>>>>>>> origin/main
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",

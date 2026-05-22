@@ -40,7 +40,7 @@
 
         {{-- Column 1: Logo & description --}}
         <div>
-            <img src="{{ asset('images/logo.svg') }}" alt="RenovaSim" class="h-6 mb-5" style="filter: brightness(0) invert(1) brightness(0.95);" />
+            <img src="{{ asset('images/logo.svg') }}" alt="RenovaSim" class="h-6 mb-5"/>
             <p class="text-paragraph text-sm font-light leading-relaxed">
                 AI-powered renovation planning. Estimate costs, simulate designs, and make smarter decisions — before you build.
             </p>

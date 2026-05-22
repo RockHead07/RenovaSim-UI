@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RenovaSim — 3D Room Editor</title>
     <meta name="description" content="3D Room Editor - Upload room photos and transform them into interactive 3D spaces">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/editor.css', 'resources/js/room-editor.js'])
 </head>
-<body class="editor-page">
+<body class="editor-page" data-project-id="{{ $projectId ?? '' }}">
 
     <!-- ═══ TOOLBAR ═══ -->
     <div class="editor-toolbar">
@@ -43,9 +44,9 @@
         <div class="toolbar-right">
             <span id="room-info" style="font-size:12px;color:var(--editor-text-muted);">No room loaded</span>
             <div class="toolbar-divider"></div>
-            <a href="{{ route('dashboard') }}" class="toolbar-btn" title="Back to Dashboard">
+            <a href="/user/3d" class="toolbar-btn" title="Back to 3D Designs">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-                Dashboard
+                My Designs
             </a>
         </div>
     </div>
@@ -64,6 +65,9 @@
 
         <!-- Assets Tab -->
         <div id="tab-assets" class="panel-content" style="display:block;">
+            <button class="toolbar-btn" style="width:100%;justify-content:center;margin-bottom:12px;border-color:var(--editor-accent);color:var(--editor-accent);font-weight:600;" onclick="RenovaEditor.startWallDraw()">
+                🧱 Draw Partition Wall
+            </button>
             <div class="property-label" style="margin-bottom:8px;">Scene Objects</div>
             <div id="scene-objects" style="margin-bottom:16px;">
                 <p style="color:var(--editor-text-muted);font-size:12px;padding:8px;">No objects in scene</p>
@@ -108,6 +112,9 @@
     <!-- ═══ EXPLORE HUD ═══ -->
     <div id="explore-hud" class="explore-hud" style="display:none;">
         <button class="hud-btn" onclick="RenovaEditor.switchMode('build')" title="Exit Explore">✕</button>
+        <button class="hud-btn" id="explore-catalog-btn" onclick="toggleExploreCatalog()" title="Catalog (C)" style="width:auto;padding:0 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">
+            <span>➕</span> Catalog <span style="font-size:10px;opacity:0.6;">[C]</span>
+        </button>
         <div style="display:flex;align-items:center;gap:4px;color:var(--editor-text-dim);font-size:12px;padding:0 12px;">
             <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;">W</kbd>
             <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;">A</kbd>
@@ -115,8 +122,36 @@
             <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;">D</kbd>
             <span style="margin-left:4px;">Move</span>
         </div>
-        <div style="color:var(--editor-text-dim);font-size:12px;padding:0 8px;">
-            🖱 Look/Grab | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;">R</kbd> Rotate | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;">Space</kbd> Jump | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;">ESC</kbd> Exit
+        <div style="color:var(--editor-text-dim);font-size:12px;padding:0 8px;display:flex;align-items:center;">
+            🖱 Grab/Drop | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">R</kbd> Rotate | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">Space</kbd> Jump | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">C</kbd> Catalog
+        </div>
+    </div>
+
+    <!-- ═══ EXPLORE CATALOG OVERLAY (Glassmorphic) ═══ -->
+    <div id="explore-catalog" class="explore-catalog" style="display:none;">
+        <div class="explore-catalog-content">
+            <div class="explore-catalog-header">
+                <h3>📦 Add Furniture</h3>
+                <button class="close-btn" onclick="toggleExploreCatalog()">✕</button>
+            </div>
+            <div class="explore-catalog-tabs">
+                <button class="cat-tab active" onclick="filterExploreCatalog('all')">All</button>
+                <button class="cat-tab" onclick="filterExploreCatalog('living')">Living</button>
+                <button class="cat-tab" onclick="filterExploreCatalog('bedroom')">Bedroom</button>
+                <button class="cat-tab" onclick="filterExploreCatalog('kitchen')">Kitchen</button>
+                <button class="cat-tab" onclick="filterExploreCatalog('bathroom')">Bath</button>
+                <button class="cat-tab" onclick="filterExploreCatalog('decor')">Decor</button>
+            </div>
+            <div id="explore-catalog-grid" class="explore-catalog-grid"></div>
+        </div>
+    </div>
+
+    <!-- ═══ DRAW WALL BANNER ═══ -->
+    <div id="draw-wall-banner" class="draw-wall-banner" style="display:none;">
+        <div class="banner-content">
+            <span class="banner-icon">🧱</span>
+            <span id="draw-wall-text">Wall Drawing: Click floor to set Wall Start Point</span>
+            <button class="banner-btn" onclick="RenovaEditor.cancelWallDraw()">Cancel</button>
         </div>
     </div>
 
@@ -229,6 +264,50 @@
                 document.getElementById('file-input').files = dt.files;
                 RenovaEditor.uploadAndGenerate();
             }
+        }
+
+        // Explore mode catalog interactions
+        function toggleExploreCatalog() {
+            const el = document.getElementById('explore-catalog');
+            if (!el) return;
+            const open = el.style.display === 'none' || el.style.display === '';
+            el.style.display = open ? 'flex' : 'none';
+            if (open) {
+                if (document.pointerLockElement) document.exitPointerLock();
+                renderExploreCatalog();
+            } else {
+                const canvas = document.getElementById('editor-canvas').querySelector('canvas');
+                if (canvas) canvas.requestPointerLock();
+            }
+        }
+
+        let currentExploreCategory = 'all';
+        function filterExploreCatalog(cat) {
+            currentExploreCategory = cat;
+            document.querySelectorAll('.explore-catalog-tabs .cat-tab').forEach(t => {
+                const text = t.textContent.toLowerCase();
+                if (text.includes(cat) || (cat === 'all' && text === 'all')) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            renderExploreCatalog();
+        }
+
+        function renderExploreCatalog() {
+            const el = document.getElementById('explore-catalog-grid');
+            if (!el || !window.RenovaEditor || !window.RenovaEditor.getCatalog) return;
+            const cat = window.RenovaEditor.getCatalog();
+            let html = '';
+            Object.entries(cat).forEach(([key, item]) => {
+                if (currentExploreCategory !== 'all' && item.category !== currentExploreCategory) return;
+                html += `<div class="explore-catalog-card" onclick="window.RenovaEditor.spawnFurniture('${key}')">
+                    <span class="explore-catalog-card-icon">${item.icon || '📦'}</span>
+                    <span class="explore-catalog-card-name">${item.name}</span>
+                </div>`;
+            });
+            el.innerHTML = html;
         }
     </script>
 </body>

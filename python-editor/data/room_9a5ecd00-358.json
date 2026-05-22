@@ -1,0 +1,180 @@
+{
+  "id": "9a5ecd00-358",
+  "name": "Room 9a5ecd",
+  "width": 8.0,
+  "length": 10.0,
+  "height": 3.0,
+  "wall_color": "#f5f0eb",
+  "floor_color": "#c4a882",
+  "objects": [
+    {
+      "id": "c88b0e28",
+      "type": "bed_double",
+      "name": "Double Bed",
+      "category": "bedroom",
+      "position": [
+        0.76,
+        0.25,
+        2.41
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.6,
+        0.5,
+        2.1
+      ],
+      "color": "#8b7355",
+      "detected": true,
+      "confidence": 0.92
+    },
+    {
+      "id": "768faec6",
+      "type": "plant_large",
+      "name": "Large Plant",
+      "category": "decor",
+      "position": [
+        -2.62,
+        0.6,
+        -1.02
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.5,
+        1.2,
+        0.5
+      ],
+      "color": "#1a7a1a",
+      "detected": true,
+      "confidence": 0.61
+    },
+    {
+      "id": "85cd849e",
+      "type": "plant_large",
+      "name": "Large Plant",
+      "category": "decor",
+      "position": [
+        -3.7,
+        0.6,
+        -3.37
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.5,
+        1.2,
+        0.5
+      ],
+      "color": "#1a7a1a",
+      "detected": true,
+      "confidence": 0.56
+    },
+    {
+      "id": "c17dab52",
+      "type": "plant_large",
+      "name": "Large Plant",
+      "category": "decor",
+      "position": [
+        -1.89,
+        0.6,
+        0.91
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.5,
+        1.2,
+        0.5
+      ],
+      "color": "#1a7a1a",
+      "detected": true,
+      "confidence": 0.42
+    },
+    {
+      "id": "b3312c1e",
+      "type": "plant_large",
+      "name": "Large Plant",
+      "category": "decor",
+      "position": [
+        2.62,
+        0.6,
+        -1.26
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.5,
+        1.2,
+        0.5
+      ],
+      "color": "#1a7a1a",
+      "detected": true,
+      "confidence": 0.33
+    }
+  ],
+  "detected_assets": [
+    {
+      "type": "bed_double",
+      "name": "Double Bed",
+      "confidence": 0.92,
+      "category": "bedroom",
+      "x_ratio": 0.5951116665926847,
+      "y_ratio": 0.7412510055432217
+    },
+    {
+      "type": "plant_large",
+      "name": "Large Plant",
+      "confidence": 0.61,
+      "category": "decor",
+      "x_ratio": 0.17264547868208452,
+      "y_ratio": 0.3976847916198291
+    },
+    {
+      "type": "plant_large",
+      "name": "Large Plant",
+      "confidence": 0.56,
+      "category": "decor",
+      "x_ratio": 0.01991457158868963,
+      "y_ratio": 0.16318433473436095
+    },
+    {
+      "type": "plant_large",
+      "name": "Large Plant",
+      "confidence": 0.42,
+      "category": "decor",
+      "x_ratio": 0.2636206748268821,
+      "y_ratio": 0.5911344898690423
+    },
+    {
+      "type": "plant_large",
+      "name": "Large Plant",
+      "confidence": 0.33,
+      "category": "decor",
+      "x_ratio": 0.8270045332475142,
+      "y_ratio": 0.3743289755402709
+    }
+  ],
+  "recommended_type": "decor",
+  "recommended_templates": [],
+  "images": [
+    "9a5ecd00-358_af0b6b.jpeg"
+  ],
+  "created_at": "2026-05-20T10:21:52.263010",
+  "status": "generated"
+}

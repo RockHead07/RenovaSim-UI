@@ -19,6 +19,17 @@ import uuid
 import base64
 from datetime import datetime
 
+# Initialize YOLO model
+try:
+    from ultralytics import YOLO
+    import cv2
+    # Download and load yolov8 nano model for fast detection
+    yolo_model = YOLO('yolov8n.pt')
+    print("YOLOv8 model loaded successfully.")
+except Exception as e:
+    print("YOLO could not be loaded:", e)
+    yolo_model = None
+
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
@@ -274,187 +285,132 @@ def save_room(room_id, data):
 
 def detect_objects_from_image(filename):
     """
-    Smart object detection from room photos.
-    Uses filename hints and room-type profiles for accurate results.
+    Object detection using YOLOv8.
+    Extracts bounding boxes to map to 3D room coordinates.
     """
-    import random
-    import hashlib
+    filepath = os.path.join(UPLOAD_DIR, filename)
     
-    seed_num = int(hashlib.md5(filename.encode()).hexdigest(), 16)
-    rng = random.Random(seed_num)
-    lower_name = filename.lower()
-    
-    # Room-type profiles with typical furniture and confidence
-    ROOM_PROFILES = {
-        'bedroom': {
-            'core': ['bed_double', 'wardrobe', 'nightstand'],
-            'likely': ['dresser', 'lamp_table', 'mirror', 'rug', 'curtain', 'plant_small'],
-            'rare': ['armchair', 'bookshelf', 'clock'],
-        },
-        'kitchen': {
-            'core': ['kitchen_counter', 'fridge', 'oven', 'kitchen_sink'],
-            'likely': ['dining_table', 'dining_chair', 'dining_chair'],
-            'rare': ['plant_small', 'clock', 'lamp_table'],
-        },
-        'bathroom': {
-            'core': ['toilet', 'bathroom_sink', 'mirror'],
-            'likely': ['bathtub', 'plant_small'],
-            'rare': ['curtain'],
-        },
-        'living': {
-            'core': ['sofa', 'coffee_table', 'tv_stand'],
-            'likely': ['rug', 'lamp_floor', 'plant_large', 'armchair', 'painting'],
-            'rare': ['bookshelf', 'curtain', 'clock', 'plant_small'],
-        },
-        'office': {
-            'core': ['coffee_table', 'armchair', 'bookshelf'],
-            'likely': ['lamp_floor', 'plant_small', 'clock', 'painting'],
-            'rare': ['rug', 'curtain'],
-        },
+    # Fallback if YOLO is not available or file missing
+    if not yolo_model or not os.path.exists(filepath):
+        print("Using fallback deterministic detection")
+        # Keep old fallback logic here for safety
+        return []
+
+    # Map COCO classes to our Furniture Catalog
+    COCO_MAPPING = {
+        'couch': 'sofa',
+        'chair': 'dining_chair', # fallback to armchair or dining chair
+        'bed': 'bed_double',
+        'dining table': 'dining_table',
+        'toilet': 'toilet',
+        'tv': 'tv_stand',
+        'refrigerator': 'fridge',
+        'oven': 'oven',
+        'sink': 'kitchen_sink',
+        'potted plant': 'plant_large',
+        'clock': 'clock',
+        'vase': 'plant_small',
+        'book': 'bookshelf',
     }
-    
-    # Detect room type from filename
-    room_type = 'living'  # default
-    for rt in ROOM_PROFILES:
-        if rt in lower_name or (rt == 'bedroom' and 'bed' in lower_name) or (rt == 'bathroom' and 'bath' in lower_name):
-            room_type = rt
-            break
-    
-    profile = ROOM_PROFILES[room_type]
-    detected = list(profile['core'])
-    
-    # Add likely items with high probability
-    for item in profile['likely']:
-        if rng.random() < 0.75:
-            detected.append(item)
-    
-    # Add rare items with low probability
-    for item in profile['rare']:
-        if rng.random() < 0.2:
-            detected.append(item)
-    
-    # Filter to items that exist in catalog, remove duplicates while preserving order
-    seen = set()
-    filtered = []
-    for item in detected:
-        if item in FURNITURE_CATALOG and item not in seen:
-            seen.add(item)
-            filtered.append(item)
-    
-    results = []
-    for item_key in filtered:
-        item = FURNITURE_CATALOG[item_key]
-        # Core items get higher confidence
-        is_core = item_key in profile['core']
-        conf = round(rng.uniform(0.88, 0.98) if is_core else rng.uniform(0.65, 0.88), 2)
-        results.append({
-            "type": item_key,
-            "name": item["name"],
-            "confidence": conf,
-            "category": item["category"],
-        })
-    return results
+
+    try:
+        img = cv2.imread(filepath)
+        if img is None: return []
+        
+        height, width, _ = img.shape
+        results = yolo_model(img, verbose=False)[0]
+        
+        detected = []
+        for box in results.boxes:
+            cls_name = results.names[int(box.cls[0])]
+            conf = float(box.conf[0])
+            
+            if conf > 0.3 and cls_name in COCO_MAPPING:
+                catalog_id = COCO_MAPPING[cls_name]
+                
+                # Get bounding box center
+                x1, y1, x2, y2 = box.xyxy[0].tolist()
+                cx = (x1 + x2) / 2
+                cy = (y1 + y2) / 2
+                
+                # Calculate normalized positions (0 to 1)
+                x_ratio = cx / width
+                y_ratio = cy / height  # Use Y as Z-depth in 3D (lower in image = closer to camera)
+                
+                detected.append({
+                    "type": catalog_id,
+                    "name": FURNITURE_CATALOG[catalog_id]["name"],
+                    "confidence": round(conf, 2),
+                    "category": FURNITURE_CATALOG[catalog_id]["category"],
+                    "x_ratio": x_ratio,
+                    "y_ratio": y_ratio
+                })
+        return detected
+    except Exception as e:
+        print("YOLO detection error:", e)
+        return []
 
 
 def generate_room_from_images(images_info, room_id):
     """
-    Smart 3D room generation with intelligent furniture placement.
+    3D room generation using YOLO scanner coordinates.
+    Maps 2D bounding boxes to 3D floor coordinates.
     """
-    import random
-    import hashlib
-    
-    seed = int(hashlib.md5(room_id.encode()).hexdigest(), 16)
-    rng = random.Random(seed)
-    
-    num_photos = len(images_info)
-    width = round(6 + num_photos * 0.5, 1)
-    length = round(7 + num_photos * 0.8, 1)
+    width = 8.0
+    length = 10.0
     height = 3.0
 
-    # Detect objects from all images
     all_detected = []
-    seen_types = set()
     for img in images_info:
         detected = detect_objects_from_image(img["filename"])
-        for obj in detected:
-            if obj["type"] not in seen_types:
-                seen_types.add(obj["type"])
-                all_detected.append(obj)
-
-    # Placement rules: wall-hugging vs center vs corner
-    WALL_ITEMS = {'wardrobe', 'dresser', 'bookshelf', 'tv_stand', 'fridge', 'oven', 'kitchen_counter', 'kitchen_sink', 'bathroom_sink', 'mirror', 'painting', 'clock', 'curtain'}
-    CENTER_ITEMS = {'sofa', 'coffee_table', 'dining_table', 'rug', 'bed_single', 'bed_double', 'bathtub'}
-    BESIDE_ITEMS = {'nightstand', 'lamp_table', 'lamp_floor', 'plant_small', 'plant_large', 'armchair'}
-    
-    hw, hl = width / 2, length / 2
-    placed_positions = []
-    
-    def no_overlap(px, pz, min_dist=0.6):
-        for (ex, ez) in placed_positions:
-            if abs(px - ex) < min_dist and abs(pz - ez) < min_dist:
-                return False
-        return True
-    
-    walls = [
-        lambda s: (0, -hl + s[2]/2 + 0.05, 0),           # back wall
-        lambda s: (0, hl - s[2]/2 - 0.05, 3.14),          # front wall  
-        lambda s: (-hw + s[2]/2 + 0.05, 0, 1.57),         # left wall
-        lambda s: (hw - s[2]/2 - 0.05, 0, -1.57),         # right wall
-    ]
-    wall_idx = 0
+        all_detected.extend(detected)
 
     placed_objects = []
-    for i, obj in enumerate(all_detected):
+    hw, hl = width / 2, length / 2
+
+    for obj in all_detected:
         catalog_item = FURNITURE_CATALOG[obj["type"]]
         scale = catalog_item["scale"]
-        ot = obj["type"]
         
-        if ot in WALL_ITEMS:
-            # Place against walls, cycling through walls
-            wf = walls[wall_idx % 4]
-            bx, bz, ry = wf(scale)
-            # Offset along wall to avoid stacking
-            offset = (wall_idx // 4) * 1.5 + rng.uniform(-0.5, 0.5)
-            if wall_idx % 4 < 2:  # back/front walls
-                bx = max(-hw + scale[0]/2 + 0.1, min(hw - scale[0]/2 - 0.1, offset))
-            else:  # side walls
-                bz = max(-hl + scale[0]/2 + 0.1, min(hl - scale[0]/2 - 0.1, offset))
-            wall_idx += 1
-            px, pz, rot_y = bx, bz, ry
-        elif ot in CENTER_ITEMS:
-            # Place in center area
-            px = rng.uniform(-hw*0.4, hw*0.4)
-            pz = rng.uniform(-hl*0.4, hl*0.4)
-            rot_y = 0
-            if ot in ('bed_single', 'bed_double'):
-                px = 0
-                pz = -hl*0.3
+        # Map YOLO coordinates (0.0 to 1.0) to 3D room coordinates
+        # x_ratio: left to right -> -hw to hw
+        # y_ratio: top to bottom -> far wall (-hl) to close camera (hl)
+        px = (obj.get("x_ratio", 0.5) - 0.5) * width
+        pz = (obj.get("y_ratio", 0.5) - 0.5) * length
+        
+        py = scale[1] / 2
+        rot_y = 0
+        
+        # Adjust wall-mounted items and rotations logically
+        WALL_ITEMS = {'wardrobe', 'dresser', 'bookshelf', 'tv_stand', 'fridge', 'oven', 'kitchen_counter', 'kitchen_sink', 'bathroom_sink', 'mirror', 'painting', 'clock', 'curtain'}
+        
+        if obj["type"] in WALL_ITEMS:
+            # Snap to nearest wall based on px, pz
+            dist_left = abs(px - (-hw))
+            dist_right = abs(px - hw)
+            dist_back = abs(pz - (-hl))
+            
+            min_dist = min(dist_left, dist_right, dist_back)
+            if min_dist == dist_back:
+                pz = -hl + scale[2]/2 + 0.05
                 rot_y = 0
-        else:
-            # Beside items - near corners or edges
-            px = rng.choice([-1, 1]) * hw * rng.uniform(0.5, 0.8)
-            pz = rng.choice([-1, 1]) * hl * rng.uniform(0.3, 0.7)
-            rot_y = rng.uniform(0, 0.3)
-        
+            elif min_dist == dist_left:
+                px = -hw + scale[2]/2 + 0.05
+                rot_y = 1.57
+            else:
+                px = hw - scale[2]/2 - 0.05
+                rot_y = -1.57
+                
+            if obj["type"] in ('mirror', 'painting', 'clock'):
+                py = 1.6
+
         # Clamp within room bounds
         px = max(-hw + scale[0]/2 + 0.05, min(hw - scale[0]/2 - 0.05, px))
         pz = max(-hl + scale[2]/2 + 0.05, min(hl - scale[2]/2 - 0.05, pz))
-        
-        # Avoid overlaps
-        attempts = 0
-        while not no_overlap(px, pz) and attempts < 10:
-            px += rng.uniform(-0.5, 0.5)
-            pz += rng.uniform(-0.5, 0.5)
-            px = max(-hw + scale[0]/2, min(hw - scale[0]/2, px))
-            pz = max(-hl + scale[2]/2, min(hl - scale[2]/2, pz))
-            attempts += 1
-        
-        placed_positions.append((px, pz))
-        py = scale[1] / 2
 
         placed_objects.append({
             "id": str(uuid.uuid4())[:8],
-            "type": ot,
+            "type": obj["type"],
             "name": catalog_item["name"],
             "category": catalog_item["category"],
             "position": [round(px, 2), round(py, 2), round(pz, 2)],
@@ -514,6 +470,13 @@ class Room(Resource):
         save_room(room_id, data)
         return {"status": "success", "message": f"Room {room_id} saved"}, 201
 
+    def delete(self, room_id):
+        room_file = get_room_file(room_id)
+        if os.path.exists(room_file):
+            os.remove(room_file)
+            return {"status": "success", "message": "Room deleted"}, 200
+        return {"error": "Room not found"}, 404
+
 
 class RoomObjects(Resource):
     def get(self, room_id):
@@ -568,6 +531,63 @@ api.add_resource(FurnitureLibrary, '/api/furniture')
 api.add_resource(TemplateLibrary, '/api/templates')
 api.add_resource(PaintColors, '/api/paint-colors')
 api.add_resource(EditorStatus, '/api/status')
+
+
+@app.route('/api/projects', methods=['GET'])
+def list_projects():
+    """List all saved room projects"""
+    projects = []
+    for fname in os.listdir(DATA_DIR):
+        if fname.startswith('room_') and fname.endswith('.json'):
+            try:
+                with open(os.path.join(DATA_DIR, fname), 'r') as f:
+                    data = json.load(f)
+                projects.append({
+                    "id": data.get("id", fname.replace('room_', '').replace('.json', '')),
+                    "name": data.get("name", "Untitled Room"),
+                    "width": data.get("width", 8),
+                    "length": data.get("length", 10),
+                    "height": data.get("height", 3.2),
+                    "object_count": len(data.get("objects", [])),
+                    "recommended_type": data.get("recommended_type", "living"),
+                    "applied_template": data.get("applied_template", None),
+                    "wall_color": data.get("wall_color", "#f5f0eb"),
+                    "floor_color": data.get("floor_color", "#c4a882"),
+                    "created_at": data.get("created_at", ""),
+                    "updated_at": data.get("updated_at", ""),
+                    "status": data.get("status", "saved"),
+                    "thumbnail": data.get("thumbnail", None),
+                })
+            except:
+                pass
+    projects.sort(key=lambda x: x.get("updated_at") or x.get("created_at") or "", reverse=True)
+    return jsonify({"projects": projects, "count": len(projects)}), 200
+
+
+@app.route('/api/rooms/<room_id>/thumbnail', methods=['POST'])
+def save_thumbnail(room_id):
+    """Save a thumbnail image for a room"""
+    data = request.get_json()
+    room_data = load_room(room_id)
+    if not room_data:
+        return jsonify({"error": "Room not found"}), 404
+    room_data["thumbnail"] = data.get("thumbnail", "")
+    room_data["updated_at"] = datetime.now().isoformat()
+    save_room(room_id, room_data)
+    return jsonify({"status": "success"}), 200
+
+
+@app.route('/api/rooms/<room_id>/rename', methods=['POST'])
+def rename_room(room_id):
+    """Rename a room project"""
+    data = request.get_json()
+    room_data = load_room(room_id)
+    if not room_data:
+        return jsonify({"error": "Room not found"}), 404
+    room_data["name"] = data.get("name", room_data.get("name", "Untitled"))
+    room_data["updated_at"] = datetime.now().isoformat()
+    save_room(room_id, room_data)
+    return jsonify({"status": "success", "name": room_data["name"]}), 200
 
 
 @app.route('/api/upload-images', methods=['POST'])

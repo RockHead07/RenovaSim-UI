@@ -12,6 +12,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->statefulApi();
+
+        $middleware->appendToGroup('web', [
+            \App\Http\Middleware\UpdateLastActiveAt::class,
+        ]);
+
+        $middleware->appendToGroup('api', [
+            \App\Http\Middleware\UpdateLastActiveAt::class,
+        ]);
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'role' => \App\Http\Middleware\EnsureUserRole::class,

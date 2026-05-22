@@ -107,17 +107,22 @@
 function materialsPage() {
     return {
         search: '',
-        materials: [
-            @foreach($materials as $m)
-            {
-                id: {{ $m->id }},
-                name: '{{ addslashes($m->name) }}',
-                category: '{{ addslashes($m->category) }}',
-                price: '{{ number_format($m->price_per_unit, 2) }}',
-                unit: '{{ addslashes($m->unit) }}',
-            },
-            @endforeach
-        ],
+        materials: [],
+        async init() {
+            try {
+                const res = await apiFetch('/api/materials');
+                const raw = res.data ?? [];
+                this.materials = raw.map(m => ({
+                    id: m.id,
+                    name: m.name,
+                    category: m.category,
+                    price: Number(m.price_per_unit).toFixed(2),
+                    unit: m.unit,
+                }));
+            } catch (e) {
+                console.error('Failed to fetch materials:', e);
+            }
+        },
         initials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); },
         filtered() {
             const q = this.search.toLowerCase();
@@ -125,10 +130,13 @@ function materialsPage() {
                 m.name.toLowerCase().includes(q) || m.category.toLowerCase().includes(q)
             ));
         },
-        deleteMaterial(id) {
-            if (confirm('Are you sure?')) {
-                fetch(`/admin/materials/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content } })
-                .then(() => location.reload());
+        async deleteMaterial(id) {
+            if (!confirm('Are you sure?')) return;
+            try {
+                await apiFetch(`/api/materials/${id}`, { method: 'DELETE' });
+                this.materials = this.materials.filter(m => m.id !== id);
+            } catch (e) {
+                alert('Error deleting material');
             }
         }
     }

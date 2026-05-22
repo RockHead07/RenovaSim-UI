@@ -21,6 +21,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
+        'name',
         'username',
         'first_name',
         'last_name',
@@ -49,6 +50,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_active_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -70,7 +72,6 @@ class User extends Authenticatable
     {
         return $this->is_admin || $this->email === 'admin@gmail.com';
     }
-
     public function pricingPlan(): BelongsTo
     {
         return $this->belongsTo(PricingPlan::class, 'pricing_plan_id');
