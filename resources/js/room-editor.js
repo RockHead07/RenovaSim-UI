@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { createScene, buildRoom } from './editor/scene.js';
-import { createFurniture, handleClick, startDrag, doDrag, endDrag, getDragging, getSelected, setSelected, deleteSelected, serializeObjects, clearObjects, getObjects } from './editor/objects.js';
+import { createFurniture, handleClick, startDrag, doDrag, endDrag, getDragging, getSelected, setSelected, deleteSelected, serializeObjects, clearObjects, getObjects, setRoomDimensions, constrainObjectPosition } from './editor/objects.js';
 import { initExplore, setupExploreEvents, lockPointer, isLocked, updateExplore, enterExploreMode, exitExploreMode, applyGravityToObjects } from './editor/explore.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import * as API from './editor/api.js';
 
 let engine, roomGroup, catalog = {}, currentRoom = null, mode = 'build';
 let savedCamPos = null, savedCamTarget = null;
+let savedWallCamPos = null, savedWallCamTarget = null;
 let heldObject = null, heldDistance = 2.0;
 let transformControl = null;
 const timer = new THREE.Timer();
@@ -56,6 +57,18 @@ async function init() {
     // Set to translate mode by default
     transformControl.setMode('translate');
     engine.scene.add(transformControl.getHelper());
+
+    let isConstraining = false;
+    transformControl.addEventListener('change', () => {
+        if (isConstraining) return;
+        const obj = transformControl.object;
+        if (obj && transformControl.dragging) {
+            isConstraining = true;
+            constrainObjectPosition(obj, currentRoom ? currentRoom.width : 8, currentRoom ? currentRoom.length : 10, getObjects());
+            onObjSelected(obj);
+            isConstraining = false;
+        }
+    });
 
     // Setup explore mode events
     setupExploreEvents(engine.renderer.domElement);
@@ -182,6 +195,9 @@ function animate() {
                     heldObject.position.z = dest.z;
                     heldObject.position.y = 0;
                 }
+                
+                // Constrain position to prevent wall penetration
+                constrainObjectPosition(heldObject, currentRoom ? currentRoom.width : 8, currentRoom ? currentRoom.length : 10, getObjects());
             }
         }
     }
@@ -251,6 +267,7 @@ function loadRoomIntoScene(room) {
 
     // Build room geometry
     roomGroup = buildRoom(engine.scene, room.width, room.length, room.height, room.wall_color, room.floor_color);
+    setRoomDimensions(room.width, room.length);
     
     // Hide ceiling in build mode
     const ceiling = engine.scene.getObjectByName('ceiling');
@@ -503,6 +520,8 @@ function onObjSelected(obj) {
 window.RenovaEditor._updatePos = (input, axis) => {
     const obj = getSelected(); if (!obj) return;
     obj.position[axis] = parseFloat(input.value);
+    constrainObjectPosition(obj, currentRoom ? currentRoom.width : 8, currentRoom ? currentRoom.length : 10, getObjects());
+    onObjSelected(obj);
 };
 window.RenovaEditor._updateRot = (input) => {
     const obj = getSelected(); if (!obj) return;
@@ -738,6 +757,19 @@ function startWallDraw() {
     setSelected(null);
     onObjSelected(null);
     
+    // Save current camera state and position it straight down
+    savedWallCamPos = engine.camera.position.clone();
+    savedWallCamTarget = engine.controls.target.clone();
+    
+    engine.controls.enableRotate = false;
+    
+    const size = Math.max(currentRoom ? currentRoom.width : 8, currentRoom ? currentRoom.length : 10);
+    const height = size * 1.3;
+    
+    engine.controls.target.set(0, 0, 0);
+    engine.camera.position.set(0, height, 0.001); // 0.001 offset prevents gimbal lock/glitches in OrbitControls
+    engine.controls.update();
+    
     // Show banner UI
     const banner = document.getElementById('draw-wall-banner');
     if (banner) banner.style.display = 'flex';
@@ -755,6 +787,18 @@ function cancelWallDraw() {
         engine.scene.remove(wallPreview);
         wallPreview = null;
     }
+    
+    // Restore camera controls and position
+    engine.controls.enableRotate = true;
+    if (savedWallCamPos) {
+        engine.camera.position.copy(savedWallCamPos);
+        savedWallCamPos = null;
+    }
+    if (savedWallCamTarget) {
+        engine.controls.target.copy(savedWallCamTarget);
+        savedWallCamTarget = null;
+    }
+    engine.controls.update();
     
     // Hide banner UI
     const banner = document.getElementById('draw-wall-banner');

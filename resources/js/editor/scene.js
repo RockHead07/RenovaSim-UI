@@ -233,6 +233,7 @@ export function buildRoom(scene, w, l, h, wallColor, floorColor) {
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
+    floor.name = 'floor';
     floor.userData = { type: 'floor' };
     group.add(floor);
 

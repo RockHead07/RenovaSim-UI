@@ -371,9 +371,9 @@ export function createFurniture(type, catalog, pos, rot, id, customScale) {
     hitBox.position.y = s[1]/2;
     wrapper.add(hitBox);
 
-    // FIX FLOATING: original system pos[1] was s[1]/2. 
-    // Since our wrapper floor is at Y=0, we must subtract s[1]/2 to place it on the floor.
-    wrapper.position.set(pos[0], pos[1] - s[1]/2, pos[2]);
+    // Snapping wall-mounted items (curtains, mirrors, paintings, clocks) to the outer walls
+    const adjustedPos = snapWallMountedItem(type, pos, rot, s);
+    wrapper.position.set(adjustedPos[0], adjustedPos[1] - s[1]/2, adjustedPos[2]);
     if (rot) wrapper.rotation.set(rot[0], rot[1], rot[2]);
     
     wrapper.traverse(c => {
@@ -455,6 +455,9 @@ export function doDrag(event, camera, container) {
     raycaster.ray.intersectPlane(dragPlane, pt);
     selectedObj.position.x = pt.x + dragOffset.x;
     selectedObj.position.z = pt.z + dragOffset.z;
+    
+    // Constrain position to prevent wall penetration
+    constrainObjectPosition(selectedObj, roomWidth, roomLength, objectList);
 }
 
 export function endDrag() { isDragging = false; }
@@ -476,4 +479,179 @@ export function clearObjects(scene) {
     objectList = [];
     removeOutline();
     selectedObj = null;
+}
+
+// ── Collision and Boundary Constraint System ──
+let roomWidth = 8;
+let roomLength = 10;
+
+export function setRoomDimensions(w, l) {
+    roomWidth = w;
+    roomLength = l;
+}
+
+function getOBBCorners(center, halfSize, angle) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    
+    const axX = halfSize.x * cos;
+    const axZ = -halfSize.x * sin;
+    const azX = halfSize.z * sin;
+    const azZ = halfSize.z * cos;
+    
+    return [
+        { x: center.x - axX - azX, z: center.z - axZ - azZ },
+        { x: center.x + axX - azX, z: center.z + axZ - azZ },
+        { x: center.x + axX + azX, z: center.z + axZ + azZ },
+        { x: center.x - axX + azX, z: center.z - axZ + azZ }
+    ];
+}
+
+function getOBBAxes(halfSize, angle) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return [
+        { x: cos, z: -sin }, // local X axis in world coordinates
+        { x: sin, z: cos }   // local Z axis in world coordinates
+    ];
+}
+
+function projectOBB(corners, axis) {
+    let min = Infinity;
+    let max = -Infinity;
+    for (const p of corners) {
+        const dot = p.x * axis.x + p.z * axis.z;
+        if (dot < min) min = dot;
+        if (dot > max) max = dot;
+    }
+    return { min, max };
+}
+
+function checkOBBOverlap(cornersA, axesA, cornersB, axesB) {
+    const axes = [...axesA, ...axesB];
+    let minOverlap = Infinity;
+    let translationAxis = null;
+
+    for (const axis of axes) {
+        const len = Math.sqrt(axis.x * axis.x + axis.z * axis.z);
+        if (len === 0) continue;
+        const normAxis = { x: axis.x / len, z: axis.z / len };
+
+        const projA = projectOBB(cornersA, normAxis);
+        const projB = projectOBB(cornersB, normAxis);
+
+        if (projA.max < projB.min || projB.max < projA.min) {
+            return null; // Separating axis found, no collision
+        }
+
+        const overlap = Math.min(projA.max, projB.max) - Math.max(projA.min, projB.min);
+        if (overlap < minOverlap) {
+            minOverlap = overlap;
+            translationAxis = normAxis;
+        }
+    }
+
+    return { axis: translationAxis, overlap: minOverlap };
+}
+
+function constrainToRoom(obj, w, l) {
+    const s = obj.userData.scale || [1, 1, 1];
+    const halfSize = { x: s[0] / 2, z: s[2] / 2 };
+    const corners = getOBBCorners(obj.position, halfSize, obj.rotation.y);
+    
+    let minX = Infinity, maxX = -Infinity;
+    let minZ = Infinity, maxZ = -Infinity;
+    for (const p of corners) {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.z < minZ) minZ = p.z;
+        if (p.z > maxZ) maxZ = p.z;
+    }
+    
+    const halfW = w / 2;
+    const halfL = l / 2;
+    
+    if (minX < -halfW) obj.position.x += -halfW - minX;
+    if (maxX > halfW) obj.position.x += halfW - maxX;
+    if (minZ < -halfL) obj.position.z += -halfL - minZ;
+    if (maxZ > halfL) obj.position.z += halfL - maxZ;
+}
+
+function constrainToPartitionWalls(obj, objects) {
+    const s = obj.userData.scale || [1, 1, 1];
+    const halfSizeA = { x: s[0] / 2, z: s[2] / 2 };
+    
+    for (const other of objects) {
+        if (other === obj) continue;
+        const isPartition = other.userData && (other.userData.furnitureType === 'partition_wall' || other.userData.type === 'wall');
+        if (!isPartition) continue;
+        
+        const os = other.userData.scale || [1, 1, 1];
+        const halfSizeB = { x: os[0] / 2, z: os[2] / 2 };
+        
+        const cornersA = getOBBCorners(obj.position, halfSizeA, obj.rotation.y);
+        const axesA = getOBBAxes(halfSizeA, obj.rotation.y);
+        
+        const cornersB = getOBBCorners(other.position, halfSizeB, other.rotation.y);
+        const axesB = getOBBAxes(halfSizeB, other.rotation.y);
+        
+        const collision = checkOBBOverlap(cornersA, axesA, cornersB, axesB);
+        if (collision) {
+            const dirX = obj.position.x - other.position.x;
+            const dirZ = obj.position.z - other.position.z;
+            const dot = dirX * collision.axis.x + dirZ * collision.axis.z;
+            const sign = dot < 0 ? -1 : 1;
+            
+            obj.position.x += collision.axis.x * collision.overlap * sign;
+            obj.position.z += collision.axis.z * collision.overlap * sign;
+        }
+    }
+}
+
+export function constrainObjectPosition(obj, w, l, objects) {
+    if (!obj || !obj.userData) return;
+    const ft = obj.userData.furnitureType || '';
+    
+    const isWallMounted = ['mirror', 'painting', 'clock', 'curtain'].some(t => ft.includes(t));
+    if (isWallMounted) return;
+    
+    // 1. Constrain to room boundaries
+    constrainToRoom(obj, w, l);
+    
+    // 2. Constrain to partition walls
+    constrainToPartitionWalls(obj, objects);
+}
+
+function snapWallMountedItem(type, pos, rot, scale) {
+    const ft = type || '';
+    const isWallMounted = ['mirror', 'painting', 'clock', 'curtain'].some(t => ft.includes(t));
+    if (!isWallMounted) return pos;
+
+    const angle = rot ? rot[1] : 0;
+    const thickness = scale ? scale[2] : 0.05;
+    const offset = thickness / 2;
+
+    const hw = roomWidth / 2;
+    const hl = roomLength / 2;
+
+    const normalAngle = Math.round(angle / (Math.PI / 2)) * (Math.PI / 2);
+    const cos = Math.round(Math.cos(normalAngle));
+    const sin = Math.round(Math.sin(normalAngle));
+
+    const snappedPos = [...pos];
+
+    if (cos === 1 && sin === 0) {
+        snappedPos[2] = -hl + offset;
+    }
+    else if (cos === -1 && sin === 0) {
+        snappedPos[2] = hl - offset;
+    }
+    else if (cos === 0 && sin === 1) {
+        snappedPos[0] = -hw + offset;
+    }
+    else if (cos === 0 && sin === -1) {
+        snappedPos[0] = hw - offset;
+    }
+
+    return snappedPos;
 }

@@ -120,8 +120,8 @@ export function applyGravityToObjects(objects, heldObject, delta) {
         const ft = obj.userData.furnitureType || '';
         // Skip wall-mounted types — they stick to walls
         if (WALL_MOUNTED_TYPES.some(t => ft.includes(t))) continue;
-        // Skip rugs/carpets — they lie flat on the floor
-        if (ft.includes('rug') || ft.includes('carpet')) continue;
+        // Skip partition walls and structural walls — they are static
+        if (ft === 'partition_wall' || obj.userData.type === 'wall') continue;
 
         const s = obj.userData.scale || [1, 1, 1];
 
