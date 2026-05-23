@@ -1,7 +1,4 @@
-{{-- pages.ai-estimation — port of AIEstimation.tsx
-     NOTE: this page renders its own AppNav inside DashboardLayout in React,
-     producing the existing "double header" look. We preserve that exactly
-     by extending layouts.app (which provides AppNav + AppFooter). --}}
+{{-- pages.ai-estimation — port of AIEstimation.tsx --}}
 @php
     $renovationTypes = config('renovasim.renovation_types');
     // Per the React source these are the AI-estimation specific values
@@ -20,7 +17,7 @@
     ];
 @endphp
 
-<x-user::layouts.app title="RenovaSim — AI Estimation" :hideFooter="false">
+<x-user::layouts.dashboard title="RenovaSim — AI Estimation">
     <div
         x-data="{
             step1: @js($step1),
@@ -301,4 +298,4 @@
             </div>
         </div>
     </div>
-</x-user::layouts.app>
+</x-user::layouts.dashboard>

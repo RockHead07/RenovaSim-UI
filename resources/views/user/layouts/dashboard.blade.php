@@ -3,6 +3,9 @@
      Sidebar shell. Uses Alpine for collapse + mobile drawer state.
      `isTablet` mirrors useIsTablet() (768-1023px) and forces
      `effectiveCollapsed = true` on tablets, matching the React behavior.
+
+     `ready` flag: starts false, set true after first tick so the sidebar
+     and main never animate on initial page load (prevents jitter/pulse).
 ============================================================ --}}
 <!DOCTYPE html>
 <html lang="id">
@@ -15,13 +18,16 @@
 <body
     class="theme-user min-h-screen bg-background"
     x-data="{
-        collapsed: false,
+        collapsed: localStorage.getItem('sidebar-collapsed') === 'true',
         mobileOpen: false,
         isTablet: false,
+        ready: false,
         init() {
             const mq = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
             this.isTablet = mq.matches;
             mq.addEventListener('change', (e) => { this.isTablet = e.matches; });
+            this.$watch('collapsed', val => localStorage.setItem('sidebar-collapsed', val));
+            this.$nextTick(() => { this.ready = true; });
         },
         get effectiveCollapsed() { return this.isTablet ? true : this.collapsed; },
         get canToggle() { return !this.isTablet; }
@@ -57,8 +63,11 @@
     <x-user::components.layout.sidebar />
 
     <main
-        :class="effectiveCollapsed ? 'md:pl-[112px] lg:pl-[112px]' : 'md:pl-[112px] lg:pl-[264px]'"
-        class="transition-[padding] duration-300 ease-in-out px-4 sm:px-6 lg:px-8 py-6 lg:py-8"
+        :class="[
+            ready ? 'transition-[padding] duration-300 ease-in-out' : '',
+            effectiveCollapsed ? 'md:pl-[112px] lg:pl-[112px]' : 'md:pl-[112px] lg:pl-[264px]'
+        ]"
+        class="px-4 sm:px-6 lg:px-8 py-6 lg:py-8"
     >
         <div class="mx-auto max-w-[1400px]">
             {!! $slot !!}

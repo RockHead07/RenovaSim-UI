@@ -127,19 +127,23 @@ return [
         'scope'    => 'Scope Renovasi',
     ],
 
+    /*
+     * Hanya kota-kota yang memiliki REGIONAL_MULTIPLIER tersendiri.
+     * Kota di luar daftar ini tidak didukung oleh engine estimasi.
+     */
     'cities' => [
-        'Aceh', 'Ambon', 'Balikpapan', 'Banda Aceh', 'Bandar Lampung', 'Bandung',
-        'Banjarmasin', 'Batam', 'Bekasi', 'Bengkulu', 'Bogor', 'Cilegon',
-        'Cimahi', 'Cirebon', 'Denpasar', 'Depok', 'Dumai', 'Gorontalo',
-        'Jakarta', 'Jambi', 'Jayapura', 'Kendari', 'Kupang', 'Lhokseumawe',
-        'Lubuklinggau', 'Madiun', 'Magelang', 'Makassar', 'Malang', 'Manado',
-        'Mataram', 'Medan', 'Metro', 'Mojokerto', 'Padang', 'Padangpanjang',
-        'Pagar Alam', 'Palangkaraya', 'Palembang', 'Palu', 'Pangkalpinang',
-        'Pare Pare', 'Pariaman', 'Pasuruan', 'Payakumbuh', 'Pekanbaru',
-        'Pematangsiantar', 'Pontianak', 'Probolinggo', 'Samarinda', 'Sawahlunto',
-        'Semarang', 'Serang', 'Sibolga', 'Singkawang', 'Solok', 'Sorong',
-        'Subulussalam', 'Sukabumi', 'Surabaya', 'Surakarta', 'Tangerang',
-        'Tasikmalaya', 'Tanjungpinang', 'Tarakan', 'Ternate', 'Tidore', 'Yogyakarta',
+        'Jakarta',
+        'Surabaya',
+        'Bandung',
+        'Semarang',
+        'Yogyakarta',
+        'Medan',
+        'Makassar',
+        'Palembang',
+        'Pekanbaru',
+        'Balikpapan',
+        'Manado',
+        'Papua',
     ],
 
     'renovation_types' => [

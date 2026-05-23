@@ -5,7 +5,7 @@
     $TOTAL_STEPS = 5;
 @endphp
 
-<x-user::layouts.app title="RenovaSim — Project Details" :hideFooter="true">
+<x-user::layouts.dashboard title="RenovaSim — Project Details">
     <div
         x-data="{
             step: 1,
@@ -143,7 +143,7 @@
                                 x-model="city"
                                 class="w-full appearance-none bg-[#F4F3EF] border border-[#E0DFDA] rounded-xl pl-9 pr-10 py-3.5 text-sm text-card-foreground focus:outline-none focus:border-primary focus:bg-white transition-colors"
                             >
-                                <option value="" disabled>Pilih kota / kabupaten…</option>
+                                <option value="" disabled>Pilih kota…</option>
                                 @foreach ($cities as $c)
                                     <option value="{{ $c }}">{{ $c }}</option>
                                 @endforeach
@@ -272,4 +272,4 @@
             </div>
         </div>
     </div>
-</x-user::layouts.app>
+</x-user::layouts.dashboard>

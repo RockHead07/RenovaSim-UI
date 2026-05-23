@@ -1,5 +1,5 @@
 {{-- pages.project-stage — port of ProjectStage.tsx --}}
-<x-user::layouts.app title="RenovaSim — Project Stage">
+<x-user::layouts.dashboard title="RenovaSim — Project Stage">
     <div
         x-data="{ selected: 'started' }"
         class="flex-1 flex items-center justify-center px-4 py-10"
@@ -55,4 +55,4 @@
             </div>
         </div>
     </div>
-</x-user::layouts.app>
+</x-user::layouts.dashboard>

@@ -56,7 +56,7 @@
     }
 @endphp
 
-<x-user::layouts.app title="RenovaSim — RAB" :hideNav="true">
+<x-user::layouts.dashboard title="RenovaSim — RAB">
     <div class="flex-1 py-6 px-4">
         <div class="max-w-[980px] mx-auto">
             {{-- Back to Overview --}}
@@ -166,4 +166,4 @@
             </p>
         </div>
     </div>
-</x-user::layouts.app>
+</x-user::layouts.dashboard>

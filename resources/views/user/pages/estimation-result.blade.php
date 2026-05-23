@@ -47,7 +47,7 @@
     ]);
 @endphp
 
-<x-user::layouts.app title="RenovaSim — Estimation Result">
+<x-user::layouts.dashboard title="RenovaSim — Estimation Result">
     <div class="px-4 sm:px-6 lg:px-8 py-7">
         <div class="mx-auto max-w-[1040px]">
             {{-- Header --}}
@@ -142,4 +142,4 @@
             </p>
         </div>
     </div>
-</x-user::layouts.app>
+</x-user::layouts.dashboard>
