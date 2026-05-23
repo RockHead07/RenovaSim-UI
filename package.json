@@ -5,7 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "start": "concurrently -c \"blue,green,yellow\" -n \"LARAVEL,VITE,PYTHON\" \"php artisan serve\" \"vite\" \"cd python-editor && python app_server.py\""
+        "start": "concurrently -c \"blue,green,yellow\" -n \"LARAVEL,VITE,RAI\" \"php artisan serve\" \"vite\" \"cd RAI && python app_server.py\""
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",

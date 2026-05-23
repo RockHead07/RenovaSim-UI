@@ -11,25 +11,23 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('start', function () {
-    $this->info('🚀 Memulai semua server (Laravel :8080, Vite, Room Editor :5000, RAI :8000)...');
+    $this->info('🚀 Memulai semua server (Laravel :8080, Vite, RAI :5000)...');
     $this->info('   LARAVEL  → http://localhost:8080');
     $this->info('   VITE     → http://localhost:5173');
-    $this->info('   PYTHON   → http://localhost:5000  (Room Editor)');
-    $this->info('   RAI      → http://localhost:8000  (RenovaSim-AI)');
+    $this->info('   RAI      → http://localhost:5000');
     $this->info('');
     $this->info('Tekan Ctrl+C untuk menghentikan semua server sekaligus.');
 
     passthru(
         'npx concurrently'
-        . ' -c "blue,cyan,yellow,magenta"'
-        . ' -n "LARAVEL,VITE,PYTHON,RAI"'
+        . ' -c "blue,cyan,yellow"'
+        . ' -n "LARAVEL,VITE,RAI"'
         . ' "php artisan serve --port=8080"'
         . ' "npm run dev"'
-        . ' "cd python-editor && python app_server.py"'
-        . ' "cd RenovaSim-AI && py -3 -m uvicorn app.main:app --reload --port=8000"'
+        . ' "cd RAI && python app_server.py"'
         . ' --kill-others-on-fail'
     );
-})->purpose('Mulai semua server: Laravel :8080, Vite, Room Editor :5000, RAI FastAPI :8000');
+})->purpose('Mulai semua server: Laravel :8080, Vite, RAI :5000');
 
 Schedule::call(function () {
     if (!Schema::hasColumn('users', 'last_active_at')) {

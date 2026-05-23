@@ -202,21 +202,317 @@ export function createFurniture(type, catalog, pos, rot, id, customScale) {
             group.add(pill);
         }
         group.add(frame, matt, blanket, hb);
+    } else if (type === 'tv_stand') {
+        // ── TV Stand: wooden media console cabinet with flat-screen TV on top ──
+        const cabinetMat = woodMat.clone();
+        const cabinetH = s[1] * 0.55;
+        // Cabinet body
+        const cab = new THREE.Mesh(new THREE.BoxGeometry(s[0], cabinetH, s[2]), cabinetMat);
+        cab.position.y = cabinetH / 2;
+        group.add(cab);
+        // Cabinet top surface (slightly wider)
+        const topSlab = new THREE.Mesh(new THREE.BoxGeometry(s[0] + 0.02, 0.03, s[2] + 0.02), new THREE.MeshStandardMaterial({ color: 0x5a3a20, roughness: 0.6, metalness: 0.05 }));
+        topSlab.position.y = cabinetH + 0.015;
+        group.add(topSlab);
+        // Cabinet doors (2 panels)
+        const doorMat2 = new THREE.MeshStandardMaterial({ color: 0x6b4a2a, roughness: 0.7 });
+        [-1, 1].forEach(side => {
+            const door = new THREE.Mesh(new THREE.BoxGeometry(s[0] * 0.46, cabinetH * 0.8, 0.015), doorMat2);
+            door.position.set(side * s[0] * 0.24, cabinetH * 0.45, s[2] / 2 + 0.008);
+            group.add(door);
+            // Door handle knob
+            const knob = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), chromeMat.clone());
+            knob.position.set(side * s[0] * 0.08, cabinetH * 0.45, s[2] / 2 + 0.02);
+            group.add(knob);
+        });
+        // Small legs
+        const legH2 = 0.06;
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([lx, lz]) => {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, legH2, 8), darkMat);
+            leg.position.set(lx * (s[0] / 2 - 0.05), -legH2/2 + 0, lz * (s[2] / 2 - 0.05));
+            // legs are below cabinet, we shift cabinet up
+        });
+        // TV screen on top of cabinet
+        const tvH = s[1] * 0.55;
+        const tvW = s[0] * 0.85;
+        // TV base stand
+        const tvBase = new THREE.Mesh(new THREE.BoxGeometry(tvW * 0.25, 0.015, s[2] * 0.4), darkMat);
+        tvBase.position.set(0, cabinetH + 0.038, 0);
+        group.add(tvBase);
+        // TV neck
+        const tvNeck = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.06, 0.03), darkMat);
+        tvNeck.position.set(0, cabinetH + 0.068, 0);
+        group.add(tvNeck);
+        // TV panel
+        const tvPanel = new THREE.Mesh(new THREE.BoxGeometry(tvW, tvH, 0.025), darkMat);
+        tvPanel.position.set(0, cabinetH + 0.03 + tvH / 2 + 0.07, 0);
+        group.add(tvPanel);
+        // TV screen face (emissive dark blue)
+        const screenMat = new THREE.MeshStandardMaterial({ color: 0x080810, metalness: 0.95, roughness: 0.05, emissive: 0x060612, emissiveIntensity: 0.4 });
+        const tvScreen = new THREE.Mesh(new THREE.BoxGeometry(tvW * 0.95, tvH * 0.92, 0.003), screenMat);
+        tvScreen.position.set(0, cabinetH + 0.03 + tvH / 2 + 0.07, 0.014);
+        group.add(tvScreen);
     } else if (type.includes('tv') || type.includes('monitor')) {
-        // Slim base
+        // ── Standalone TV / Monitor ──
         const base = new THREE.Mesh(new THREE.CylinderGeometry(s[0]*0.18, s[0]*0.22, 0.02, 16), darkMat);
         base.position.y = 0.01;
-        // Thin neck
         const neck = new THREE.Mesh(new THREE.BoxGeometry(0.04, s[1]*0.25, 0.04), darkMat);
         neck.position.y = s[1]*0.13;
-        // Screen panel (very thin)
         const panel = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1]*0.65, 0.03), darkMat);
         panel.position.set(0, s[1]*0.6, 0);
-        // Bezel
         const bezel = new THREE.Mesh(new THREE.BoxGeometry(s[0]*0.96, s[1]*0.61, 0.005),
             new THREE.MeshStandardMaterial({color: 0x111118, metalness: 0.95, roughness: 0.05, emissive: 0x0a0a1a, emissiveIntensity: 0.3}));
         bezel.position.set(0, s[1]*0.6, 0.018);
         group.add(base, neck, panel, bezel);
+    } else if (type === 'nightstand') {
+        // ── Nightstand: small bedside table with drawer ──
+        const nsWood = woodMat.clone();
+        // Legs
+        const legH3 = s[1] * 0.2;
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([lx, lz]) => {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.022, legH3, 8), nsWood);
+            leg.position.set(lx * (s[0] / 2 - 0.04), legH3 / 2, lz * (s[2] / 2 - 0.04));
+            group.add(leg);
+        });
+        // Body
+        const nsBody = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1] * 0.75, s[2]), nsWood);
+        nsBody.position.y = legH3 + s[1] * 0.375;
+        group.add(nsBody);
+        // Top surface
+        const nsTop = new THREE.Mesh(new THREE.BoxGeometry(s[0] + 0.02, 0.025, s[2] + 0.02), new THREE.MeshStandardMaterial({ color: 0x5c3d1e, roughness: 0.55 }));
+        nsTop.position.y = legH3 + s[1] * 0.75 + 0.012;
+        group.add(nsTop);
+        // Drawer panel line
+        const drawerPanel = new THREE.Mesh(new THREE.BoxGeometry(s[0] * 0.85, s[1] * 0.3, 0.012), new THREE.MeshStandardMaterial({ color: 0x8a6540, roughness: 0.7 }));
+        drawerPanel.position.set(0, legH3 + s[1] * 0.35, s[2] / 2 + 0.007);
+        group.add(drawerPanel);
+        // Drawer groove line
+        const groove = new THREE.Mesh(new THREE.BoxGeometry(s[0] * 0.82, 0.003, 0.003), darkMat);
+        groove.position.set(0, legH3 + s[1] * 0.55, s[2] / 2 + 0.014);
+        group.add(groove);
+        // Handle knob
+        const nsKnob = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), chromeMat.clone());
+        nsKnob.position.set(0, legH3 + s[1] * 0.35, s[2] / 2 + 0.02);
+        group.add(nsKnob);
+    } else if (type === 'oven') {
+        // ── Oven: kitchen appliance with glass door, handle, dials ──
+        const ovenBodyMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c5, roughness: 0.25, metalness: 0.6 });
+        // Main body
+        const ovenBody = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1], s[2]), ovenBodyMat);
+        ovenBody.position.y = s[1] / 2;
+        group.add(ovenBody);
+        // Top control panel strip
+        const ctrlPanel = new THREE.Mesh(new THREE.BoxGeometry(s[0] * 0.95, s[1] * 0.1, 0.008), new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.3, metalness: 0.8 }));
+        ctrlPanel.position.set(0, s[1] * 0.88, s[2] / 2 + 0.005);
+        group.add(ctrlPanel);
+        // Control dials (4 small cylinders)
+        for (let di = 0; di < 4; di++) {
+            const dx = (di - 1.5) * (s[0] * 0.2);
+            const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.012, 12), chromeMat.clone());
+            dial.rotation.x = Math.PI / 2;
+            dial.position.set(dx, s[1] * 0.88, s[2] / 2 + 0.015);
+            group.add(dial);
+        }
+        // Glass door window
+        const glassMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.05, metalness: 0.3, transparent: true, opacity: 0.7 });
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(s[0] * 0.8, s[1] * 0.55, 0.008), glassMat);
+        glass.position.set(0, s[1] * 0.42, s[2] / 2 + 0.005);
+        group.add(glass);
+        // Glass door frame
+        const frameMat2 = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.3, metalness: 0.7 });
+        // Top frame
+        const ft = new THREE.Mesh(new THREE.BoxGeometry(s[0] * 0.84, 0.02, 0.01), frameMat2);
+        ft.position.set(0, s[1] * 0.72, s[2] / 2 + 0.006);
+        group.add(ft);
+        // Bottom frame
+        const fb = new THREE.Mesh(new THREE.BoxGeometry(s[0] * 0.84, 0.02, 0.01), frameMat2);
+        fb.position.set(0, s[1] * 0.12, s[2] / 2 + 0.006);
+        group.add(fb);
+        // Handle bar
+        const hdlBar = new THREE.Mesh(new THREE.BoxGeometry(s[0] * 0.6, 0.02, 0.025), chromeMat.clone());
+        hdlBar.position.set(0, s[1] * 0.78, s[2] / 2 + 0.02);
+        group.add(hdlBar);
+    } else if (type === 'kitchen_counter') {
+        // ── Kitchen Counter: cabinet body + marble countertop slab ──
+        const kcWood = new THREE.MeshStandardMaterial({ color: 0x6b4a2a, roughness: 0.8, metalness: 0 });
+        const counterH = s[1] * 0.88;
+        // Cabinet body
+        const kcBody = new THREE.Mesh(new THREE.BoxGeometry(s[0], counterH, s[2]), kcWood);
+        kcBody.position.y = counterH / 2;
+        group.add(kcBody);
+        // Cabinet door panels
+        const numDoors = Math.max(1, Math.round(s[0] / 0.5));
+        const doorW = (s[0] - 0.04) / numDoors;
+        for (let di = 0; di < numDoors; di++) {
+            const dx = -s[0] / 2 + 0.02 + doorW / 2 + di * doorW;
+            const kcDoor = new THREE.Mesh(new THREE.BoxGeometry(doorW - 0.02, counterH * 0.75, 0.012), new THREE.MeshStandardMaterial({ color: 0x7a5c3a, roughness: 0.7 }));
+            kcDoor.position.set(dx, counterH * 0.4, s[2] / 2 + 0.007);
+            group.add(kcDoor);
+            // Handle
+            const kcH = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.008, 0.015), chromeMat.clone());
+            kcH.position.set(dx, counterH * 0.5, s[2] / 2 + 0.018);
+            group.add(kcH);
+        }
+        // Marble countertop
+        const marbleMat = new THREE.MeshStandardMaterial({ color: 0xf0ece6, roughness: 0.15, metalness: 0.05, envMapIntensity: 0.4 });
+        const marble = new THREE.Mesh(new THREE.BoxGeometry(s[0] + 0.04, 0.04, s[2] + 0.03), marbleMat);
+        marble.position.y = counterH + 0.02;
+        group.add(marble);
+        // Marble edge bevel
+        const edgeMat = new THREE.MeshStandardMaterial({ color: 0xe8e2da, roughness: 0.2 });
+        const marbleEdge = new THREE.Mesh(new THREE.BoxGeometry(s[0] + 0.04, 0.02, 0.008), edgeMat);
+        marbleEdge.position.set(0, counterH + 0.01, s[2] / 2 + 0.02);
+        group.add(marbleEdge);
+    } else if (type === 'mirror') {
+        // ── Wall Mirror: rectangular frame with reflective face ──
+        const mirrorFrameMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, roughness: 0.15, metalness: 0.85 });
+        const frameW = 0.025;
+        // Frame pieces (top, bottom, left, right)
+        const fTop = new THREE.Mesh(new THREE.BoxGeometry(s[0], frameW, s[2] + 0.01), mirrorFrameMat);
+        fTop.position.y = s[1] / 2 + s[1] / 2 - frameW / 2;
+        group.add(fTop);
+        const fBot = new THREE.Mesh(new THREE.BoxGeometry(s[0], frameW, s[2] + 0.01), mirrorFrameMat);
+        fBot.position.y = s[1] / 2 - s[1] / 2 + frameW / 2;
+        group.add(fBot);
+        const fLeft = new THREE.Mesh(new THREE.BoxGeometry(frameW, s[1], s[2] + 0.01), mirrorFrameMat);
+        fLeft.position.set(-s[0] / 2 + frameW / 2, s[1] / 2, 0);
+        group.add(fLeft);
+        const fRight = new THREE.Mesh(new THREE.BoxGeometry(frameW, s[1], s[2] + 0.01), mirrorFrameMat);
+        fRight.position.set(s[0] / 2 - frameW / 2, s[1] / 2, 0);
+        group.add(fRight);
+        // Reflective mirror surface
+        const mirrorFaceMat = new THREE.MeshStandardMaterial({ color: 0xc8dce8, roughness: 0.02, metalness: 0.95, envMapIntensity: 1.0 });
+        const mirrorFace = new THREE.Mesh(new THREE.BoxGeometry(s[0] - frameW * 2, s[1] - frameW * 2, s[2]), mirrorFaceMat);
+        mirrorFace.position.y = s[1] / 2;
+        group.add(mirrorFace);
+        // Backing board
+        const backing = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1], 0.008), new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.9 }));
+        backing.position.set(0, s[1] / 2, -s[2] / 2);
+        group.add(backing);
+    } else if (type === 'painting') {
+        // ── Wall Painting: wooden frame + colorful art canvas ──
+        const paintFrameMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.6, metalness: 0.1 });
+        const fw = 0.03;
+        // Frame
+        const pfTop = new THREE.Mesh(new THREE.BoxGeometry(s[0] + fw, fw, s[2] + 0.012), paintFrameMat);
+        pfTop.position.y = s[1] / 2 + s[1] / 2;
+        group.add(pfTop);
+        const pfBot = new THREE.Mesh(new THREE.BoxGeometry(s[0] + fw, fw, s[2] + 0.012), paintFrameMat);
+        pfBot.position.y = s[1] / 2 - s[1] / 2;
+        group.add(pfBot);
+        const pfL = new THREE.Mesh(new THREE.BoxGeometry(fw, s[1] + fw, s[2] + 0.012), paintFrameMat);
+        pfL.position.set(-s[0] / 2, s[1] / 2, 0);
+        group.add(pfL);
+        const pfR = new THREE.Mesh(new THREE.BoxGeometry(fw, s[1] + fw, s[2] + 0.012), paintFrameMat);
+        pfR.position.set(s[0] / 2, s[1] / 2, 0);
+        group.add(pfR);
+        // Canvas with abstract art (multiple colored blocks)
+        const canvasBg = new THREE.Mesh(new THREE.BoxGeometry(s[0] - fw, s[1] - fw, s[2]), new THREE.MeshStandardMaterial({ color: 0xf5f0e8, roughness: 0.9 }));
+        canvasBg.position.y = s[1] / 2;
+        group.add(canvasBg);
+        // Abstract art blocks
+        const artColors = [0xc44e52, 0x4a90d9, 0xe8a838, 0x50a878, 0x9b59b6];
+        for (let ai = 0; ai < 5; ai++) {
+            const aw = (s[0] - fw * 2) * (0.2 + Math.sin(ai * 1.7) * 0.15);
+            const ah = (s[1] - fw * 2) * (0.2 + Math.cos(ai * 2.3) * 0.12);
+            const ax = (Math.sin(ai * 3.1) * 0.3) * (s[0] - fw * 2);
+            const ay = (Math.cos(ai * 2.7) * 0.25) * (s[1] - fw * 2);
+            const artBlock = new THREE.Mesh(
+                new THREE.BoxGeometry(aw, ah, 0.003),
+                new THREE.MeshStandardMaterial({ color: artColors[ai], roughness: 0.8 })
+            );
+            artBlock.position.set(ax, s[1] / 2 + ay, s[2] / 2 + 0.002);
+            group.add(artBlock);
+        }
+    } else if (type === 'clock') {
+        // ── Wall Clock: circular chrome frame + white face + hands ──
+        const clockRadius = Math.min(s[0], s[1]) / 2;
+        // Chrome rim
+        const rimMat = new THREE.MeshStandardMaterial({ color: 0x303030, roughness: 0.15, metalness: 0.9 });
+        const clockRim = new THREE.Mesh(new THREE.TorusGeometry(clockRadius, 0.02, 12, 32), rimMat);
+        clockRim.position.y = s[1] / 2;
+        group.add(clockRim);
+        // Clock face
+        const faceMat = new THREE.MeshStandardMaterial({ color: 0xf8f6f2, roughness: 0.85 });
+        const clockFace = new THREE.Mesh(new THREE.CircleGeometry(clockRadius - 0.015, 32), faceMat);
+        clockFace.position.set(0, s[1] / 2, s[2] / 2 + 0.003);
+        group.add(clockFace);
+        // Backing disc
+        const backDisc = new THREE.Mesh(new THREE.CircleGeometry(clockRadius, 32), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }));
+        backDisc.position.set(0, s[1] / 2, -s[2] / 2);
+        backDisc.rotation.y = Math.PI;
+        group.add(backDisc);
+        // Hour markers (12 small dots)
+        const markerMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5 });
+        for (let hi = 0; hi < 12; hi++) {
+            const angle = (hi / 12) * Math.PI * 2 - Math.PI / 2;
+            const mx = Math.cos(angle) * clockRadius * 0.82;
+            const my = Math.sin(angle) * clockRadius * 0.82;
+            const isMain = hi % 3 === 0;
+            const marker = new THREE.Mesh(new THREE.BoxGeometry(isMain ? 0.02 : 0.008, isMain ? 0.04 : 0.02, 0.004), markerMat);
+            marker.position.set(mx, s[1] / 2 + my, s[2] / 2 + 0.005);
+            marker.rotation.z = angle + Math.PI / 2;
+            group.add(marker);
+        }
+        // Hour hand (pointing to ~10)
+        const hourHandMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5, metalness: 0.3 });
+        const hourHand = new THREE.Mesh(new THREE.BoxGeometry(0.015, clockRadius * 0.5, 0.005), hourHandMat);
+        hourHand.position.set(0, s[1] / 2, s[2] / 2 + 0.007);
+        hourHand.geometry.translate(0, clockRadius * 0.25, 0);
+        hourHand.rotation.z = Math.PI / 6; // ~10 o'clock
+        group.add(hourHand);
+        // Minute hand (pointing to ~2)
+        const minHand = new THREE.Mesh(new THREE.BoxGeometry(0.01, clockRadius * 0.7, 0.005), hourHandMat);
+        minHand.position.set(0, s[1] / 2, s[2] / 2 + 0.009);
+        minHand.geometry.translate(0, clockRadius * 0.35, 0);
+        minHand.rotation.z = -Math.PI / 3; // ~10:10
+        group.add(minHand);
+        // Center cap
+        const capMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.2, metalness: 0.8 });
+        const cap = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 8), capMat);
+        cap.position.set(0, s[1] / 2, s[2] / 2 + 0.011);
+        group.add(cap);
+    } else if (type === 'curtain') {
+        // ── Curtain: chrome rod + pleated fabric panels ──
+        const rodMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, roughness: 0.1, metalness: 0.9 });
+        // Curtain rod
+        const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, s[0] + 0.1, 12), rodMat);
+        rod.rotation.z = Math.PI / 2;
+        rod.position.set(0, s[1] - 0.02, 0);
+        group.add(rod);
+        // Rod finials (end caps)
+        [-1, 1].forEach(side => {
+            const finial = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), rodMat);
+            finial.position.set(side * (s[0] / 2 + 0.05), s[1] - 0.02, 0);
+            group.add(finial);
+        });
+        // Rod brackets
+        [-1, 1].forEach(side => {
+            const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.04, 0.025), rodMat);
+            bracket.position.set(side * (s[0] / 2 - 0.05), s[1] - 0.04, -s[2] / 2 + 0.01);
+            group.add(bracket);
+        });
+        // Fabric curtain panels (left and right, with pleats)
+        const curtainColor = new THREE.Color(info.color || '#d4a574');
+        const curtainMat1 = new THREE.MeshStandardMaterial({ color: curtainColor, roughness: 0.92, metalness: 0, side: THREE.DoubleSide });
+        const curtainMat2 = new THREE.MeshStandardMaterial({ color: curtainColor.clone().multiplyScalar(0.9), roughness: 0.92, metalness: 0, side: THREE.DoubleSide });
+        // Left panel pleats
+        const panelW = s[0] * 0.35;
+        const numPleats = 5;
+        const pleatW = panelW / numPleats;
+        [-1, 1].forEach(side => {
+            const panelX = side * (s[0] / 2 - panelW / 2);
+            for (let pi = 0; pi < numPleats; pi++) {
+                const px = panelX + (pi - numPleats / 2 + 0.5) * pleatW;
+                const depth = (pi % 2 === 0) ? 0.015 : -0.015;
+                const pleat = new THREE.Mesh(
+                    new THREE.BoxGeometry(pleatW * 0.95, s[1] * 0.92, s[2] * 0.6),
+                    pi % 2 === 0 ? curtainMat1 : curtainMat2
+                );
+                pleat.position.set(px, s[1] * 0.46, depth);
+                group.add(pleat);
+            }
+        });
     } else if (type.includes('plant')) {
         // Terracotta pot with rim
         const potMat = new THREE.MeshStandardMaterial({color: 0xc4785a, roughness: 0.85});
@@ -622,7 +918,7 @@ export function constrainObjectPosition(obj, w, l, objects) {
     constrainToPartitionWalls(obj, objects);
 }
 
-function snapWallMountedItem(type, pos, rot, scale) {
+export function snapWallMountedItem(type, pos, rot, scale) {
     const ft = type || '';
     const isWallMounted = ['mirror', 'painting', 'clock', 'curtain'].some(t => ft.includes(t));
     if (!isWallMounted) return pos;

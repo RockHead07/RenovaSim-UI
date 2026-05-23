@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { createScene, buildRoom } from './editor/scene.js';
-import { createFurniture, handleClick, startDrag, doDrag, endDrag, getDragging, getSelected, setSelected, deleteSelected, serializeObjects, clearObjects, getObjects, setRoomDimensions, constrainObjectPosition } from './editor/objects.js';
+import { createFurniture, handleClick, startDrag, doDrag, endDrag, getDragging, getSelected, setSelected, deleteSelected, serializeObjects, clearObjects, getObjects, setRoomDimensions, constrainObjectPosition, snapWallMountedItem } from './editor/objects.js';
 import { initExplore, setupExploreEvents, lockPointer, isLocked, updateExplore, enterExploreMode, exitExploreMode, applyGravityToObjects } from './editor/explore.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import * as API from './editor/api.js';
@@ -20,7 +20,7 @@ const wallHeight = 3.2;
 const wallThickness = 0.15;
 
 // ── Init ──
-window.RenovaEditor = { init, uploadAndGenerate, switchMode, addFurniture, deleteObj, applyTemplate, paintWall, saveProject, spawnFurniture, startWallDraw, cancelWallDraw, getCatalog: () => catalog };
+window.RenovaEditor = { init, uploadAndGenerate, switchMode, addFurniture, deleteObj, applyTemplate, paintWall, saveProject, spawnFurniture, startWallDraw, cancelWallDraw, updateRoomSize, getCatalog: () => catalog };
 
 async function init() {
     const container = document.getElementById('editor-canvas');
@@ -292,6 +292,14 @@ function loadRoomIntoScene(room) {
     // Update room info
     const infoEl = document.getElementById('room-info');
     if (infoEl) infoEl.textContent = `${room.width}m × ${room.length}m × ${room.height}m`;
+
+    // Update size input fields in the panel (converted from meters to centimeters)
+    const widthInput = document.getElementById('room-width-cm');
+    const lengthInput = document.getElementById('room-length-cm');
+    const heightInput = document.getElementById('room-height-cm');
+    if (widthInput) widthInput.value = Math.round(room.width * 100);
+    if (lengthInput) lengthInput.value = Math.round(room.length * 100);
+    if (heightInput) heightInput.value = Math.round(room.height * 100);
 }
 
 // ── Mode Switching ──
@@ -805,6 +813,86 @@ function cancelWallDraw() {
     if (banner) banner.style.display = 'none';
     
     toast('Wall drawing cancelled.', 'info');
+}
+
+function updateRoomSize() {
+    if (!currentRoom) {
+        toast('No room loaded to update size', 'warning');
+        return;
+    }
+
+    const widthCmInput = document.getElementById('room-width-cm');
+    const lengthCmInput = document.getElementById('room-length-cm');
+    const heightCmInput = document.getElementById('room-height-cm');
+
+    if (!widthCmInput || !lengthCmInput || !heightCmInput) {
+        toast('Size inputs not found in UI', 'error');
+        return;
+    }
+
+    const wCm = parseFloat(widthCmInput.value);
+    const lCm = parseFloat(lengthCmInput.value);
+    const hCm = parseFloat(heightCmInput.value);
+
+    if (isNaN(wCm) || wCm < 100 || wCm > 2000) {
+        toast('Lebar tidak valid (100 - 2000 cm)', 'warning');
+        return;
+    }
+    if (isNaN(lCm) || lCm < 100 || lCm > 2000) {
+        toast('Panjang tidak valid (100 - 2000 cm)', 'warning');
+        return;
+    }
+    if (isNaN(hCm) || hCm < 200 || hCm > 600) {
+        toast('Tinggi tidak valid (200 - 600 cm)', 'warning');
+        return;
+    }
+
+    const w = wCm / 100;
+    const l = lCm / 100;
+    const h = hCm / 100;
+
+    currentRoom.width = w;
+    currentRoom.length = l;
+    currentRoom.height = h;
+
+    // Clear and rebuild room geometry
+    const old = engine.scene.getObjectByName('room');
+    if (old) engine.scene.remove(old);
+
+    roomGroup = buildRoom(engine.scene, w, l, h, currentRoom.wall_color, currentRoom.floor_color);
+    setRoomDimensions(w, l);
+
+    // Hide ceiling in build mode
+    const ceiling = engine.scene.getObjectByName('ceiling');
+    if (ceiling && mode === 'build') {
+        ceiling.visible = false;
+    }
+
+    // Constrain all furniture to new room bounds
+    const objs = getObjects();
+    objs.forEach(obj => {
+        // First constrain standard positioning
+        constrainObjectPosition(obj, w, l, objs);
+
+        // Reposition wall-mounted items using snapWallMountedItem
+        const ft = obj.userData.furnitureType || '';
+        const isWallMounted = ['mirror', 'painting', 'clock', 'curtain'].some(t => ft.includes(t));
+        if (isWallMounted) {
+            const s = obj.userData.scale || [1, 1, 1];
+            const rot = [obj.rotation.x, obj.rotation.y, obj.rotation.z];
+            const pos = [obj.position.x, obj.position.y + s[1]/2, obj.position.z];
+            const adjustedPos = snapWallMountedItem(ft, pos, rot, s);
+            obj.position.set(adjustedPos[0], adjustedPos[1] - s[1]/2, adjustedPos[2]);
+        }
+    });
+
+    // Update room info display in header
+    const infoEl = document.getElementById('room-info');
+    if (infoEl) {
+        infoEl.textContent = `${w}m × ${l}m × ${h}m`;
+    }
+
+    toast('Ukuran ruangan berhasil diperbarui!', 'success');
 }
 
 // Auto-init

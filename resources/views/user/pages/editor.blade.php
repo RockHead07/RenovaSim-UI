@@ -61,6 +61,7 @@
             <button class="panel-tab" onclick="switchTab(this,'tab-props')">Properties</button>
             <button class="panel-tab" onclick="switchTab(this,'tab-templates')">Templates</button>
             <button class="panel-tab" onclick="switchTab(this,'tab-paint')">Paint</button>
+            <button class="panel-tab" onclick="switchTab(this,'tab-room-size')">📐 Size</button>
         </div>
 
         <!-- Assets Tab -->
@@ -105,6 +106,36 @@
             <div style="margin-top:16px;">
                 <div class="property-label" style="margin-bottom:8px;">Custom Color</div>
                 <input type="color" value="#f5f0eb" style="width:100%;height:40px;border:1px solid var(--editor-border);border-radius:var(--editor-radius-sm);background:var(--editor-bg);cursor:pointer;" onchange="RenovaEditor.paintWall(this.value)">
+            </div>
+        </div>
+
+        <!-- Room Size Tab -->
+        <div id="tab-room-size" class="panel-content" style="display:none;">
+            <div class="property-label" style="margin-bottom:12px;">📐 Ukuran Ruangan (cm)</div>
+            <div class="property-group">
+                <div class="property-row" style="margin-bottom:10px;">
+                    <label style="min-width:60px;font-size:13px;color:var(--editor-text-muted);">Lebar</label>
+                    <input id="room-width-cm" class="property-input" type="number" min="100" max="2000" step="10" value="800" style="flex:1;">
+                    <span style="font-size:11px;color:var(--editor-text-muted);margin-left:4px;">cm</span>
+                </div>
+                <div class="property-row" style="margin-bottom:10px;">
+                    <label style="min-width:60px;font-size:13px;color:var(--editor-text-muted);">Panjang</label>
+                    <input id="room-length-cm" class="property-input" type="number" min="100" max="2000" step="10" value="1000" style="flex:1;">
+                    <span style="font-size:11px;color:var(--editor-text-muted);margin-left:4px;">cm</span>
+                </div>
+                <div class="property-row" style="margin-bottom:10px;">
+                    <label style="min-width:60px;font-size:13px;color:var(--editor-text-muted);">Tinggi</label>
+                    <input id="room-height-cm" class="property-input" type="number" min="200" max="600" step="10" value="320" style="flex:1;">
+                    <span style="font-size:11px;color:var(--editor-text-muted);margin-left:4px;">cm</span>
+                </div>
+            </div>
+            <button class="toolbar-btn" style="width:100%;justify-content:center;margin-top:8px;border-color:var(--editor-accent);color:var(--editor-accent);font-weight:600;" onclick="RenovaEditor.updateRoomSize()">
+                ✅ Terapkan Ukuran
+            </button>
+            <div style="margin-top:14px;padding:10px;background:var(--editor-surface);border-radius:var(--editor-radius-sm);border:1px solid var(--editor-border);">
+                <div style="font-size:11px;color:var(--editor-text-muted);line-height:1.5;">
+                    💡 <strong>Tips:</strong> Masukkan ukuran ruangan dalam satuan sentimeter (cm). Contoh: 400 cm = 4 meter. Furniture yang sudah ada akan otomatis disesuaikan agar tetap di dalam ruangan.
+                </div>
             </div>
         </div>
     </div>
