@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <div class="flex justify-between text-xs text-muted-foreground">
-                    <span>{{ format_rp($minCost) }} – {{ format_rp($maxCost) }}</span>
+                    <span>Rp {{ number_format($minCost, 0, ',', '.') }} – Rp {{ number_format($maxCost, 0, ',', '.') }}</span>
                 </div>
             </div>
         @endforeach
@@ -36,7 +36,7 @@
         <div class="flex justify-between items-baseline">
             <span class="text-sm font-medium text-card-foreground">Total Estimated Cost</span>
             <div class="font-['Playfair_Display'] italic text-xl text-secondary">
-                {{ format_rp($totalRange['display'] ?? (($totalRange['min'] + $totalRange['max']) / 2)) }}
+                {{ $totalRange['display'] }}
             </div>
         </div>
     </div>

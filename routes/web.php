@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\MaterialController;
 use App\Http\Controllers\Admin\PricingPlanController;
+use App\Http\Controllers\User\EstimationController;
 use App\Models\PricingPlan;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -20,13 +21,19 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
     Route::view('/dashboard', 'user.pages.dashboard');
-    Route::view('/ai-estimation', 'user.pages.ai-estimation');
     Route::view('/project-stage', 'user.pages.project-stage');
     Route::view('/project-details', 'user.pages.project-details');
-    Route::view('/estimation-result', 'user.pages.estimation-result');
-    Route::view('/project-overview', 'user.pages.project-overview');
+    Route::view('/project-overview', 'user.pages.project-overview')->name('user.project-overview');
     Route::view('/project-rab', 'user.pages.project-rab');
     Route::view('/3d', 'user.pages.three-d-design');
+
+    // Estimation flow — controller-based
+    Route::get('/ai-estimation', [EstimationController::class, 'showWizard'])->name('user.estimation.wizard');
+    Route::post('/ai-estimation/wizard', [EstimationController::class, 'submitWizard'])->name('user.estimation.submitWizard');
+    Route::post('/ai-estimation/ai', [EstimationController::class, 'submitAI'])->name('user.estimation.submitAI');
+    Route::get('/estimation-result', [EstimationController::class, 'showResult'])->name('user.estimation.result');
+    Route::get('/estimation-result/refine', [EstimationController::class, 'showRefine'])->name('user.estimation.showRefine');
+    Route::post('/estimation-result/refine', [EstimationController::class, 'submitRefine'])->name('user.estimation.refine');
 });
 
 Route::get('/project/{id}/rab', function ($id) {

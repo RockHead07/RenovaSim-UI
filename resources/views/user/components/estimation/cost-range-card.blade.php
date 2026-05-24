@@ -16,10 +16,10 @@
     <div>
         <div class="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Total Estimated Cost</div>
         <div class="font-['Playfair_Display'] italic text-[28px] sm:text-[36px] text-secondary leading-tight">
-            {{ format_rp($range['display'] ?? (($range['min'] + $range['max']) / 2)) }}
+            {{ $range['display'] }}
         </div>
         <div class="text-sm text-muted-foreground mt-1">
-            {{ format_rp($range['min']) }} – {{ format_rp($range['max']) }}
+            Rp {{ number_format($range['min'], 0, ',', '.') }} – Rp {{ number_format($range['max'], 0, ',', '.') }}
         </div>
     </div>
 
