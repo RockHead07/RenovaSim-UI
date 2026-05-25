@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -37,6 +38,9 @@ class User extends Authenticatable implements FilamentUser, HasName
         'avatar_path',
         'password',
         'role',
+        'is_admin',
+        'google_id',
+        'google_email',
         'account_status',
         'timezone',
         'language',
@@ -64,6 +68,18 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->belongsToMany(Project::class)->withTimestamps();
     }
 
+    public function rooms(): HasMany
+    {
+        return $this->hasMany(Room::class);
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin || $this->email === 'admin@gmail.com';
+    }
     public function pricingPlan(): BelongsTo
     {
         return $this->belongsTo(PricingPlan::class, 'pricing_plan_id');

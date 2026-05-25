@@ -9,6 +9,8 @@ export default defineConfig({
                 "resources/js/app.js",
                 "resources/user/theme/css/user.css",
                 "resources/user/theme/js/user.js",
+                "resources/css/editor.css",
+                "resources/js/room-editor.js",
             ],
             refresh: true,
         }),

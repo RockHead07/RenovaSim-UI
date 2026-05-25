@@ -152,6 +152,22 @@ composer require laravel/boost --dev
 php artisan boost:install
 ```
 
+
+## migrasi mysql (xampp) sementara 
+# Next Steps (Manual): 
+
+1. Start MySQL - Open XAMPP Control Panel and start MySQL
+2. Create Database - php artisan db:create
+4. Run Migrations - php artisan migrate --force
+5. Seed Database - php artisan db:seed (creates admin user)
+6. Setup Google OAuth (optional) - Add credentials to .env
+7. Start Server - php artisan serve
+
+🔐 Test Credentials:
+Admin: admin@gmail.com / admin123
+Test User: test@example.com / password
+
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

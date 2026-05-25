@@ -3,6 +3,68 @@
     $result = session('estimation_result');
     $jobTypeIdMap = config('renovasim.job_type_id') ?? [];
     $fieldIdMap = config('renovasim.assumption_field_id') ?? [];
+    // Read from response passed by EstimationController
+    $min = $response['total_range']['min'] ?? 8_000_000;
+    $max = $response['total_range']['max'] ?? 12_000_000;
+    $display = ($min + $max) / 2;
+    $range = [
+        'min' => $min,
+        'max' => $max,
+        'display' => $response['total_range']['display'] ?? ('Rp ' . number_format($display, 0, ',', '.'))
+    ];
+
+    $confidence = [
+        'label' => $response['confidence']['label'] ?? 'Tinggi',
+        'score' => $response['confidence']['score'] ?? 73,
+        'message' => $response['confidence']['message'] ?? ''
+    ];
+
+    $assumptions = array_map(function($item) {
+        return [
+            'field' => $item['field'],
+            'value' => $item['value'],
+            'reason' => $item['reason'] ?? '',
+            'needs_clarification' => $item['needs_clarification'] ?? false
+        ];
+    }, $response['assumptions'] ?? []);
+
+    $breakdown = array_map(function($item) {
+        return [
+            'job_type' => $item['job_type'],
+            'min' => $item['min'],
+            'max' => $item['max'],
+            'area' => $item['area']
+        ];
+    }, $response['breakdown'] ?? []);
+
+    $budgetWarning = null;
+    if ($inputs['budget'] > 0 && $inputs['budget'] < $min) {
+        $budgetWarning = ['severity' => 'warning', 'message' => 'Budget Anda (' . number_format($inputs['budget'], 0, ',', '.') . ') kemungkinan tidak cukup untuk scope ini.'];
+    }
+
+    // Check for other warnings returned from API
+    if (!empty($response['warnings'])) {
+        // Find the first matching warning
+        foreach ($response['warnings'] as $warn) {
+            if ($warn['severity'] === 'danger' || $warn['severity'] === 'warning') {
+                $budgetWarning = ['severity' => $warn['severity'], 'message' => $warn['message']];
+                break;
+            }
+        }
+    }
+
+    $infoTip = [
+        'severity' => 'info',
+        'message' => $response['pre_framing'] ?? 'Banyak yang mengira biaya cat hanya untuk catnya saja, padahal persiapan permukaan dan upah tukang sering jadi porsi terbesar.'
+    ];
+
+    $aiUrl = '/user/ai-estimation?' . http_build_query([
+        'projectName'    => $inputs['projectName'],
+        'city'           => $inputs['city'],
+        'renovationType' => $inputs['renovationType'],
+        'quality'        => $inputs['quality'],
+        'budget'         => $inputs['budget'] ?: null,
+    ]);
 @endphp
 
 @if(!$result)
@@ -268,6 +330,16 @@
                             </ul>
                         </div>
                     @endif
+                        <ul class="text-[12px] text-muted-foreground leading-relaxed list-disc pl-4 space-y-2">
+                            @foreach ($response['explanation'] ?? [] as $exp)
+                                <li>{{ $exp }}</li>
+                            @endforeach
+                            @if (empty($response['explanation']))
+                                <li>Upah tukang disesuaikan dengan tingkat regional kota {{ $inputs['city'] ?? 'Jakarta' }}</li>
+                                <li>Ditambahkan 5% untuk material cadangan dan waste selama pengerjaan</li>
+                            @endif
+                        </ul>
+                    </div>
                 </div>
 
                 {{-- RIGHT --}}

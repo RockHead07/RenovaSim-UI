@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Editor UI Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            background: #1e293b;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        #navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #0f172a;
+            border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+        }
+
+        #editor-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Editor UI */
+        #editor-ui {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            pointer-events: none;
+            z-index: 100;
+            display: block !important;
+        }
+
+        .ui-panel {
+            pointer-events: all;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.8);
+            border-radius: 8px;
+            padding: 16px;
+            color: white;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Top-left: Controls */
+        #controls-panel {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            width: 320px;
+            z-index: 101;
+            display: block !important;
+        }
+
+        /* Top-right: Mode Info */
+        #mode-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 320px;
+            z-index: 101;
+            display: block !important;
+        }
+
+        /* Bottom-left: Furniture */
+        #furniture-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            max-width: 450px;
+            max-height: 350px;
+            z-index: 101;
+            display: block !important;
+            overflow-y: auto;
+        }
+
+        /* Bottom-right: Status */
+        #status-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            z-index: 101;
+            display: block !important;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s, transform 0.1s;
+            margin: 4px;
+            user-select: none;
+        }
+
+        .button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.danger {
+            background: #dc2626;
+        }
+
+        .button.danger:hover {
+            background: #b91c1c;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin: 12px 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #e2e8f0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin: 6px 0;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .furniture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .furniture-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            background: rgba(71, 85, 105, 0.4);
+            border: 2px solid rgba(71, 85, 105, 0.6);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 24px;
+            min-height: 80px;
+            user-select: none;
+        }
+
+        .furniture-item:hover {
+            background: rgba(71, 85, 105, 0.8);
+            border-color: #3b82f6;
+            transform: scale(1.05);
+        }
+
+        .furniture-label {
+            font-size: 9px;
+            color: #94a3b8;
+            margin-top: 4px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .mode-badge {
+            display: inline-block;
+            padding: 8px 14px;
+            background: #8b5cf6;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            margin: 4px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .mode-badge.edit {
+            background: #06b6d4;
+        }
+
+        .help-text {
+            font-size: 11px;
+            color: #cbd5e1;
+            margin: 12px 0;
+            line-height: 1.7;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 10px;
+            border-left: 3px solid #3b82f6;
+            border-radius: 4px;
+        }
+
+        .help-text strong {
+            color: #f1f5f9;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .ui-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ui-panel::-webkit-scrollbar-track {
+            background: rgba(71, 85, 105, 0.2);
+            border-radius: 3px;
+        }
+
+        .ui-panel::-webkit-scrollbar-thumb {
+            background: rgba(71, 85, 105, 0.6);
+            border-radius: 3px;
+        }
+
+        .ui-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(71, 85, 105, 0.8);
+        }
+
+        #canvas-placeholder {
+            color: #64748b;
+            font-size: 18px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar">
+        <h1 style="margin: 0; font-size: 18px;">🏠 Room Editor UI Test</h1>
+        <span style="margin-left: auto; font-size: 12px; color: #64748b;">
+            Python Editor v1.0 • UI Preview
+        </span>
+    </div>
+
+    <!-- Main Container -->
+    <div id="editor-container">
+        <div id="canvas-container">
+            <div id="canvas-placeholder">
+                3D Canvas Area<br>
+                <small>(This is just UI testing - no 3D backend)</small>
+            </div>
+        </div>
+
+        <div id="editor-ui">
+            <!-- Top-Left: Controls Panel -->
+            <div id="controls-panel" class="ui-panel">
+                <div class="section-title">🎮 3D Editor Controls</div>
+
+                <div class="mode-badge" id="mode-display">EXPLORE MODE</div>
+
+                <button class="button" id="toggle-mode-btn" style="width: calc(100% - 8px); margin-top: 8px;">
+                    ↔️ Switch to Edit Mode [E]
+                </button>
+
+                <button class="button danger" id="clear-scene-btn" style="width: calc(100% - 8px); margin-top: 8px;">
+                    🗑️ Clear Scene
+                </button>
+
+                <button class="button" id="save-room-btn" style="width: calc(100% - 8px); margin-top: 8px; background: #059669;">
+                    💾 Save Room [Ctrl+S]
+                </button>
+
+                <div class="help-text">
+                    <strong>Explore Mode:</strong>
+                    WASD = Move | Mouse = Look | E = Edit
+                </div>
+
+                <div class="help-text">
+                    <strong>Edit Mode:</strong>
+                    Click = Select | G = Move | R = Rotate | S = Scale | Del = Delete
+                </div>
+
+                <div class="section-title">📐 Scene Info</div>
+                <div class="info-text">
+                    Dimensions: 8m × 10m × 3.2m
+                </div>
+                <div class="info-text">
+                    Objects: <span id="object-count" style="font-weight: bold; color: #10b981;">0</span>
+                </div>
+            </div>
+
+            <!-- Top-Right: Mode Info Panel -->
+            <div id="mode-panel" class="ui-panel">
+                <div class="section-title">🔧 Current Tool</div>
+                <div class="info-text" id="current-tool">None</div>
+
+                <div class="section-title">👆 Selected Object</div>
+                <div class="info-text" id="selected-info" style="min-height: 20px;">None</div>
+
+                <button class="button danger" id="delete-selected-btn" style="width: calc(100% - 8px); margin-top: 8px; display: none;">
+                    🗑️ Delete Selected [Del]
+                </button>
+            </div>
+
+            <!-- Bottom-Left: Furniture Selection Panel -->
+            <div id="furniture-panel" class="ui-panel">
+                <div class="section-title">🪑 Furniture Library</div>
+                <div class="furniture-grid" id="furniture-grid">
+                    <div class="furniture-item"><div>🛏</div><div class="furniture-label">Bed</div></div>
+                    <div class="furniture-item"><div>🛋</div><div class="furniture-label">Sofa</div></div>
+                    <div class="furniture-item"><div>🪑</div><div class="furniture-label">Chair</div></div>
+                    <div class="furniture-item"><div>🍽</div><div class="furniture-label">Table</div></div>
+                    <div class="furniture-item"><div>🖥</div><div class="furniture-label">Desk</div></div>
+                    <div class="furniture-item"><div>📚</div><div class="furniture-label">Bookshelf</div></div>
+                    <div class="furniture-item"><div>🚪</div><div class="furniture-label">Wardrobe</div></div>
+                    <div class="furniture-item"><div>📺</div><div class="furniture-label">TV Stand</div></div>
+                    <div class="furniture-item"><div>💡</div><div class="furniture-label">Lamp</div></div>
+                    <div class="furniture-item"><div>🪴</div><div class="furniture-label">Plant</div></div>
+                    <div class="furniture-item"><div>🛁</div><div class="furniture-label">Bathtub</div></div>
+                    <div class="furniture-item"><div>🚽</div><div class="furniture-label">Toilet</div></div>
+                    <div class="furniture-item"><div>🚰</div><div class="furniture-label">Sink</div></div>
+                    <div class="furniture-item"><div>🧊</div><div class="furniture-label">Fridge</div></div>
+                    <div class="furniture-item"><div>♨</div><div class="furniture-label">Oven</div></div>
+                    <div class="furniture-item"><div>🖼</div><div class="furniture-label">Painting</div></div>
+                    <div class="furniture-item"><div>🪞</div><div class="furniture-label">Mirror</div></div>
+                    <div class="furniture-item"><div>🟥</div><div class="furniture-label">Rug</div></div>
+                </div>
+            </div>
+
+            <!-- Bottom-Right: Status Panel -->
+            <div id="status-panel" class="ui-panel">
+                <div class="section-title">📊 Status</div>
+                <div class="info-text" id="status-message" style="min-height: 20px; color: #10b981;">
+                    ✅ UI Test Ready
+                </div>
+                <div class="info-text" id="fps-counter" style="margin-top: 8px; color: #64748b;">
+                    FPS: 60
+                </div>
+                <div class="info-text" style="margin-top: 12px; font-size: 10px; color: #475569; border-top: 1px solid rgba(71, 85, 105, 0.3); padding-top: 8px;">
+                    Python Editor v1.0 • UI Preview Mode
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('✅ Python Editor UI Test Page Loaded');
+        
+        // Test mode toggle
+        document.getElementById('toggle-mode-btn').addEventListener('click', function() {
+            const badge = document.getElementById('mode-display');
+            const btn = document.getElementById('toggle-mode-btn');
+            
+            if (badge.textContent === 'EXPLORE MODE') {
+                badge.textContent = 'BUILD MODE';
+                badge.classList.add('edit');
+                btn.textContent = '↔️ Switch to Explore Mode [E]';
+            } else {
+                badge.textContent = 'EXPLORE MODE';
+                badge.classList.remove('edit');
+                btn.textContent = '↔️ Switch to Edit Mode [E]';
+            }
+        });
+
+        // Test save
+        document.getElementById('save-room-btn').addEventListener('click', function() {
+            const msg = document.getElementById('status-message');
+            msg.textContent = '💾 Saving...';
+            msg.style.color = '#64748b';
+            
+            setTimeout(() => {
+                msg.textContent = '✅ Room saved!';
+                msg.style.color = '#10b981';
+                
+                setTimeout(() => {
+                    msg.textContent = 'Ready';
+                    msg.style.color = '#cbd5e1';
+                }, 2000);
+            }, 500);
+        });
+
+        // Test clear
+        document.getElementById('clear-scene-btn').addEventListener('click', function() {
+            if (confirm('Clear all objects?')) {
+                document.getElementById('object-count').textContent = '0';
+                document.getElementById('status-message').textContent = '✅ Scene cleared';
+            }
+        });
+
+        // Update FPS counter
+        let frameCount = 0;
+        let lastTime = Date.now();
+        function updateFPS() {
+            frameCount++;
+            const currentTime = Date.now();
+            if (currentTime >= lastTime + 1000) {
+                document.getElementById('fps-counter').textContent = `FPS: ${frameCount}`;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+
+        console.log('✅ All UI elements initialized and ready');
+    </script>
+</body>
+</html>

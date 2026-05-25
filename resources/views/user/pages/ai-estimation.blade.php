@@ -5,6 +5,22 @@
     $qualities       = $qualities ?? config('renovasim.qualities');
     $cities          = $cities ?? config('renovasim.cities');
     $jobTypeMap      = $jobTypeMap ?? config('renovasim.job_type_id');
+    $renovationTypes = config('renovasim.renovation_types');
+    // Per the React source these are the AI-estimation specific values
+    $aiRenoTypes = [
+        'Pengecatan', 'Renovasi Dapur', 'Renovasi Kamar Mandi',
+        'Renovasi Total', 'Penambahan Ruangan', 'Lain-lain',
+    ];
+    $qualityLevels = ['Ekonomis', 'Standar', 'Premium'];
+
+    // Read step1 inputs from query string (formerly React Router location.state)
+    $step1 = [
+        'projectName'    => request()->query('projectName', 'Renovasi Rumah Pak Budi'),
+        'city'           => request()->query('city', 'Jakarta'),
+        'renovationType' => request()->query('renovationType', 'Pengecatan'),
+        'quality'        => request()->query('quality', 'Standar'),
+        'budget'         => request()->query('budget', ''),
+    ];
 @endphp
 
 <x-user::layouts.app title="RenovaSim — AI Estimation" :hideFooter="false">
@@ -37,6 +53,45 @@
             get aiBudgetValue() {
                 const d = (this.aiBudgetDisplay || '').replace(/\D/g, '');
                 return d ? parseInt(d, 10) : 0;
+            loading: false,
+            progress: 0,
+            aiWriting: false,
+            get canSubmit() {
+                if (this.mode === 'quick')    return this.area.trim().length > 0;
+                if (this.mode === 'detailed') return this.area.trim().length > 0;
+                if (this.mode === 'ai')       return this.aiPrompt.trim().length >= 10;
+                return false;
+            },
+            goResults() {
+                this.loading = true;
+                this.progress = 0;
+                const interval = setInterval(() => {
+                    this.progress = this.progress >= 100 ? 100 : this.progress + 5;
+                }, 90);
+                setTimeout(() => {
+                    clearInterval(interval);
+                    this.progress = 100;
+                    this.loading = false;
+                    const params = new URLSearchParams({
+                        projectName: this.step1.projectName,
+                        city: this.step1.city,
+                        renovationType: this.renovationType,
+                        quality: this.quality,
+                        area: this.area,
+                        unit: this.unit,
+                        description: this.mode === 'ai' ? this.aiPrompt : this.notes,
+                        mode: this.mode || '',
+                        budget: this.step1.budget || '',
+                    });
+                    window.location.href = '/user/estimation-result?' + params.toString();
+                }, 2000);
+            },
+            generateAiPrompt() {
+                this.aiWriting = true;
+                setTimeout(() => {
+                    this.aiPrompt = 'Saya ingin merenovasi dapur berukuran sekitar 12 m². Ganti seluruh keramik lantai, perbarui meja kerja dengan granit, cat ulang dinding, dan pasang exhaust fan baru. Kualitas standar, fokus pada kerapian dan daya tahan.';
+                    this.aiWriting = false;
+                }, 1100);
             },
 
             // Validation

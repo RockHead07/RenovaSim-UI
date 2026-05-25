@@ -28,7 +28,20 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect('/user/dashboard');
+        // Redirect admin to admin profile, regular users to dashboard
+        $user = Auth::user();
+        
+        // Auto-assign 'user' role if empty for backward compatibility
+        if ($user && empty($user->role) && !$user->is_admin && $user->email !== 'admin@gmail.com') {
+            $user->role = 'user';
+            $user->save();
+        }
+
+        if ($user && ($user->is_admin || $user->email === 'admin@gmail.com' || $user->role === 'admin' || $user->role === 'owner')) {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        }
+
+        return redirect()->intended('/user/dashboard');
     }
 
     /**

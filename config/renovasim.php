@@ -118,6 +118,10 @@ return [
         'electrical'    => 'Instalasi Listrik',
         'roofing'       => 'Pekerjaan Atap',
         'waterproofing' => 'Waterproofing',
+        'plastering'    => 'Plesteran & Acian',
+        'ceiling'       => 'Pekerjaan Plafon',
+        'door_window'   => 'Pintu & Jendela',
+        'landscaping'   => 'Taman & Eksterior',
     ],
 
     'assumption_field_id' => [

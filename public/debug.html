@@ -1,0 +1,141 @@
+<!-- Debug Page untuk Test Editor Loading -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editor Loader Debug</title>
+    <style>
+        body { font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; background: #252526; border-left: 3px solid #007acc; }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+        .warning { color: #dcdcaa; }
+        .info { color: #569cd6; }
+        pre { background: #1e1e1e; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 3D Editor Debug Console</h1>
+    
+    <div class="section">
+        <h2 class="info">📋 Environment Check</h2>
+        <pre id="env-check"></pre>
+    </div>
+    
+    <div class="section">
+        <h2 class="info">📦 File Paths</h2>
+        <pre>
+✅ Three.js:     /three-lib/three.module.min.js
+✅ GLTFLoader:   /three-examples/jsm/loaders/GLTFLoader.js
+✅ Character:    /images/Hoodie Character.glb
+✅ Editor:       /js/editor-advanced.js
+✅ Loader:       /js/loader.js
+        </pre>
+    </div>
+    
+    <div class="section">
+        <h2 class="info">🚀 Initialization Steps</h2>
+        <pre id="init-log"></pre>
+    </div>
+    
+    <div class="section">
+        <h2 class="info">🔍 Global Variables</h2>
+        <pre id="globals-check"></pre>
+    </div>
+
+    <script>
+        const log = document.getElementById('init-log');
+        const envCheck = document.getElementById('env-check');
+        const globalsCheck = document.getElementById('globals-check');
+        
+        function log_message(msg, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : '⏳';
+            const line = `[${timestamp}] ${prefix} ${msg}`;
+            log.textContent += line + '\n';
+            console.log(line);
+        }
+        
+        // Environment check
+        envCheck.textContent = `
+DOM Ready: ${document.readyState}
+Location: ${window.location.href}
+User Agent: ${navigator.userAgent.substring(0, 50)}...
+        `;
+        
+        // Monitor THREE.js loading
+        log_message('Waiting for THREE.js to load...', 'info');
+        let checkTHREEAttempts = 0;
+        const checkTHREEInterval = setInterval(() => {
+            checkTHREEAttempts++;
+            if (typeof THREE !== 'undefined') {
+                log_message(`THREE.js available after ${checkTHREEAttempts * 50}ms`, 'success');
+                globalsCheck.textContent += 'window.THREE: ' + (typeof THREE !== 'undefined' ? '✅ Available' : '❌ Not available') + '\n';
+                clearInterval(checkTHREEInterval);
+            }
+            if (checkTHREEAttempts > 100) {
+                log_message('THREE.js failed to load after 5 seconds', 'error');
+                clearInterval(checkTHREEInterval);
+            }
+        }, 50);
+        
+        // Monitor GLTFLoader loading
+        setTimeout(() => {
+            log_message('Waiting for GLTFLoader to load...', 'info');
+            let checkGLTFAttempts = 0;
+            const checkGLTFInterval = setInterval(() => {
+                checkGLTFAttempts++;
+                if (typeof GLTFLoader !== 'undefined') {
+                    log_message(`GLTFLoader available after ${checkGLTFAttempts * 50}ms`, 'success');
+                    globalsCheck.textContent += 'window.GLTFLoader: ' + (typeof GLTFLoader !== 'undefined' ? '✅ Available' : '❌ Not available') + '\n';
+                    clearInterval(checkGLTFInterval);
+                }
+                if (checkGLTFAttempts > 50) {
+                    log_message('GLTFLoader not loaded (may use fallback)', 'warning');
+                    clearInterval(checkGLTFInterval);
+                }
+            }, 50);
+        }, 1000);
+        
+        // Monitor AdvancedRoom3DEditor class
+        setTimeout(() => {
+            log_message('Waiting for AdvancedRoom3DEditor class...', 'info');
+            let checkEditorAttempts = 0;
+            const checkEditorInterval = setInterval(() => {
+                checkEditorAttempts++;
+                if (typeof AdvancedRoom3DEditor !== 'undefined') {
+                    log_message(`AdvancedRoom3DEditor available after ${checkEditorAttempts * 50}ms`, 'success');
+                    globalsCheck.textContent += 'window.AdvancedRoom3DEditor: ✅ Available\n';
+                    clearInterval(checkEditorInterval);
+                }
+                if (checkEditorAttempts > 50) {
+                    log_message('AdvancedRoom3DEditor class not found', 'error');
+                    clearInterval(checkEditorInterval);
+                }
+            }, 50);
+        }, 2000);
+        
+        // Monitor room data
+        setTimeout(() => {
+            log_message('Checking window.roomData...', 'info');
+            if (typeof window.roomData !== 'undefined') {
+                log_message('window.roomData found: ' + JSON.stringify(window.roomData), 'success');
+                globalsCheck.textContent += 'window.roomData: ✅ Available\n';
+            } else {
+                log_message('window.roomData not found - check Blade template', 'error');
+            }
+        }, 2500);
+        
+        // Monitor canvas
+        setTimeout(() => {
+            log_message('Checking canvas element...', 'info');
+            const canvas = document.getElementById('canvas');
+            if (canvas) {
+                log_message(`Canvas found: ${canvas.width} x ${canvas.height}`, 'success');
+                globalsCheck.textContent += 'canvas#canvas: ✅ Available\n';
+            } else {
+                log_message('Canvas element not found', 'error');
+            }
+        }, 2500);
+    </script>
+</body>
+</html>

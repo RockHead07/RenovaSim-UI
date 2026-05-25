@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "start": "concurrently -c \"blue,green,yellow\" -n \"LARAVEL,VITE,RAI\" \"php artisan serve\" \"vite\" \"cd RAI && python app_server.py\""
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
@@ -24,6 +25,7 @@
     "dependencies": {
         "@fontsource/dm-sans": "^5.2.8",
         "@fontsource/playfair-display": "^5.2.8",
-        "alpinejs": "^3.15.11"
+        "alpinejs": "^3.15.11",
+        "three": "^0.184.0"
     }
 }
