@@ -1,21 +1,21 @@
 {
   "id": "5ae06cc4-02d",
   "name": "Room 5ae06c",
-  "width": 13,
-  "length": 10.9,
-  "height": 2.5,
-  "wall_color": "#f0ede8",
-  "floor_color": "#d4cec5",
+  "width": 8,
+  "length": 10,
+  "height": 3.2,
+  "wall_color": "#f5f0eb",
+  "floor_color": "#c4a882",
   "objects": [
     {
-      "id": "496e207a",
-      "type": "kitchen_counter",
-      "name": "Kitchen Counter",
-      "category": "kitchen",
+      "id": "e73ddd76",
+      "type": "sofa",
+      "name": "Sofa",
+      "category": "living",
       "position": [
-        -2.7113549574274938,
-        0.45,
-        -5.15
+        0,
+        0.4,
+        -1.8
       ],
       "rotation": [
         0,
@@ -23,219 +23,21 @@
         0
       ],
       "scale": [
-        1.5,
-        0.9,
-        0.6
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "7c4199d4",
-      "type": "kitchen_sink",
-      "name": "Kitchen Sink",
-      "category": "kitchen",
-      "position": [
-        -1.037618608876571,
-        0.45,
-        -5.15
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
+        2,
         0.8,
-        0.9,
-        0.6
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "c2a5467f",
-      "type": "fridge",
-      "name": "Refrigerator",
-      "category": "kitchen",
-      "position": [
-        2.064952995105009,
-        0.9,
-        -5.1000000000000005
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.7,
-        1.8,
-        0.7
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "1304c0db",
-      "type": "oven",
-      "name": "Oven",
-      "category": "kitchen",
-      "position": [
-        0.21714658367110928,
-        0.425,
-        -5.1000000000000005
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.7,
-        0.85,
-        0.7
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "41c6daec",
-      "type": "dining_table",
-      "name": "Dining Table",
-      "category": "kitchen",
-      "position": [
-        -4.856061707273561,
-        0.39,
-        2.5463963452546694
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        1.4,
-        0.78,
         0.9
       ],
       "color": "#888888"
     },
     {
-      "id": "fbbf5e00",
-      "type": "dining_chair",
-      "name": "Dining Chair",
-      "category": "kitchen",
-      "position": [
-        -0.6,
-        0.45,
-        0.7
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.45,
-        0.9,
-        0.45
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "2aba6513",
-      "type": "dining_chair",
-      "name": "Dining Chair",
-      "category": "kitchen",
-      "position": [
-        0.6,
-        0.45,
-        0.7
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.45,
-        0.9,
-        0.45
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "fc6721de",
-      "type": "dining_chair",
-      "name": "Dining Chair",
-      "category": "kitchen",
-      "position": [
-        -5.020268984503988,
-        0.45,
-        3.527300591108877
-      ],
-      "rotation": [
-        0,
-        3.14,
-        0
-      ],
-      "scale": [
-        0.45,
-        0.9,
-        0.45
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "fa3091a0",
-      "type": "dining_chair",
-      "name": "Dining Chair",
-      "category": "kitchen",
-      "position": [
-        0.6,
-        0.45,
-        2.3
-      ],
-      "rotation": [
-        0,
-        3.14,
-        0
-      ],
-      "scale": [
-        0.45,
-        0.9,
-        0.45
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "1ec869ae",
-      "type": "plant_small",
-      "name": "Small Plant",
-      "category": "decor",
-      "position": [
-        -3,
-        0.225,
-        3
-      ],
-      "rotation": [
-        0,
-        0.3,
-        0
-      ],
-      "scale": [
-        0.3,
-        0.45,
-        0.3
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "145ddec3",
+      "id": "3f59dd50",
       "type": "coffee_table",
       "name": "Coffee Table",
       "category": "living",
       "position": [
-        -0.07815226677556697,
+        0,
         0.2,
-        1.3546272507384052
+        -0.3
       ],
       "rotation": [
         0,
@@ -250,168 +52,36 @@
       "color": "#888888"
     },
     {
-      "id": "22f0e1fc",
-      "type": "bed_double",
-      "name": "Double Bed",
-      "category": "bedroom",
+      "id": "5e5150ca",
+      "type": "tv_stand",
+      "name": "TV Stand",
+      "category": "living",
       "position": [
-        5.225905219240076,
+        0,
         0.25,
-        4.4
+        3
       ],
       "rotation": [
         0,
-        3.141592653589793,
+        3.14,
         0
       ],
       "scale": [
-        1.6,
+        1.4,
         0.5,
-        2.1
+        0.4
       ],
       "color": "#888888"
     },
     {
-      "id": "56f548da",
-      "type": "curtain",
-      "name": "Curtain",
-      "category": "decor",
-      "position": [
-        4.508251057958714,
-        1.3040099461810268,
-        -5.41
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        1.2,
-        2.2,
-        0.08
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "550fc81f",
-      "type": "mirror",
-      "name": "Wall Mirror",
-      "category": "bathroom",
-      "position": [
-        -2.7491344141850753,
-        1.5494180245585678,
-        -5.425000000000001
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.6,
-        0.8,
-        0.05
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "262b177f",
-      "type": "bathtub",
-      "name": "Bathtub",
-      "category": "bathroom",
-      "position": [
-        -5.059601968687976,
-        0.3,
-        -5.05
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        1.8,
-        0.6,
-        0.8
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "3b3a8b97",
-      "type": "dining_chair",
-      "name": "Dining Chair",
-      "category": "kitchen",
-      "position": [
-        -3.555582765720523,
-        0.45,
-        -4.399726927083727
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.45,
-        0.9,
-        0.45
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "989479e8",
-      "type": "bathroom_sink",
-      "name": "Bathroom Sink",
-      "category": "bathroom",
-      "position": [
-        -5.261215321747868,
-        0.425,
-        -1.987248238909977
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.6,
-        0.85,
-        0.5
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "40d6f42b",
-      "type": "oven",
-      "name": "Oven",
-      "category": "kitchen",
-      "position": [
-        0.2155824544560102,
-        1.275,
-        -5.1000000000000005
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.7,
-        0.85,
-        0.7
-      ],
-      "color": "#888888"
-    },
-    {
-      "id": "10a6c77a",
+      "id": "7f8002fb",
       "type": "rug",
       "name": "Rug",
       "category": "living",
       "position": [
-        0.311634520270601,
+        0,
         0.01,
-        1.2660124270483126
+        -0.5
       ],
       "rotation": [
         0,
@@ -426,14 +96,14 @@
       "color": "#888888"
     },
     {
-      "id": "6f277324",
-      "type": "tv_stand",
-      "name": "TV Stand",
-      "category": "living",
+      "id": "cd4daeb0",
+      "type": "lamp_floor",
+      "name": "Floor Lamp",
+      "category": "decor",
       "position": [
-        -4.803984860926217,
-        1.03,
-        2.8242043534712
+        -2.493389676566347,
+        0.75,
+        -2.2
       ],
       "rotation": [
         0,
@@ -441,31 +111,119 @@
         0
       ],
       "scale": [
-        1.4,
-        0.5,
-        0.4
+        0.3,
+        1.5,
+        0.3
       ],
       "color": "#888888"
     },
     {
-      "id": "8e3246b2",
-      "type": "sofa",
-      "name": "Sofa",
-      "category": "living",
+      "id": "9bcad589",
+      "type": "plant_large",
+      "name": "Large Plant",
+      "category": "decor",
       "position": [
-        -6.049999999999996,
-        0.4,
-        0.41959990794015034
+        2.8,
+        0.6,
+        -2.8
       ],
       "rotation": [
         0,
-        7.853981633974486,
+        0.5,
         0
       ],
       "scale": [
-        2,
+        0.5,
+        1.2,
+        0.5
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "2c9f58b7",
+      "type": "painting",
+      "name": "Wall Painting",
+      "category": "decor",
+      "position": [
+        0,
+        1.8,
+        -4.759808416586051
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
         0.8,
+        0.6,
+        0.05
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "8fb79e63",
+      "type": "armchair",
+      "name": "Armchair",
+      "category": "living",
+      "position": [
+        -2.2,
+        0.425,
+        0
+      ],
+      "rotation": [
+        0,
+        1.2,
+        0
+      ],
+      "scale": [
+        0.9,
+        0.85,
         0.9
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "5b3be250",
+      "type": "bookshelf",
+      "name": "Bookshelf",
+      "category": "living",
+      "position": [
+        3.2,
+        0.9,
+        0
+      ],
+      "rotation": [
+        0,
+        -1.57,
+        0
+      ],
+      "scale": [
+        0.8,
+        1.8,
+        0.35
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "13dbd326",
+      "type": "curtain",
+      "name": "Curtain",
+      "category": "decor",
+      "position": [
+        -3.96,
+        1.4,
+        -1.5
+      ],
+      "rotation": [
+        0,
+        1.57,
+        0
+      ],
+      "scale": [
+        1.2,
+        2.2,
+        0.08
       ],
       "color": "#888888"
     }
@@ -1076,7 +834,7 @@
   ],
   "created_at": "2026-05-23T23:48:28.477832",
   "status": "generated",
-  "thumbnail": "data:image/jpeg;base64,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",
-  "updated_at": "2026-05-24T00:05:21.615601",
-  "applied_template": "modern_kitchen"
+  "thumbnail": "data:image/jpeg;base64,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",
+  "updated_at": "2026-05-25T22:16:33.898230",
+  "applied_template": "modern_living"
 }

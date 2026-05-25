@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { createScene, buildRoom } from './editor/scene.js';
-import { createFurniture, handleClick, startDrag, doDrag, endDrag, getDragging, getSelected, setSelected, deleteSelected, serializeObjects, clearObjects, getObjects, setRoomDimensions, constrainObjectPosition, snapWallMountedItem } from './editor/objects.js';
+import { createFurniture, handleClick, startDrag, doDrag, endDrag, getDragging, getSelected, setSelected, deleteSelected, serializeObjects, clearObjects, getObjects, setRoomDimensions, constrainObjectPosition, snapWallMountedItem, applyAlignmentAssist, clearGuides, setAlignmentAssistEnabled } from './editor/objects.js';
 import { initExplore, setupExploreEvents, lockPointer, isLocked, updateExplore, enterExploreMode, exitExploreMode, applyGravityToObjects } from './editor/explore.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import * as API from './editor/api.js';
@@ -20,7 +20,7 @@ const wallHeight = 3.2;
 const wallThickness = 0.15;
 
 // ── Init ──
-window.RenovaEditor = { init, uploadAndGenerate, switchMode, addFurniture, deleteObj, applyTemplate, paintWall, saveProject, spawnFurniture, startWallDraw, cancelWallDraw, updateRoomSize, getCatalog: () => catalog };
+window.RenovaEditor = { init, uploadAndGenerate, switchMode, addFurniture, deleteObj, applyTemplate, paintWall, saveProject, spawnFurniture, startWallDraw, cancelWallDraw, updateRoomSize, getCatalog: () => catalog, toggleAlignmentAssist, undo };
 
 async function init() {
     const container = document.getElementById('editor-canvas');
@@ -49,22 +49,64 @@ async function init() {
     // Render catalog to UI
     renderCatalog(catalog);
 
+    window.RenovaEngine = engine;
+
     // TransformControls for Build mode
     transformControl = new TransformControls(engine.camera, engine.renderer.domElement);
     transformControl.addEventListener('dragging-changed', function (event) {
         engine.controls.enabled = !event.value;
+        if (event.value === true) {
+            pushUndoState();
+        } else {
+            clearGuides(engine.scene);
+        }
     });
     // Set to translate mode by default
     transformControl.setMode('translate');
     engine.scene.add(transformControl.getHelper());
 
     let isConstraining = false;
+    let lastValidPos = null;
+    
+    transformControl.addEventListener('dragging-changed', (event) => {
+        if (event.value === true) {
+            // Start of drag - save valid position
+            const obj = transformControl.object;
+            if (obj) lastValidPos = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
+        } else {
+            lastValidPos = null;
+        }
+    });
+    
     transformControl.addEventListener('change', () => {
         if (isConstraining) return;
         const obj = transformControl.object;
         if (obj && transformControl.dragging) {
             isConstraining = true;
+            
+            // Backup original position
+            const prevPos = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
+            
+            // Apply alignment and constraints
+            applyAlignmentAssist(obj, engine.scene);
             constrainObjectPosition(obj, currentRoom ? currentRoom.width : 8, currentRoom ? currentRoom.length : 10, getObjects());
+            
+            // Check if position was heavily modified (beyond boundaries)
+            // If so, snap back to last valid position
+            const dx = Math.abs(obj.position.x - prevPos.x);
+            const dz = Math.abs(obj.position.z - prevPos.z);
+            
+            if (dx > 0.5 || dz > 0.5) {
+                // Constraint blocked the movement significantly - restore from backup
+                if (lastValidPos) {
+                    obj.position.copy(lastValidPos);
+                    constrainObjectPosition(obj, currentRoom ? currentRoom.width : 8, currentRoom ? currentRoom.length : 10, getObjects());
+                }
+            }
+            
+            // Update last valid position
+            lastValidPos = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
+            
             onObjSelected(obj);
             isConstraining = false;
         }
@@ -294,12 +336,14 @@ function loadRoomIntoScene(room) {
     if (infoEl) infoEl.textContent = `${room.width}m × ${room.length}m × ${room.height}m`;
 
     // Update size input fields in the panel (converted from meters to centimeters)
-    const widthInput = document.getElementById('room-width-cm');
-    const lengthInput = document.getElementById('room-length-cm');
-    const heightInput = document.getElementById('room-height-cm');
-    if (widthInput) widthInput.value = Math.round(room.width * 100);
-    if (lengthInput) lengthInput.value = Math.round(room.length * 100);
-    if (heightInput) heightInput.value = Math.round(room.height * 100);
+    const widthInput = document.getElementById('room-width-m');
+    const lengthInput = document.getElementById('room-length-m');
+    const heightInput = document.getElementById('room-height-m');
+    if (widthInput) widthInput.value = room.width.toFixed(1);
+    if (lengthInput) lengthInput.value = room.length.toFixed(1);
+    if (heightInput) heightInput.value = room.height.toFixed(1);
+
+    pushUndoState();
 }
 
 // ── Mode Switching ──
@@ -355,17 +399,7 @@ function switchMode(newMode) {
 // ── Interactions ──
 function onMouseDown(e) {
     if (mode === 'explore' && isLocked()) {
-        if (e.button === 0) { // Left click
-            if (heldObject) {
-                heldObject = null;
-            } else {
-                const hit = handleClick(e, engine.camera, engine.scene, engine.renderer.domElement, mode, null);
-                if (hit) {
-                    heldObject = hit;
-                    heldDistance = Math.min(Math.max(engine.camera.position.distanceTo(hit.position), 1.5), 4.0);
-                }
-            }
-        }
+        // Grab/Drop in explore mode is switched to E key on the keyboard
         return;
     }
     
@@ -418,6 +452,7 @@ function onMouseDown(e) {
                         scale: [L, wallHeight, wallThickness]
                     };
                     
+                    pushUndoState();
                     const mesh = createFurniture('partition_wall', catalog, [C.x, wallHeight / 2, C.z], [0, angle, 0]);
                     if (mesh) {
                         engine.scene.add(mesh);
@@ -519,7 +554,7 @@ function onObjSelected(obj) {
         </div>
         <div class="property-group">
             <div class="property-label">Scale</div>
-            <div class="property-row"><input class="property-input" type="range" min="0.5" max="3" step="0.1" value="1" onchange="RenovaEditor._updateScale(this)"></div>
+            <div class="property-row"><input class="property-input" type="range" min="0.5" max="3" step="0.1" value="${obj.scale.x.toFixed(1)}" oninput="RenovaEditor._updateScale(this)"></div>
         </div>
         <button class="toolbar-btn" style="width:100%;justify-content:center;margin-top:8px;color:var(--editor-danger);border-color:var(--editor-danger);" onclick="RenovaEditor.deleteObj()">🗑 Delete Object</button>
     `;
@@ -538,6 +573,7 @@ window.RenovaEditor._updateRot = (input) => {
 window.RenovaEditor._updateScale = (input) => {
     const obj = getSelected(); if (!obj) return;
     const s = parseFloat(input.value);
+    pushUndoState();
     obj.scale.set(s, s, s);
 };
 
@@ -554,8 +590,30 @@ function onKeyDown(e) {
         }
     }
     if (e.key === 'r' || e.key === 'R') {
-        if (mode === 'build' && getSelected()) getSelected().rotation.y += Math.PI / 8;
-        if (mode === 'explore' && heldObject) heldObject.rotation.y += Math.PI / 8;
+        if (mode === 'build' && getSelected()) {
+            pushUndoState();
+            getSelected().rotation.y += Math.PI / 8;
+        }
+        if (mode === 'explore' && heldObject) {
+            pushUndoState();
+            heldObject.rotation.y += Math.PI / 8;
+        }
+    }
+    if (e.key === 'u' || e.key === 'U') {
+        undo();
+    }
+    if ((e.key === 'e' || e.key === 'E') && mode === 'explore' && isLocked()) {
+        if (heldObject) {
+            heldObject = null;
+            pushUndoState();
+        } else {
+            const hit = handleClick(null, engine.camera, engine.scene, engine.renderer.domElement, mode, null);
+            if (hit) {
+                pushUndoState();
+                heldObject = hit;
+                heldDistance = Math.min(Math.max(engine.camera.position.distanceTo(hit.position), 1.5), 4.0);
+            }
+        }
     }
     if ((e.key === 'c' || e.key === 'C') && mode === 'explore') {
         if (typeof window.toggleExploreCatalog === 'function') {
@@ -567,6 +625,7 @@ function onKeyDown(e) {
 // ── Furniture Actions ──
 function addFurniture(type) {
     if (!catalog[type] && !currentRoom) return;
+    pushUndoState();
     const info = catalog[type] || { scale: [1,1,1], color: '#888888', name: type };
     const pos = [Math.random()*2-1, info.scale[1]/2, Math.random()*2-1];
     const mesh = createFurniture(type, catalog, pos, [0,0,0]);
@@ -582,6 +641,7 @@ function addFurniture(type) {
 function deleteObj() {
     const sel = getSelected();
     if (!sel) return;
+    pushUndoState();
     const name = sel.userData.name || 'Object';
     deleteSelected(engine.scene);
     onObjSelected(null);
@@ -607,6 +667,7 @@ async function applyTemplate(templateId) {
 // ── Paint Wall ──
 function paintWall(color) {
     if (!roomGroup) return;
+    pushUndoState();
     roomGroup.children.forEach(child => {
         if (child.userData && child.userData.type === 'wall') {
             child.material.color.set(color);
@@ -729,6 +790,7 @@ function toast(msg, type = 'success') {
 // ── New Features: Catalog Spawning & Wall Drawing ──
 function spawnFurniture(type) {
     if (!catalog[type]) return;
+    pushUndoState();
     const info = catalog[type];
     
     // Calculate a position in front of the camera
@@ -821,35 +883,33 @@ function updateRoomSize() {
         return;
     }
 
-    const widthCmInput = document.getElementById('room-width-cm');
-    const lengthCmInput = document.getElementById('room-length-cm');
-    const heightCmInput = document.getElementById('room-height-cm');
+    const widthMInput = document.getElementById('room-width-m');
+    const lengthMInput = document.getElementById('room-length-m');
+    const heightMInput = document.getElementById('room-height-m');
 
-    if (!widthCmInput || !lengthCmInput || !heightCmInput) {
+    if (!widthMInput || !lengthMInput || !heightMInput) {
         toast('Size inputs not found in UI', 'error');
         return;
     }
 
-    const wCm = parseFloat(widthCmInput.value);
-    const lCm = parseFloat(lengthCmInput.value);
-    const hCm = parseFloat(heightCmInput.value);
+    const w = parseFloat(widthMInput.value);
+    const l = parseFloat(lengthMInput.value);
+    const h = parseFloat(heightMInput.value);
 
-    if (isNaN(wCm) || wCm < 100 || wCm > 2000) {
-        toast('Lebar tidak valid (100 - 2000 cm)', 'warning');
+    if (isNaN(w) || w < 1.0 || w > 20.0) {
+        toast('Lebar tidak valid (1.0 - 20.0 m)', 'warning');
         return;
     }
-    if (isNaN(lCm) || lCm < 100 || lCm > 2000) {
-        toast('Panjang tidak valid (100 - 2000 cm)', 'warning');
+    if (isNaN(l) || l < 1.0 || l > 20.0) {
+        toast('Panjang tidak valid (1.0 - 20.0 m)', 'warning');
         return;
     }
-    if (isNaN(hCm) || hCm < 200 || hCm > 600) {
-        toast('Tinggi tidak valid (200 - 600 cm)', 'warning');
+    if (isNaN(h) || h < 2.0 || h > 6.0) {
+        toast('Tinggi tidak valid (2.0 - 6.0 m)', 'warning');
         return;
     }
 
-    const w = wCm / 100;
-    const l = lCm / 100;
-    const h = hCm / 100;
+    pushUndoState();
 
     currentRoom.width = w;
     currentRoom.length = l;
@@ -893,6 +953,114 @@ function updateRoomSize() {
     }
 
     toast('Ukuran ruangan berhasil diperbarui!', 'success');
+}
+
+// ─── Undo State Machine ───
+let undoStack = [];
+const MAX_UNDO = 50;
+
+function pushUndoState() {
+    if (!currentRoom) return;
+    const selected = getSelected();
+    const snapshot = {
+        width: currentRoom.width,
+        length: currentRoom.length,
+        height: currentRoom.height,
+        wall_color: currentRoom.wall_color,
+        floor_color: currentRoom.floor_color,
+        objects: serializeObjects(),
+        selectedId: selected ? selected.userData.id : null
+    };
+    
+    // Prevent duplicate states
+    if (undoStack.length > 0) {
+        const last = undoStack[undoStack.length - 1];
+        if (JSON.stringify(last.objects) === JSON.stringify(snapshot.objects) &&
+            last.width === snapshot.width &&
+            last.length === snapshot.length &&
+            last.height === snapshot.height &&
+            last.wall_color === snapshot.wall_color &&
+            last.floor_color === snapshot.floor_color) {
+            return;
+        }
+    }
+    
+    undoStack.push(snapshot);
+    if (undoStack.length > MAX_UNDO) {
+        undoStack.shift();
+    }
+}
+
+function applySnapshot(snapshot) {
+    if (!currentRoom) return;
+    
+    currentRoom.width = snapshot.width;
+    currentRoom.length = snapshot.length;
+    currentRoom.height = snapshot.height;
+    currentRoom.wall_color = snapshot.wall_color;
+    currentRoom.floor_color = snapshot.floor_color;
+    
+    // Clear and rebuild room geometry
+    const old = engine.scene.getObjectByName('room');
+    if (old) engine.scene.remove(old);
+    clearObjects(engine.scene);
+    
+    roomGroup = buildRoom(engine.scene, currentRoom.width, currentRoom.length, currentRoom.height, currentRoom.wall_color, currentRoom.floor_color);
+    setRoomDimensions(currentRoom.width, currentRoom.length);
+    
+    const ceiling = engine.scene.getObjectByName('ceiling');
+    if (ceiling) ceiling.visible = (mode === 'explore');
+    
+    if (snapshot.objects) {
+        snapshot.objects.forEach(obj => {
+            const mesh = createFurniture(obj.type, catalog, obj.position, obj.rotation, obj.id, obj.scale);
+            if (mesh) engine.scene.add(mesh);
+        });
+    }
+    
+    updateAssetList();
+    
+    // Re-select selected object if valid
+    if (snapshot.selectedId) {
+        const found = getObjects().find(o => o.userData.id === snapshot.selectedId);
+        if (found) {
+            setSelected(found);
+            onObjSelected(found);
+        } else {
+            setSelected(null);
+            onObjSelected(null);
+        }
+    } else {
+        setSelected(null);
+        onObjSelected(null);
+    }
+    
+    // Update labels and inputs
+    const infoEl = document.getElementById('room-info');
+    if (infoEl) infoEl.textContent = `${currentRoom.width}m × ${currentRoom.length}m × ${currentRoom.height}m`;
+    
+    const widthInput = document.getElementById('room-width-m');
+    const lengthInput = document.getElementById('room-length-m');
+    const heightInput = document.getElementById('room-height-m');
+    if (widthInput) widthInput.value = currentRoom.width.toFixed(1);
+    if (lengthInput) lengthInput.value = currentRoom.length.toFixed(1);
+    if (heightInput) heightInput.value = currentRoom.height.toFixed(1);
+}
+
+function undo() {
+    if (undoStack.length <= 1) {
+        toast('Nothing to undo', 'warning');
+        return;
+    }
+    undoStack.pop(); // Remove current state
+    const prevState = undoStack[undoStack.length - 1];
+    applySnapshot(prevState);
+    toast('Undone!', 'info');
+}
+
+function toggleAlignmentAssist(enabled) {
+    setAlignmentAssistEnabled(enabled);
+    toast(`Snapping ${enabled ? 'enabled' : 'disabled'}`, 'info');
 }
 
 // Auto-init

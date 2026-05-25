@@ -98,6 +98,40 @@ export function createFurniture(type, catalog, pos, rot, id, customScale) {
             fallback.position.y = s[1]/2;
             group.add(fallback);
         });
+    } else if (type === 'dining_chair') {
+        const chairWood = woodMat.clone();
+        const cushMat = new THREE.MeshStandardMaterial({color: 0xe8e4e0, roughness: 0.9}); // Light fabric cushion
+        const legH = s[1] * 0.48; // Seat is at half of chair height
+        const legR = 0.02;
+        
+        // 4 thin legs
+        [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([lx,lz]) => {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(legR, legR*1.2, legH, 8), chairWood);
+            leg.position.set(lx*(s[0]*0.4), legH/2, lz*(s[2]*0.4));
+            group.add(leg);
+        });
+        
+        // Seat cushion
+        const seat = new THREE.Mesh(new THREE.BoxGeometry(s[0], 0.04, s[2]), cushMat);
+        seat.position.y = legH + 0.02;
+        group.add(seat);
+        
+        // Chair back support poles
+        const backH = s[1]*0.48;
+        [-1, 1].forEach(side => {
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, backH, 8), chairWood);
+            pole.position.set(side*(s[0]*0.4), legH + 0.04 + backH/2, -s[2]*0.4);
+            group.add(pole);
+        });
+        
+        // Chair back rest slats
+        const slatW = s[0]*0.8;
+        const slatMat = chairWood;
+        for (let i = 0; i < 3; i++) {
+            const slat = new THREE.Mesh(new THREE.BoxGeometry(slatW, 0.04, 0.015), slatMat);
+            slat.position.set(0, legH + 0.12 + i*(backH*0.3), -s[2]*0.4);
+            group.add(slat);
+        }
     } else if (type.includes('sofa') || type.includes('chair')) {
         const cushMat = new THREE.MeshStandardMaterial({color: new THREE.Color(info.color||'#6b5b4f').multiplyScalar(1.1), roughness: 0.95, metalness: 0, envMapIntensity: 0.1});
         const legMat = new THREE.MeshStandardMaterial({color: 0x5a3a1a, roughness: 0.75, metalness: 0.02});
@@ -549,6 +583,43 @@ export function createFurniture(type, catalog, pos, rot, id, customScale) {
             b.position.set(x, 0.01, z); group.add(b);
         });
         group.add(rug);
+    } else if (type === 'bookshelf' || type.includes('bookshelf')) {
+        const shelfMat = woodMat.clone();
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(s[0], s[1], s[2]), shelfMat);
+        frame.position.y = s[1]/2;
+        group.add(frame);
+        
+        // Inner cavity cutout (procedural visual via darker backing box)
+        const innerCutout = new THREE.Mesh(new THREE.BoxGeometry(s[0]*0.88, s[1]*0.92, s[2]*0.95), new THREE.MeshStandardMaterial({color: 0x422a18, roughness: 0.9}));
+        innerCutout.position.set(0, s[1]/2, s[2]*0.02);
+        group.add(innerCutout);
+        
+        // Shelves
+        const numShelves = 4;
+        const sh = (s[1]*0.92) / numShelves;
+        const bookColors = [0xa33535, 0x2e5984, 0x3d7a5a, 0xd4a35c, 0x6d5c5c];
+        
+        for (let i = 1; i < numShelves; i++) {
+            const sy = sh * i;
+            const shelf = new THREE.Mesh(new THREE.BoxGeometry(s[0]*0.88, 0.02, s[2]*0.9), shelfMat);
+            shelf.position.set(0, sy, s[2]*0.02);
+            group.add(shelf);
+            
+            // Add some colorful books on each shelf!
+            const numBooks = 3 + Math.floor(Math.random()*4);
+            const bookW = 0.03, bookH = 0.18, bookD = 0.14;
+            const startX = -s[0]*0.32;
+            for (let b = 0; b < numBooks; b++) {
+                const bookColor = bookColors[Math.floor(Math.random()*bookColors.length)];
+                const bookMat = new THREE.MeshStandardMaterial({color: bookColor, roughness: 0.6});
+                const book = new THREE.Mesh(new THREE.BoxGeometry(bookW, bookH, bookD), bookMat);
+                // Slight random lean angle
+                const lean = (Math.random() < 0.25) ? (Math.random()*0.18 - 0.09) : 0;
+                book.rotation.z = lean;
+                book.position.set(startX + b * (bookW + 0.018), sy + bookH/2 + 0.01, s[2]*0.05);
+                group.add(book);
+            }
+        }
     } else if (type.includes('wardrobe') || type.includes('cabinet') || type.includes('dresser') || type.includes('shelf')) {
         const wMat = woodMat.clone();
         // Main body
@@ -752,6 +823,11 @@ export function doDrag(event, camera, container) {
     selectedObj.position.x = pt.x + dragOffset.x;
     selectedObj.position.z = pt.z + dragOffset.z;
     
+    // Snapping!
+    if (selectedObj.parent) {
+        applyAlignmentAssist(selectedObj, selectedObj.parent);
+    }
+    
     // Constrain position to prevent wall penetration
     constrainObjectPosition(selectedObj, roomWidth, roomLength, objectList);
 }
@@ -763,9 +839,13 @@ export function serializeObjects() {
     return objectList.filter(o => o.parent).map(o => ({
         id: o.userData.id, type: o.userData.furnitureType, name: o.userData.name,
         category: o.userData.category,
-        position: [o.position.x, o.position.y + (o.userData.scale[1]/2), o.position.z],
+        position: [o.position.x, o.position.y + (o.userData.scale[1]*o.scale.y/2), o.position.z],
         rotation: [o.rotation.x, o.rotation.y, o.rotation.z],
-        scale: o.userData.scale,
+        scale: [
+            o.userData.scale[0] * o.scale.x,
+            o.userData.scale[1] * o.scale.y,
+            o.userData.scale[2] * o.scale.z
+        ],
         color: '#888888', // Cannot easily extract single color from group
     }));
 }
@@ -851,7 +931,12 @@ function checkOBBOverlap(cornersA, axesA, cornersB, axesB) {
 }
 
 function constrainToRoom(obj, w, l) {
-    const s = obj.userData.scale || [1, 1, 1];
+    const baseS = obj.userData.scale || [1, 1, 1];
+    const s = [
+        baseS[0] * obj.scale.x,
+        baseS[1] * obj.scale.y,
+        baseS[2] * obj.scale.z
+    ];
     const halfSize = { x: s[0] / 2, z: s[2] / 2 };
     const corners = getOBBCorners(obj.position, halfSize, obj.rotation.y);
     
@@ -866,15 +951,21 @@ function constrainToRoom(obj, w, l) {
     
     const halfW = w / 2;
     const halfL = l / 2;
+    const margin = 0.05; // Small margin to prevent touching walls
     
-    if (minX < -halfW) obj.position.x += -halfW - minX;
-    if (maxX > halfW) obj.position.x += halfW - maxX;
-    if (minZ < -halfL) obj.position.z += -halfL - minZ;
-    if (maxZ > halfL) obj.position.z += halfL - maxZ;
+    if (minX < -halfW + margin) obj.position.x += -halfW + margin - minX;
+    if (maxX > halfW - margin) obj.position.x += halfW - margin - maxX;
+    if (minZ < -halfL + margin) obj.position.z += -halfL + margin - minZ;
+    if (maxZ > halfL - margin) obj.position.z += halfL - margin - maxZ;
 }
 
 function constrainToPartitionWalls(obj, objects) {
-    const s = obj.userData.scale || [1, 1, 1];
+    const baseS = obj.userData.scale || [1, 1, 1];
+    const s = [
+        baseS[0] * obj.scale.x,
+        baseS[1] * obj.scale.y,
+        baseS[2] * obj.scale.z
+    ];
     const halfSizeA = { x: s[0] / 2, z: s[2] / 2 };
     
     for (const other of objects) {
@@ -882,7 +973,12 @@ function constrainToPartitionWalls(obj, objects) {
         const isPartition = other.userData && (other.userData.furnitureType === 'partition_wall' || other.userData.type === 'wall');
         if (!isPartition) continue;
         
-        const os = other.userData.scale || [1, 1, 1];
+        const baseOS = other.userData.scale || [1, 1, 1];
+        const os = [
+            baseOS[0] * other.scale.x,
+            baseOS[1] * other.scale.y,
+            baseOS[2] * other.scale.z
+        ];
         const halfSizeB = { x: os[0] / 2, z: os[2] / 2 };
         
         const cornersA = getOBBCorners(obj.position, halfSizeA, obj.rotation.y);
@@ -898,8 +994,10 @@ function constrainToPartitionWalls(obj, objects) {
             const dot = dirX * collision.axis.x + dirZ * collision.axis.z;
             const sign = dot < 0 ? -1 : 1;
             
-            obj.position.x += collision.axis.x * collision.overlap * sign;
-            obj.position.z += collision.axis.z * collision.overlap * sign;
+            // Add small buffer to prevent overlapping
+            const buffer = 0.05;
+            obj.position.x += collision.axis.x * (collision.overlap + buffer) * sign;
+            obj.position.z += collision.axis.z * (collision.overlap + buffer) * sign;
         }
     }
 }
@@ -951,3 +1049,89 @@ export function snapWallMountedItem(type, pos, rot, scale) {
 
     return snappedPos;
 }
+
+// ─── CANVA-STYLE SNAP ALIGNMENT ASSIST SYSTEM ───
+let alignmentAssistEnabled = true;
+let activeGuides = [];
+
+export function setAlignmentAssistEnabled(enabled) {
+    alignmentAssistEnabled = enabled;
+    clearGuides(window.RenovaEngine ? window.RenovaEngine.scene : null);
+}
+
+export function clearGuides(scene) {
+    const sc = scene || (window.RenovaEngine ? window.RenovaEngine.scene : null);
+    if (!sc) return;
+    activeGuides.forEach(g => sc.remove(g));
+    activeGuides = [];
+}
+
+export function applyAlignmentAssist(obj, scene) {
+    const sc = scene || (window.RenovaEngine ? window.RenovaEngine.scene : null);
+    if (!alignmentAssistEnabled || !sc) return;
+    
+    // Clear old guides first
+    clearGuides(sc);
+    
+    const snapThreshold = 0.15;
+    let snappedX = false;
+    let snappedZ = false;
+    
+    // 1. Check center of the room snapping (x = 0 or z = 0)
+    if (Math.abs(obj.position.x) < snapThreshold) {
+        obj.position.x = 0;
+        snappedX = true;
+        createGuideLine(sc, new THREE.Vector3(0, 0.02, -roomLength/2), new THREE.Vector3(0, 0.02, roomLength/2), 0xd946ef);
+    }
+    
+    if (Math.abs(obj.position.z) < snapThreshold) {
+        obj.position.z = 0;
+        snappedZ = true;
+        createGuideLine(sc, new THREE.Vector3(-roomWidth/2, 0.02, 0), new THREE.Vector3(roomWidth/2, 0.02, 0), 0xd946ef);
+    }
+    
+    // 2. Check alignment with other objects
+    const objs = objectList.filter(o => o.parent && o !== obj && o.userData.type !== 'wall');
+    
+    for (const other of objs) {
+        // Snap to other object's X position
+        if (!snappedX && Math.abs(obj.position.x - other.position.x) < snapThreshold) {
+            obj.position.x = other.position.x;
+            snappedX = true;
+            createGuideLine(sc, 
+                new THREE.Vector3(obj.position.x, 0.02, obj.position.z), 
+                new THREE.Vector3(other.position.x, 0.02, other.position.z), 
+                0x00f0ff
+            );
+        }
+        
+        // Snap to other object's Z position
+        if (!snappedZ && Math.abs(obj.position.z - other.position.z) < snapThreshold) {
+            obj.position.z = other.position.z;
+            snappedZ = true;
+            createGuideLine(sc, 
+                new THREE.Vector3(obj.position.x, 0.02, obj.position.z), 
+                new THREE.Vector3(other.position.x, 0.02, other.position.z), 
+                0x00f0ff
+            );
+        }
+    }
+}
+
+function createGuideLine(scene, start, end, colorHex) {
+    const points = [start, end];
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineDashedMaterial({
+        color: colorHex,
+        dashSize: 0.15,
+        gapSize: 0.1,
+        linewidth: 2,
+        depthTest: false
+    });
+    const line = new THREE.Line(geometry, material);
+    line.computeLineDistances();
+    line.renderOrder = 999;
+    scene.add(line);
+    activeGuides.push(line);
+}
+

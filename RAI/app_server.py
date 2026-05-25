@@ -90,6 +90,7 @@ ROOM_TEMPLATES = {
         "description": "Minimalist living room with clean lines and neutral tones",
         "category": "living",
         "thumbnail": "🛋",
+        "width": 8.0, "length": 10.0, "height": 3.2,
         "wall_color": "#f5f0eb",
         "floor_color": "#c4a882",
         "objects": [
@@ -110,6 +111,7 @@ ROOM_TEMPLATES = {
         "description": "Warm bedroom with essential furnishings and cozy atmosphere",
         "category": "bedroom",
         "thumbnail": "🛏",
+        "width": 7.0, "length": 7.0, "height": 3.0,
         "wall_color": "#e8e0d8",
         "floor_color": "#b89a7d",
         "objects": [
@@ -131,6 +133,7 @@ ROOM_TEMPLATES = {
         "description": "Functional kitchen with dining area",
         "category": "kitchen",
         "thumbnail": "🍽",
+        "width": 6.0, "length": 6.0, "height": 3.0,
         "wall_color": "#f0ede8",
         "floor_color": "#d4cec5",
         "objects": [
@@ -151,6 +154,7 @@ ROOM_TEMPLATES = {
         "description": "Relaxing bathroom with modern fixtures",
         "category": "bathroom",
         "thumbnail": "🛁",
+        "width": 5.0, "length": 5.0, "height": 2.8,
         "wall_color": "#e5e9ec",
         "floor_color": "#c8cdd0",
         "objects": [
@@ -166,6 +170,7 @@ ROOM_TEMPLATES = {
         "description": "Productive workspace with comfortable setup",
         "category": "living",
         "thumbnail": "🖥",
+        "width": 6.0, "length": 7.0, "height": 3.0,
         "wall_color": "#eae6e0",
         "floor_color": "#b89a7d",
         "objects": [
@@ -184,6 +189,7 @@ ROOM_TEMPLATES = {
         "description": "Spacious luxury living with premium furnishings",
         "category": "living",
         "thumbnail": "✨",
+        "width": 9.0, "length": 11.0, "height": 3.4,
         "wall_color": "#f0ece5",
         "floor_color": "#a08060",
         "objects": [
@@ -206,6 +212,7 @@ ROOM_TEMPLATES = {
         "description": "Fun and colorful children's bedroom",
         "category": "bedroom",
         "thumbnail": "🧸",
+        "width": 6.0, "length": 6.0, "height": 3.0,
         "wall_color": "#e8f0f5",
         "floor_color": "#c4b8a0",
         "objects": [
@@ -223,6 +230,7 @@ ROOM_TEMPLATES = {
         "description": "Compact multi-functional living space",
         "category": "living",
         "thumbnail": "🏠",
+        "width": 7.0, "length": 7.0, "height": 3.0,
         "wall_color": "#f5f2ed",
         "floor_color": "#c0a880",
         "objects": [
@@ -658,6 +666,9 @@ def apply_template(room_id):
     room_data["objects"] = template_objects
     room_data["wall_color"] = template.get("wall_color", room_data.get("wall_color", "#f5f0eb"))
     room_data["floor_color"] = template.get("floor_color", room_data.get("floor_color", "#c4a882"))
+    room_data["width"] = template.get("width", room_data.get("width", 8.0))
+    room_data["length"] = template.get("length", room_data.get("length", 10.0))
+    room_data["height"] = template.get("height", room_data.get("height", 3.2))
     room_data["applied_template"] = template_id
     room_data["updated_at"] = datetime.now().isoformat()
 
