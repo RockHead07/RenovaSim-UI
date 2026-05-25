@@ -68,7 +68,7 @@ class EstimationService
         // Remove null/empty values from corrections
         $corrections = array_filter($corrections, fn($v) => $v !== null && $v !== '');
         
-        $response = Http::timeout(30)
+        $response = Http::timeout(120)
             ->withHeaders(['X-API-Key' => env('ESTIMATION_API_KEY')])
             ->patch(env('ESTIMATION_API_URL') . '/api/v2/estimate/refine', [
                 'previous_result' => $previousResult,
@@ -93,7 +93,7 @@ class EstimationService
     protected function post(string $endpoint, array $payload): array
     {
         try {
-            $response = Http::timeout(30)
+            $response = Http::timeout(120)
                 ->withHeaders([
                     'X-API-Key' => $this->apiKey,
                     'Accept'    => 'application/json',

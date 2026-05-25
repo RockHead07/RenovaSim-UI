@@ -26,32 +26,24 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name(
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
 Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
-    Route::view('/dashboard', 'user.pages.dashboard');
+    Route::view('/dashboard', 'user.pages.dashboard')->name('dashboard');
     Route::view('/project-stage', 'user.pages.project-stage');
     Route::view('/project-details', 'user.pages.project-details');
     Route::view('/project-overview', 'user.pages.project-overview')->name('user.project-overview');
-    Route::view('/project-rab', 'user.pages.project-rab');
-    Route::view('/3d', 'user.pages.three-d-design');
-
-    // Estimation flow — controller-based
-    Route::get('/ai-estimation', [EstimationController::class, 'showWizard'])->name('user.estimation.wizard');
-    Route::post('/ai-estimation/wizard', [EstimationController::class, 'submitWizard'])->name('user.estimation.submitWizard');
-    Route::post('/ai-estimation/ai', [EstimationController::class, 'submitAI'])->name('user.estimation.submitAI');
-    Route::get('/estimation-result', [EstimationController::class, 'showResult'])->name('user.estimation.result');
-    Route::get('/estimation-result/refine', [EstimationController::class, 'showRefine'])->name('user.estimation.showRefine');
-    Route::post('/estimation-result/refine', [EstimationController::class, 'submitRefine'])->name('user.estimation.refine');
-    Route::view('/dashboard', 'user.pages.dashboard')->name('dashboard');
-    Route::view('/ai-estimation', 'user.pages.ai-estimation');
-    Route::view('/project-stage', 'user.pages.project-stage');
-    Route::view('/project-details', 'user.pages.project-details');
-    Route::get('/estimation-result', [App\Http\Controllers\EstimationController::class, 'result']);
-    Route::view('/project-overview', 'user.pages.project-overview');
     Route::view('/project-rab', 'user.pages.project-rab');
     Route::view('/3d', 'user.pages.three-d-design')->name('user.3d');
     Route::view('/editor', 'user.pages.editor')->name('user.editor');
     Route::get('/editor/{projectId}', function ($projectId) {
         return view('user.pages.editor', ['projectId' => $projectId]);
     })->name('user.editor.project');
+
+    // Estimation flow
+    Route::get('/ai-estimation', [EstimationController::class, 'showWizard'])->name('user.estimation.wizard');
+    Route::post('/ai-estimation/wizard', [EstimationController::class, 'submitWizard'])->name('user.estimation.submitWizard');
+    Route::post('/ai-estimation/ai', [EstimationController::class, 'submitAI'])->name('user.estimation.submitAI');
+    Route::get('/estimation-result', [EstimationController::class, 'showResult'])->name('user.estimation.result');
+    Route::get('/estimation-result/refine', [EstimationController::class, 'showRefine'])->name('user.estimation.showRefine');
+    Route::post('/estimation-result/refine', [EstimationController::class, 'submitRefine'])->name('user.estimation.refine');
 });
 
 Route::get('/project/{id}/rab', function ($id) {

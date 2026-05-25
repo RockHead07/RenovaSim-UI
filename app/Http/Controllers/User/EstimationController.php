@@ -44,6 +44,7 @@ class EstimationController extends Controller
      */
     public function submitWizard(Request $request)
     {
+        set_time_limit(120);
         $validated = $request->validate([
             'job_type'    => 'required|string',
             'area'        => 'required|numeric|min:1',
@@ -81,6 +82,7 @@ class EstimationController extends Controller
      */
     public function submitAI(Request $request)
     {
+        set_time_limit(120);
         $validated = $request->validate([
             'description' => 'required|string|min:10',
             'location'    => 'nullable|string',
@@ -122,6 +124,7 @@ class EstimationController extends Controller
      */
     public function submitRefine(Request $request)
     {
+        set_time_limit(120);
         $request->validate([
             'area'     => 'nullable|numeric|min:1',
             'quality'  => 'nullable|string',
