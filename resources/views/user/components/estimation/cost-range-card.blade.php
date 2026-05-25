@@ -1,14 +1,18 @@
 @php
     $confidence = $confidence ?? ['label' => 'Tinggi', 'score' => 85, 'message' => 'Estimasi sangat akurat berdasarkan data yang lengkap.'];
-    $scoreColor = match(true) {
-        $confidence['score'] >= 75 => 'bg-[hsl(146,80%,48%)]',
-        $confidence['score'] >= 50 => 'bg-[hsl(35,100%,52%)]',
-        default => 'bg-[hsl(0,100%,50%)]'
+    // Normalize: API may return 0–1 float, component expects 0–100
+    $scoreNormalized = ($confidence['score'] ?? 0) <= 1
+        ? (int) round(($confidence['score'] ?? 0) * 100)
+        : (int) ($confidence['score'] ?? 0);
+    $barColor = match($confidence['label'] ?? '') {
+        'Tinggi' => '#8BA023',
+        'Sedang' => '#d4941a',
+        default  => '#e05555',
     };
-    $labelColor = match($confidence['label']) {
+    $labelColor = match($confidence['label'] ?? '') {
         'Tinggi' => 'text-[hsl(146,80%,48%)]',
         'Sedang' => 'text-[hsl(35,100%,52%)]',
-        default => 'text-[hsl(0,100%,50%)]'
+        default  => 'text-[hsl(0,100%,50%)]',
     };
 @endphp
 
@@ -28,8 +32,9 @@
             <span class="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Confidence Level</span>
             <span class="text-[11px] font-semibold {{ $labelColor }}">{{ $confidence['label'] }}</span>
         </div>
-        <div class="relative h-1.5 bg-muted rounded-full overflow-hidden">
-            <div class="absolute top-0 left-0 h-full {{ $scoreColor }} rounded-full transition-all" :style="`width: ${Math.min({{ $confidence['score'] }}, 100)}%`"></div>
+        <div class="relative h-2 bg-muted rounded-full overflow-hidden">
+            <div class="absolute top-0 left-0 h-full rounded-full"
+                 style="width: {{ $scoreNormalized }}%; background-color: {{ $barColor }}; transition: width 1s ease;"></div>
         </div>
         <div class="bg-[hsl(210,95%,97%)] border border-[hsl(210,90%,75%)] rounded-lg p-3 mt-3 flex items-start gap-2">
             <x-lucide-shield-check class="w-4 h-4 text-[hsl(210,90%,45%)] shrink-0 mt-0.5" />

@@ -322,7 +322,7 @@
                         </p>
                     </div>
 
-                    <form method="POST" action="{{ route('user.estimation.submitAI') }}" @submit="submitting = true">
+                    <form id="ai-submit-form" method="POST" action="{{ route('user.estimation.submitAI') }}" @submit="submitting = true">
                         @csrf
                         <div class="flex flex-col gap-5">
                             {{-- Textarea --}}
@@ -397,4 +397,67 @@
             </div>
         </div>
     </div>
+
+    {{-- Thinking overlay — shown while AI form is processing --}}
+    <div id="thinking-overlay"
+         class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center"
+         style="background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);">
+
+        <style>
+            @keyframes thinking-pulse {
+                0%, 100% { transform: scale(1); opacity: 0.9; }
+                50% { transform: scale(1.05); opacity: 1; }
+            }
+            @keyframes dot-appear {
+                0%, 100% { opacity: 0.2; transform: scale(0.8); }
+                50% { opacity: 1; transform: scale(1.2); }
+            }
+            @keyframes dot-blink {
+                0%, 100% { opacity: 0; }
+                50% { opacity: 1; }
+            }
+        </style>
+
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+             xmlns="http://www.w3.org/2000/svg"
+             style="animation: thinking-pulse 2s ease-in-out infinite;">
+            <circle cx="60" cy="60" r="55" stroke="white" stroke-width="1.5"
+                    fill="none" opacity="0.6"/>
+            <circle cx="60" cy="38" r="14" stroke="white" stroke-width="1.5" fill="none"/>
+            <path d="M35 85 Q38 68 52 65 Q60 63 68 65 Q82 68 85 85"
+                  stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M52 75 Q50 70 54 66"
+                  stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M54 66 Q57 62 62 64"
+                  stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <circle cx="78" cy="28" r="2" fill="white" opacity="0.4"
+                    style="animation: dot-appear 1.5s ease-in-out infinite 0s;"/>
+            <circle cx="86" cy="22" r="2.5" fill="white" opacity="0.6"
+                    style="animation: dot-appear 1.5s ease-in-out infinite 0.3s;"/>
+            <circle cx="95" cy="15" r="3" fill="white" opacity="0.8"
+                    style="animation: dot-appear 1.5s ease-in-out infinite 0.6s;"/>
+        </svg>
+
+        <p style="color: white; font-family: 'Playfair Display', serif; font-style: italic;
+                  font-size: 18px; margin-top: 28px; letter-spacing: 0.05em;">
+            Sedang menganalisa<span style="animation: dot-blink 1s infinite 0s;">.</span><span style="animation: dot-blink 1s infinite 0.3s;">.</span><span style="animation: dot-blink 1s infinite 0.6s;">.</span>
+        </p>
+        <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 10px;
+                  letter-spacing: 0.08em; text-transform: uppercase;">
+            AI sedang memproses deskripsimu
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var form = document.getElementById('ai-submit-form');
+            var overlay = document.getElementById('thinking-overlay');
+            if (form && overlay) {
+                form.addEventListener('submit', function () {
+                    overlay.classList.remove('hidden');
+                });
+            }
+        });
+    </script>
+
 </x-user::layouts.app>

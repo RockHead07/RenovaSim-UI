@@ -24,8 +24,7 @@ Artisan::command('start', function () {
         . ' -n "LARAVEL,VITE,RAI"'
         . ' "php artisan serve --port=8080"'
         . ' "npm run dev"'
-        . ' "cd RAI && python app_server.py"'
-        . ' --kill-others-on-fail'
+        . ' "cd RAI && py app_server.py"'
     );
 })->purpose('Mulai semua server: Laravel :8080, Vite, RAI :5000');
 
