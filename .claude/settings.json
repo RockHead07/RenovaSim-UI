@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer require *)",
+      "Read(//d/Dev/SDKs/php-8.4.21/**)",
+      "Bash(php -r \"require 'vendor/autoload.php'; echo 'PHP OK';\")"
+    ],
+    "additionalDirectories": [
+      "D:\\Dev\\SDKs\\php-8.4.21"
+    ]
+  }
+}

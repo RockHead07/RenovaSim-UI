@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\MaterialController;
 use App\Http\Controllers\Admin\PricingPlanController;
 use App\Http\Controllers\User\EstimationController;
 use App\Http\Controllers\User\UserProjectController;
+use App\Http\Controllers\User\RabController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Models\PricingPlan;
@@ -62,11 +63,13 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
     Route::get('/estimation-result', [EstimationController::class, 'showResult'])->name('user.estimation.result');
     Route::get('/estimation-result/refine', [EstimationController::class, 'showRefine'])->name('user.estimation.showRefine');
     Route::post('/estimation-result/refine', [EstimationController::class, 'submitRefine'])->name('user.estimation.refine');
+    // RAB routes
+    Route::get('/project/{id}/rab',        [RabController::class, 'show'])->name('user.project.rab');
+    Route::get('/project/{id}/rab/export', [RabController::class, 'export'])->name('user.project.rab.export');
+    Route::post('/project/{id}/rab/share', [RabController::class, 'generateShare'])->name('user.project.rab.share');
 });
 
-Route::get('/project/{id}/rab', function ($id) {
-    return view('user.pages.project-rab');
-})->middleware(['auth', 'role:user'])->name('project-rab');
+Route::get('/rab/{token}', [RabController::class, 'publicView'])->name('rab.public');
 
 // User Panel & Room Editor Routes
 Route::middleware(['auth'])->group(function () {

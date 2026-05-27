@@ -1,12 +1,4 @@
 @php
-    $steps = [
-        ['number' => 1, 'label' => 'Define Cost & Budget',   'icon' => 'clipboard-list'],
-        ['number' => 2, 'label' => 'Quotes & Professionals', 'icon' => 'users'],
-        ['number' => 3, 'label' => 'Track Execution',        'icon' => 'zap'],
-        ['number' => 4, 'label' => 'Keep Records',           'icon' => 'file-text'],
-    ];
-    $activeStep = 1;
-
     $totalCostMin = $project->estimations->sum('cost_min');
     $totalCostMax = $project->estimations->sum('cost_max');
 @endphp
@@ -34,56 +26,6 @@
                     <p class="font-['DM_Sans'] text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                         Manage your target total for this renovation
                     </p>
-                </div>
-            </div>
-
-            {{-- Step Progress --}}
-            <div class="bg-card rounded-2xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] mb-6">
-                <div class="flex items-center">
-                    @foreach ($steps as $idx => $step)
-                        @php
-                            $isActive    = $step['number'] === $activeStep;
-                            $isCompleted = $step['number'] <  $activeStep;
-                        @endphp
-                        <div class="flex items-center flex-1 last:flex-none">
-                            <div @class([
-                                'w-10 h-10 shrink-0 rounded-full flex items-center justify-center transition-colors',
-                                'bg-primary text-primary-foreground' => $isActive,
-                                'bg-primary/20 text-primary'         => $isCompleted,
-                                'bg-muted text-card-foreground/70'   => !$isActive && !$isCompleted,
-                            ])>
-                                @if ($isCompleted)
-                                    <x-lucide-check class="w-[18px] h-[18px]" />
-                                @else
-                                    <x-dynamic-component :component="'lucide-' . $step['icon']" class="w-[18px] h-[18px]" />
-                                @endif
-                            </div>
-                            @if ($idx < count($steps) - 1)
-                                <div @class([
-                                    'flex-1 h-[2px] mx-3 rounded-full',
-                                    'bg-primary' => $step['number'] < $activeStep,
-                                    'bg-border'  => $step['number'] >= $activeStep,
-                                ])></div>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-                <div class="grid grid-cols-4 mt-2">
-                    @foreach ($steps as $step)
-                        @php $isActive = $step['number'] === $activeStep; @endphp
-                        <div class="flex flex-col items-center text-center px-0.5">
-                            <p @class([
-                                'font-[\'DM_Sans\'] text-[9px] sm:text-[10px] uppercase tracking-[0.1em] font-semibold',
-                                'text-card-foreground'    => $isActive,
-                                'text-card-foreground/80' => !$isActive,
-                            ])>Step {{ $step['number'] }}</p>
-                            <p @class([
-                                'font-[\'DM_Sans\'] text-[10px] sm:text-[11px] mt-0.5 leading-tight font-medium',
-                                'text-card-foreground'    => $isActive,
-                                'text-card-foreground/70' => !$isActive,
-                            ])>{{ $step['label'] }}</p>
-                        </div>
-                    @endforeach
                 </div>
             </div>
 
@@ -119,11 +61,6 @@
                                     {{ $project->estimations_count }} estimasi tersimpan
                                 </p>
                             </div>
-                            <a href="{{ route('user.project.setup') }}"
-                               class="flex items-center gap-1.5 bg-primary/10 text-primary font-['DM_Sans'] font-medium text-sm rounded-lg px-4 py-2 hover:bg-primary/20 transition-colors">
-                                <x-lucide-plus class="w-4 h-4" />
-                                Tambah Estimasi
-                            </a>
                         </div>
 
                         @if($project->estimations->isEmpty())
@@ -170,9 +107,10 @@
                                 </p>
                             </div>
                             <div class="flex flex-wrap gap-2.5 mt-4">
-                                <a href="{{ route('user.estimation.result') }}"
-                                   class="bg-primary text-primary-foreground font-['DM_Sans'] font-medium text-sm rounded-lg px-5 py-2.5 hover:opacity-90 transition-opacity">
-                                    Lihat Hasil Estimasi Terakhir
+                                <a href="{{ route('user.project.rab', $project->id) }}"
+                                   class="bg-primary text-primary-foreground font-['DM_Sans'] font-medium text-sm rounded-lg px-5 py-2.5 hover:opacity-90 transition-opacity inline-flex items-center gap-2">
+                                    <x-lucide-file-spreadsheet class="w-4 h-4" />
+                                    Lihat RAB Lengkap
                                 </a>
                             </div>
                         @endif
@@ -233,15 +171,16 @@
                     </div>
 
                     {{-- Add Estimation CTA --}}
-                    <a href="{{ route('user.project.setup') }}"
+                    <a href="{{ route('user.project.add-estimation', $project->id) }}"
                        class="w-full bg-primary text-primary-foreground font-['DM_Sans'] font-semibold text-sm rounded-xl py-3.5 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
                         <x-lucide-plus class="w-4 h-4" />
                         Tambah Estimasi Baru
                     </a>
 
-                    <a href="{{ route('user.estimation.wizard') }}"
-                       class="font-['DM_Sans'] text-[13px] text-muted-foreground text-center flex items-center justify-center gap-1.5 hover:text-card-foreground transition-colors">
-                        <x-lucide-rotate-ccw class="w-[13px] h-[13px]" /> Estimasi Tanpa Simpan
+                    <a href="{{ route('user.project.rab', $project->id) }}"
+                       class="w-full border-2 border-primary text-primary font-['DM_Sans'] font-semibold text-sm rounded-xl py-3.5 flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all">
+                        <x-lucide-file-spreadsheet class="w-4 h-4" />
+                        Lihat RAB Lengkap
                     </a>
                 </div>
             </div>
