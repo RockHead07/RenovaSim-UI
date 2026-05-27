@@ -2,7 +2,7 @@
      pages.dashboard — port of src/pages/Index.tsx
 ======================================================== --}}
 <x-user::layouts.dashboard title="RenovaSim — Dashboard">
-    <x-user::components.layout.topbar name="Oliver" />
+    <x-user::components.layout.topbar name="{{ auth()->user()->username ?? auth()->user()->name ?? auth()->user()->email }}" />
 
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 auto-rows-min">
         <div class="md:col-span-3 lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">

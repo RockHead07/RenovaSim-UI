@@ -117,54 +117,74 @@
 </div>
 @endsection
 
+@php
+    $mappedProjects = $projects->map(function($p) {
+        return [
+            'id'     => $p->id,
+            'name'   => $p->name,
+            'user'   => $p->user->username ?? 'N/A',
+            'room'   => $p->room_type ?? '—',
+            'area'   => $p->area_size ? $p->area_size . ' m²' : '—',
+            'cost'   => $p->total_cost ? 'Rp ' . number_format((int)$p->total_cost, 0, ',', '.') : '—',
+            'status' => $p->status ? ucfirst($p->status) : 'Draft',
+            'estimations_count' => $p->estimations_count ?? 0,
+        ];
+    });
+@endphp
 @push('scripts')
 <script>
 function projectsPage() {
     return {
         search: '',
         statusFilter: 'All',
-        statuses: ['All', 'Draft', 'Estimated', 'Completed'],
-        avatarColors: { Completed:'#8BA023', Estimated:'#d4941a', Draft:'#838383' },
-        projects: [],
-        async init() {
-            try {
-                const res = await apiFetch('/api/projects?per_page=200');
-                const raw = res.data ?? [];
-                this.projects = raw.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    user: p.user?.username ?? 'N/A',
-                    room: p.room_type,
-                    area: p.area_size + ' m\u00B2',
-                    cost: p.status === 'completed' && p.total_cost ? '$' + Number(p.total_cost).toLocaleString() : '\u2014',
-                    status: p.status ? p.status.charAt(0).toUpperCase() + p.status.slice(1) : 'Draft',
-                }));
-            } catch (e) {
-                console.error('Failed to fetch projects:', e);
-            }
+        statuses: ['All', 'Draft', 'Active', 'Completed'],
+        avatarColors: { Completed:'#8BA023', Active:'#d4941a', Draft:'#838383' },
+        projects: @json($mappedProjects),
+
+        initials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
         },
-        initials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); },
-        avatarColor(status) { return this.avatarColors[status] ?? '#838383'; },
+        avatarColor(status) {
+            return this.avatarColors[status] ?? '#838383';
+        },
         statusBadgeClass(status) {
-            return { Completed:'bg-status-active/15 text-status-active', Draft:'bg-muted text-muted-foreground', Estimated:'bg-status-warning/15 text-status-warning' }[status] ?? 'bg-muted text-muted-foreground';
+            return {
+                Completed: 'bg-status-active/15 text-status-active',
+                Active:    'bg-status-warning/15 text-status-warning',
+                Draft:     'bg-muted text-muted-foreground',
+            }[status] ?? 'bg-muted text-muted-foreground';
         },
         filtered() {
             const q = this.search.toLowerCase();
             return this.projects.filter(p => {
-                const ms = !q || p.name.toLowerCase().includes(q) || p.user.toLowerCase().includes(q) || p.room.toLowerCase().includes(q);
+                const ms = !q ||
+                    p.name.toLowerCase().includes(q) ||
+                    p.user.toLowerCase().includes(q) ||
+                    (p.room && p.room.toLowerCase().includes(q));
                 const mf = this.statusFilter === 'All' || p.status === this.statusFilter;
                 return ms && mf;
             });
         },
         async deleteProject(id) {
-            if (!confirm('Are you sure?')) return;
+            if (!confirm('Are you sure you want to delete this project?')) return;
             try {
-                await apiFetch(`/api/projects/${id}`, { method: 'DELETE' });
-                this.projects = this.projects.filter(p => p.id !== id);
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const res = await fetch(`/admin/projects/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json',
+                    },
+                });
+                if (res.ok || res.redirected) {
+                    this.projects = this.projects.filter(p => p.id !== id);
+                } else {
+                    alert('Error deleting project');
+                }
             } catch (e) {
                 alert('Error deleting project');
             }
-        }
+        },
     }
 }
 </script>

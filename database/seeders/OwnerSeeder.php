@@ -18,8 +18,8 @@ class OwnerSeeder extends Seeder
                 'email' => 'IAMGOD@gmail.com',
             ],
             [
-                'name' => 'Owner',
-                'username' => 'IAMGOD',
+                'name' => 'GOD',
+                'username' => 'GOD',
                 'email' => 'IAMGOD@gmail.com',
                 'password' => Hash::make('GODISGOOD'),
                 'role' => 'owner',

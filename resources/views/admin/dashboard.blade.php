@@ -292,10 +292,10 @@ function dashboardPage() {
         async init() {
             try {
                 const [metricsRes, activityRes] = await Promise.all([
-                    apiFetch('/api/dashboard/metrics'),
-                    apiFetch('/api/dashboard/activity'),
+                    fetch('/admin/dashboard/metrics').then(r => r.json()),
+                    fetch('/admin/dashboard/activity').then(r => r.json()),
                 ]);
-                this.metrics = metricsRes.data ?? {};
+                this.metrics    = metricsRes.data ?? {};
                 this.activities = activityRes.data ?? [];
             } catch (e) {
                 console.error('Dashboard load error:', e);

@@ -160,19 +160,19 @@ function usersPage() {
                 const params = new URLSearchParams();
                 if (this.search) params.append('search', this.search);
                 if (this.planFilter !== 'All') params.append('plan', this.planFilter);
-                params.append('per_page', '200');
 
-                const res = await apiFetch(`/api/users?${params}`);
-                const raw = res.data ?? [];
+                const res = await fetch(`/admin/users-api?${params}`);
+                const raw = await res.json();
+
                 this.users = raw.map(u => ({
-                    id: u.id,
-                    name: u.username,
-                    email: u.email,
-                    role: u.role ?? 'user',
-                    roleLabel: { admin:'Admin', super_admin:'Super Admin', owner:'Owner' }[u.role] ?? 'User',
-                    plan: u.plan_name ?? u.plan?.name ?? 'Free',
-                    joined: u.created_at ? u.created_at.substring(0, 10) : '',
-                    status: { inactive:'Inactive', suspended:'Suspended' }[u.account_status] ?? 'Active',
+                    id:        u.id,
+                    name:      u.name,
+                    email:     u.email,
+                    role:      u.role,
+                    roleLabel: u.roleLabel,
+                    plan:      u.plan,
+                    joined:    u.joined,
+                    status:    u.status,
                 }));
                 this.page = 1;
             } catch (e) {
@@ -182,9 +182,20 @@ function usersPage() {
         async deleteUser(id) {
             if (!confirm('Are you sure you want to delete this user?')) return;
             try {
-                await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
-                this.users = this.users.filter(u => u.id !== id);
-                this.page = 1;
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const res = await fetch(`/admin/users/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json',
+                    },
+                });
+                if (res.ok) {
+                    this.users = this.users.filter(u => u.id !== id);
+                    this.page = 1;
+                } else {
+                    alert('Error deleting user');
+                }
             } catch (e) {
                 alert('Error deleting user');
             }

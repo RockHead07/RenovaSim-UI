@@ -54,8 +54,8 @@ class Project extends Model
      */
     public function recalculateTotals(): void
     {
-        $this->total_cost        = $this->estimations()->sum('cost_display');
         $this->estimations_count = $this->estimations()->count();
+        $this->total_cost        = $this->estimations()->sum('cost_min'); // pakai cost_min (estimasi konservatif)
         $this->save();
     }
 }

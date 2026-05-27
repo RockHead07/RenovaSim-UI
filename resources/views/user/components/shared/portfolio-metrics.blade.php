@@ -1,25 +1,31 @@
 @php
-    $projects = config('renovasim.projects');
-    $totalProjects = count($projects);
-    $totalCost = array_sum(array_column($projects, 'totalCost'));
-    $totalPaid = array_sum(array_column($projects, 'paid'));
-    $paidPct = $totalCost > 0 ? (int) round(($totalPaid / $totalCost) * 100) : 0;
+    $user   = \Illuminate\Support\Facades\Auth::user();
+    $userId = $user?->id ?? 0;
+    $totalProjects    = \App\Models\Project::where('user_id', $userId)->count();
+    $totalCostMin     = \App\Models\Project::where('user_id', $userId)->sum('total_cost');
+    $totalEstimations = \App\Models\Estimation::where('user_id', $userId)->count();
+    $thisMonth        = \App\Models\Project::where('user_id', $userId)
+                            ->whereMonth('created_at', now()->month)
+                            ->count();
 
     $metrics = [
         [
-            'icon' => 'users', 'iconBg' => 'bg-blue-50', 'iconColor' => 'text-blue-500',
-            'label' => 'Total Projects', 'value' => (string) $totalProjects,
-            'trend' => '+1 this month',
+            'icon' => 'folder-open', 'iconBg' => 'bg-blue-50', 'iconColor' => 'text-blue-500',
+            'label' => 'Total Projects',
+            'value' => (string) $totalProjects,
+            'trend' => '+' . $thisMonth . ' bulan ini',
         ],
         [
             'icon' => 'dollar-sign', 'iconBg' => 'bg-[hsl(73,55%,94%)]', 'iconColor' => 'text-primary',
-            'label' => 'Total Project Cost', 'value' => format_rp_short($totalCost),
-            'trend' => 'Across all projects',
+            'label' => 'Total Biaya Estimasi',
+            'value' => format_rp_short((int) $totalCostMin),
+            'trend' => 'Dari semua project',
         ],
         [
-            'icon' => 'wallet', 'iconBg' => 'bg-blue-50', 'iconColor' => 'text-blue-600',
-            'label' => 'Total Paid', 'value' => format_rp_short($totalPaid),
-            'trend' => $paidPct . '% of total',
+            'icon' => 'calculator', 'iconBg' => 'bg-blue-50', 'iconColor' => 'text-blue-600',
+            'label' => 'Total Estimasi',
+            'value' => (string) $totalEstimations,
+            'trend' => 'Item estimasi tersimpan',
         ],
     ];
 @endphp

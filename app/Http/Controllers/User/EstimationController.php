@@ -58,7 +58,7 @@ class EstimationController extends Controller
 
         try {
             $result = $this->estimationService->estimateWizard([
-                'project_name' => $request->input('project_name', 'Renovasi'),
+                'project_name' => session('project_setup.project_name', $request->input('project_name', 'Renovasi')),
                 'job_type'     => $validated['job_type'],
                 'area'         => $validated['area'],
                 'location'     => $validated['location'] ?? 'jakarta',
@@ -93,9 +93,10 @@ class EstimationController extends Controller
 
         try {
             $result = $this->estimationService->estimateAI([
-                'description' => $validated['description'],
-                'location'    => $validated['location'] ?? 'jakarta',
-                'budget'      => (int) $budget,
+                'project_name' => session('project_setup.project_name', 'Proyek Renovasi'),
+                'description'  => $validated['description'],
+                'location'     => $validated['location'] ?? 'jakarta',
+                'budget'       => (int) $budget,
             ]);
 
             session()->put('estimation_result', $result);
@@ -160,5 +161,36 @@ class EstimationController extends Controller
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * GET /user/project/create — show project setup form
+     */
+    public function showProjectSetup()
+    {
+        return view('user.pages.project-setup');
+    }
+
+    /**
+     * POST /user/project/create — store project info in session, redirect to estimation wizard
+     */
+    public function storeProjectSetup(Request $request)
+    {
+        $request->validate([
+            'project_name'  => 'required|string|max:255',
+            'building_type' => 'nullable|string|max:50',
+            'location'      => 'nullable|string|max:100',
+            'description'   => 'nullable|string|max:1000',
+        ]);
+
+        // Store project context in session
+        session()->put('project_setup', [
+            'project_name'  => $request->input('project_name'),
+            'building_type' => $request->input('building_type'),
+            'location'      => $request->input('location'),
+            'description'   => $request->input('description'),
+        ]);
+
+        return redirect()->route('user.estimation.wizard');
     }
 }

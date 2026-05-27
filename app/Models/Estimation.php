@@ -28,7 +28,7 @@ class Estimation extends Model
         'area'             => 'decimal:2',
         'cost_min'         => 'decimal:2',
         'cost_max'         => 'decimal:2',
-        'cost_display'     => 'decimal:2',
+        'cost_display'     => 'string',
         'confidence_score' => 'decimal:2',
         'fastapi_response' => 'array',
     ];

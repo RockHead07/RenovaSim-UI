@@ -5,10 +5,12 @@ use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\MaterialController;
 use App\Http\Controllers\Admin\PricingPlanController;
 use App\Http\Controllers\User\EstimationController;
+use App\Http\Controllers\User\UserProjectController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Models\PricingPlan;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,13 +31,24 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
     Route::view('/dashboard', 'user.pages.dashboard')->name('dashboard');
     Route::view('/project-stage', 'user.pages.project-stage');
     Route::view('/project-details', 'user.pages.project-details');
-    Route::view('/project-overview', 'user.pages.project-overview')->name('user.project-overview');
+    Route::get('/project-overview', [UserProjectController::class, 'showOverview'])->name('user.project-overview');
     Route::view('/project-rab', 'user.pages.project-rab');
     Route::view('/3d', 'user.pages.three-d-design')->name('user.3d');
     Route::view('/editor', 'user.pages.editor')->name('user.editor');
     Route::get('/editor/{projectId}', function ($projectId) {
         return view('user.pages.editor', ['projectId' => $projectId]);
     })->name('user.editor.project');
+
+    // Projects list & detail
+    Route::get('/projects', [UserProjectController::class, 'index'])->name('user.projects');
+    Route::get('/projects/{project}', [UserProjectController::class, 'show'])->name('user.projects.show');
+    Route::delete('/projects/{project}', [UserProjectController::class, 'destroy'])->name('user.projects.destroy');
+    Route::get('/project/{id}/view', [UserProjectController::class, 'viewProject'])->name('user.project.view');
+
+    // Project setup flow
+    Route::get('/project/create', [EstimationController::class, 'showProjectSetup'])->name('user.project.setup');
+    Route::post('/project/create', [EstimationController::class, 'storeProjectSetup'])->name('user.project.setup.store');
+    Route::post('/project/save-estimation', [UserProjectController::class, 'saveEstimation'])->name('user.project.save');
 
     // Estimation flow
     Route::get('/ai-estimation', [EstimationController::class, 'showWizard'])->name('user.estimation.wizard');
@@ -63,9 +76,9 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard/metrics', [AdminDashboardController::class, 'metrics'])->name('admin.dashboard.metrics');
+    Route::get('/dashboard/activity', [AdminDashboardController::class, 'activity'])->name('admin.dashboard.activity');
 
     // Users API (used by admin.users.index search/filter)
     Route::get('/users-api', [UserController::class, 'api']);

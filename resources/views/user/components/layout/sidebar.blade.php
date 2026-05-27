@@ -7,10 +7,11 @@
     $items = [
         ['label' => 'Dashboard',           'subtitle' => null,                    'icon' => 'layout-dashboard', 'path' => '/user/dashboard'],
         ['label' => 'RAI',                 'subtitle' => 'Renovasim Estimate AI', 'icon' => 'sparkles',         'path' => '/user/ai-estimation'],
-        ['label' => 'Projects',            'subtitle' => null,                    'icon' => 'folder-kanban',    'path' => '/user/project-overview'],
+        ['label' => 'Projects',            'subtitle' => null,                    'icon' => 'folder-kanban',    'path' => '/user/projects'],
         ['label' => '3D Design Modeling',  'subtitle' => 'House',                 'icon' => 'box',              'path' => '/user/3d'],
     ];
-    $current = '/' . trim(request()->path(), '/');
+    $current   = '/' . trim(request()->path(), '/');
+    $isActive  = fn(string $path) => $current === $path || str_starts_with($current, rtrim($path, '/') . '/');
 @endphp
 
 <aside
@@ -54,7 +55,7 @@
 
     <nav :class="effectiveCollapsed ? 'md:items-center md:gap-3 md:w-full' : ''" class="flex flex-col gap-1">
         @foreach ($items as $it)
-            @php $active = $current === $it['path']; @endphp
+            @php $active = $isActive($it['path']); @endphp
             <a
                 href="{{ $it['path'] }}"
                 @click="mobileOpen = false"

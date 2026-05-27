@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\OwnerSeeder;
+use Database\Seeders\PartnerSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -38,6 +40,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $this->call(PartnerSeeder::class);
+        $this->call([
+            OwnerSeeder::class,
+            PartnerSeeder::class,
+        ]);
     }
 }

@@ -10,7 +10,7 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::with('user')->latest()->get();
+        $projects = Project::with('user')->withCount('estimations')->latest()->get();
         return view('admin.projects.index', compact('projects'));
     }
 
