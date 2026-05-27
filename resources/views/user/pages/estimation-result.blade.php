@@ -73,7 +73,7 @@
     <p style="text-align:center;padding:2rem;">Redirecting…</p>
 @else
 
-<x-user::layouts.app title="RenovaSim — Estimation Result">
+<x-user::layouts.dashboard title="RenovaSim — Estimation Result">
     @push('styles')
     <style>[x-cloak] { display: none !important; }</style>
     @endpush
@@ -455,6 +455,6 @@
     </div>
 
 
-</x-user::layouts.app>
+</x-user::layouts.dashboard>
 
 @endif

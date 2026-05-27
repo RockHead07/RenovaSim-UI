@@ -50,6 +50,11 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
     Route::post('/project/create', [EstimationController::class, 'storeProjectSetup'])->name('user.project.setup.store');
     Route::post('/project/save-estimation', [UserProjectController::class, 'saveEstimation'])->name('user.project.save');
 
+    // Estimation context selection
+    Route::get('/estimation/start', [EstimationController::class, 'showStart'])->name('user.estimation.start');
+    Route::get('/estimation/quick', [EstimationController::class, 'quickEstimation'])->name('user.estimation.quick');
+    Route::get('/project/{id}/add-estimation', [UserProjectController::class, 'addEstimation'])->name('user.project.add-estimation');
+
     // Estimation flow
     Route::get('/ai-estimation', [EstimationController::class, 'showWizard'])->name('user.estimation.wizard');
     Route::post('/ai-estimation/wizard', [EstimationController::class, 'submitWizard'])->name('user.estimation.submitWizard');

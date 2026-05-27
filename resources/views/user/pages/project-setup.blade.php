@@ -1,4 +1,4 @@
-<x-user::layouts.app title="RenovaSim — Buat Project Baru">
+<x-user::layouts.dashboard title="RenovaSim — Buat Project Baru">
     <div class="flex-1 flex items-center justify-center px-4 py-10">
         <div class="w-full max-w-[520px]">
 
@@ -140,4 +140,4 @@
             </div>
         </div>
     </div>
-</x-user::layouts.app>
+</x-user::layouts.dashboard>

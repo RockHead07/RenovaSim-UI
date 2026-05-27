@@ -193,4 +193,26 @@ class EstimationController extends Controller
 
         return redirect()->route('user.estimation.wizard');
     }
+
+    /**
+     * GET /user/estimation/start — show context selection page
+     */
+    public function showStart()
+    {
+        $projects = \App\Models\Project::where('user_id', auth()->id())
+                        ->withCount('estimations')
+                        ->latest()
+                        ->get();
+
+        return view('user.pages.estimation-start', compact('projects'));
+    }
+
+    /**
+     * GET /user/estimation/quick — clear project session and go to wizard
+     */
+    public function quickEstimation()
+    {
+        session()->forget(['current_project_id', 'project_setup']);
+        return redirect()->route('user.estimation.wizard');
+    }
 }

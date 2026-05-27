@@ -6,7 +6,7 @@
 @php
     $items = [
         ['label' => 'Dashboard',           'subtitle' => null,                    'icon' => 'layout-dashboard', 'path' => '/user/dashboard'],
-        ['label' => 'RAI',                 'subtitle' => 'Renovasim Estimate AI', 'icon' => 'sparkles',         'path' => '/user/ai-estimation'],
+        ['label' => 'RAI',                 'subtitle' => 'Renovasim Estimate AI', 'icon' => 'sparkles',         'path' => '/user/estimation/start'],
         ['label' => 'Projects',            'subtitle' => null,                    'icon' => 'folder-kanban',    'path' => '/user/projects'],
         ['label' => '3D Design Modeling',  'subtitle' => 'House',                 'icon' => 'box',              'path' => '/user/3d'],
     ];

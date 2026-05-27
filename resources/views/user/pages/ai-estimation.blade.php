@@ -16,7 +16,7 @@
 
 @endphp
 
-<x-user::layouts.app title="RenovaSim — AI Estimation" :hideFooter="false">
+<x-user::layouts.dashboard title="RenovaSim — AI Estimation">
     <div
         x-data="{
             mode: null,
@@ -460,4 +460,4 @@
         });
     </script>
 
-</x-user::layouts.app>
+</x-user::layouts.dashboard>

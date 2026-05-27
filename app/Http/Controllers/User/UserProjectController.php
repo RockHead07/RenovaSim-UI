@@ -145,4 +145,23 @@ class UserProjectController extends Controller
         session()->put('current_project_id', $project->id);
         return redirect()->route('user.project-overview');
     }
+
+    /**
+     * GET /user/project/{id}/add-estimation
+     * Set existing project as active context and redirect to estimation wizard.
+     */
+    public function addEstimation(int $id)
+    {
+        $project = Project::where('user_id', auth()->id())->findOrFail($id);
+
+        session()->put('current_project_id', $project->id);
+        session()->put('project_setup', [
+            'project_name'  => $project->name,
+            'building_type' => $project->building_type,
+            'location'      => $project->location,
+            'description'   => $project->description,
+        ]);
+
+        return redirect()->route('user.estimation.wizard');
+    }
 }
