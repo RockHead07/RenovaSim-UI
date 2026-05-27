@@ -25,7 +25,7 @@
             // Wizard fields
             jobType: '',
             area: '',
-            location: '',
+            location: '{{ session("project_setup.location", "") }}',
             quality: 'standar',
             budgetDisplay: '',
             description: '',
@@ -40,7 +40,7 @@
             },
 
             // AI fields
-            aiLocation: '',
+            aiLocation: '{{ session("project_setup.location", "") }}',
             aiBudgetDisplay: '',
             get aiBudgetValue() {
                 const d = (this.aiBudgetDisplay || '').replace(/\D/g, '');
@@ -224,9 +224,15 @@
                                 >
                                     <option value="">Pilih kota…</option>
                                     @foreach ($cities as $c)
-                                        <option value="{{ strtolower($c) }}">{{ $c }}</option>
+                                        <option value="{{ strtolower($c) }}" {{ strtolower(session('project_setup.location', '')) === strtolower($c) ? 'selected' : '' }}>{{ $c }}</option>
                                     @endforeach
                                 </select>
+                                @if(session('project_setup.location'))
+                                    <p class="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                                        <x-lucide-map-pin class="w-3 h-3" />
+                                        Lokasi diambil dari project: <span class="font-medium capitalize">{{ session('project_setup.location') }}</span>
+                                    </p>
+                                @endif
                             </div>
 
                             {{-- Kualitas Material --}}
@@ -353,9 +359,15 @@
                                 >
                                     <option value="">Pilih kota…</option>
                                     @foreach ($cities as $c)
-                                        <option value="{{ strtolower($c) }}">{{ $c }}</option>
+                                        <option value="{{ strtolower($c) }}" {{ strtolower(session('project_setup.location', '')) === strtolower($c) ? 'selected' : '' }}>{{ $c }}</option>
                                     @endforeach
                                 </select>
+                                @if(session('project_setup.location'))
+                                    <p class="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                                        <x-lucide-map-pin class="w-3 h-3" />
+                                        Lokasi diambil dari project: <span class="font-medium capitalize">{{ session('project_setup.location') }}</span>
+                                    </p>
+                                @endif
                             </div>
 
                             {{-- Budget (optional) --}}

@@ -61,7 +61,7 @@ class EstimationController extends Controller
                 'project_name' => session('project_setup.project_name', $request->input('project_name', 'Renovasi')),
                 'job_type'     => $validated['job_type'],
                 'area'         => $validated['area'],
-                'location'     => $validated['location'] ?? 'jakarta',
+                'location'     => $validated['location'] ?? session('project_setup.location') ?? 'jakarta',
                 'quality'      => $validated['quality'] ?? 'standar',
                 'scope'        => $request->input('scope', 'full'),
                 'budget'       => (int) $budget,
@@ -95,7 +95,7 @@ class EstimationController extends Controller
             $result = $this->estimationService->estimateAI([
                 'project_name' => session('project_setup.project_name', 'Proyek Renovasi'),
                 'description'  => $validated['description'],
-                'location'     => $validated['location'] ?? 'jakarta',
+                'location'     => $validated['location'] ?? session('project_setup.location') ?? 'jakarta',
                 'budget'       => (int) $budget,
             ]);
 

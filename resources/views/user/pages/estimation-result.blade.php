@@ -363,9 +363,7 @@
                                 <div>
                                     <p class="text-[11px] text-muted-foreground">Lokasi</p>
                                     <p class="text-sm font-medium text-card-foreground capitalize">
-                                        {{ $summaryLocation && $summaryLocation !== 'default'
-                                            ? ucfirst($summaryLocation)
-                                            : '—' }}
+                                        {{ $result['location'] ? ucfirst($result['location']) : '—' }}
                                     </p>
                                 </div>
                             </div>
@@ -399,7 +397,7 @@
                                 <div>
                                     <p class="text-[11px] text-muted-foreground">Kualitas Material</p>
                                     <p class="text-sm font-medium text-card-foreground capitalize">
-                                        {{ $summaryQuality ? ucfirst($summaryQuality) : '—' }}
+                                        {{ $result['quality'] ? ucfirst($result['quality']) : '—' }}
                                     </p>
                                 </div>
                             </div>
