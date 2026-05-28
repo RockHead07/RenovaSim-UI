@@ -13,6 +13,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'RenovaSim' }}</title>
+    {{-- Prevent sidebar FOUC: read localStorage synchronously before render --}}
+    <script>
+    (function() {
+        var c = localStorage.getItem('sidebar-collapsed') === 'true';
+        var t = window.matchMedia('(min-width: 768px) and (max-width: 1023px)').matches;
+        document.documentElement.setAttribute('data-sb', (t || c) ? '1' : '0');
+    })();
+    </script>
+    <style>
+        @media (min-width: 768px) {
+            html[data-sb="1"] aside { width: 80px; }
+            html[data-sb="0"] aside { width: 240px; }
+            html[data-sb="1"] main  { padding-left: 112px; }
+            html[data-sb="0"] main  { padding-left: 264px; }
+        }
+        /* Hide sidebar until Alpine is ready to prevent content flash */
+        aside { visibility: hidden; }
+    </style>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/user/theme/css/user.css', 'resources/user/theme/js/user.js'])
 </head>
 <body
@@ -68,7 +86,6 @@
         :class="ready ? 'transition-[padding] duration-300 ease-in-out' : ''"
         :style="isMdUp ? { paddingLeft: effectiveCollapsed ? '112px' : '264px' } : {}"
         class="px-4 sm:px-6 lg:px-8 py-6 lg:py-8"
-        style="padding-left: 264px"
     >
         <div class="mx-auto max-w-[1400px]">
             {!! $slot !!}

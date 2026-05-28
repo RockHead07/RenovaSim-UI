@@ -54,7 +54,7 @@
         class="flex-1 flex flex-col"
     >
         {{-- Step Indicator (shown when a mode is selected) --}}
-        <div x-show="mode !== null" x-transition class="flex flex-col items-center mt-7 px-4">
+        <div x-show="mode !== null" x-transition class="flex flex-col items-center mt-7 px-4" style="display: none">
             <div class="relative flex gap-[60px]">
                 <div class="absolute top-5 left-5 right-5 h-[1.5px] bg-primary"></div>
                 <div class="flex flex-col items-center relative z-10">
@@ -151,7 +151,7 @@
                 {{-- ============================================ --}}
                 {{-- SCREEN B: WIZARD MODE                        --}}
                 {{-- ============================================ --}}
-                <div x-show="mode === 'wizard'" x-cloak class="animate-fade-in">
+                <div x-show="mode === 'wizard'" class="animate-fade-in" style="display: none">
                     {{-- Mode pill + back --}}
                     <div class="flex items-center justify-between mb-5">
                         <button
@@ -301,7 +301,7 @@
                 {{-- ============================================ --}}
                 {{-- SCREEN C: AI MODE                            --}}
                 {{-- ============================================ --}}
-                <div x-show="mode === 'ai'" x-cloak class="animate-fade-in">
+                <div x-show="mode === 'ai'" class="animate-fade-in" style="display: none">
                     {{-- Mode pill + back --}}
                     <div class="flex items-center justify-between mb-5">
                         <button
