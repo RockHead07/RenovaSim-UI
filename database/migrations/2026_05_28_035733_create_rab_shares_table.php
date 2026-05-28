@@ -13,18 +13,15 @@ return new class extends Migration
     {
         Schema::create('rab_shares', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('token', 64)->unique();
-            $table->enum('visibility', ['public', 'private'])->default('public');
+            $table->enum('visibility', ['public', 'private'])->default('private');
             $table->timestamp('expires_at');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('rab_shares');

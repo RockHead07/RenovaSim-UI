@@ -20,9 +20,11 @@
         mobileOpen ? 'translate-x-0' : '-translate-x-full',
         effectiveCollapsed ? 'md:w-20 md:items-center md:px-3 md:py-4' : 'md:w-60 md:p-4'
     ]"
+    :style="{ width: effectiveCollapsed ? '80px' : '240px' }"
     class="bg-card shadow-sm flex-col z-40 overflow-hidden
         fixed top-0 left-0 bottom-0 w-65 flex p-4
         md:translate-x-0 md:top-4 md:left-4 md:bottom-4 md:rounded-[20px]"
+    style="width: 240px"
 >
     {{-- Mobile close --}}
     <button
@@ -34,7 +36,7 @@
     </button>
 
     {{-- Logo --}}
-    <div :class="effectiveCollapsed ? 'md:justify-center md:w-full md:px-0' : 'px-2'" class="pt-2 pb-6 flex items-center gap-2.5">
+    <div :class="effectiveCollapsed ? 'md:justify-center md:w-full md:px-0' : 'px-2'" class="px-2 pt-2 pb-6 flex items-center gap-2.5">
         <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
             <span class="text-primary-foreground font-bold text-sm">R</span>
         </div>
@@ -76,6 +78,7 @@
                 >
                     <x-dynamic-component
                         :component="'lucide-' . $it['icon']"
+                        class="w-[18px] h-[18px]"
                         ::class="effectiveCollapsed ? 'w-5 h-5' : 'w-[18px] h-[18px]'"
                     />
                 </span>
@@ -103,12 +106,23 @@
         </p>
     </div>
 
-    {{-- Collapse toggle (desktop only — hidden on tablet where sidebar is forced collapsed) --}}
+    {{-- Collapse toggle (desktop only) --}}
     <div
-        x-show="canToggle"
         :class="collapsed && 'mt-auto lg:w-full lg:flex lg:justify-center'"
         class="hidden lg:block pt-3"
     >
+        {{-- Collapse button: always in DOM, hidden via Alpine when sidebar is collapsed --}}
+        <button
+            :class="collapsed ? 'hidden' : ''"
+            @click="collapsed = true"
+            title="Collapse sidebar"
+            class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-muted-foreground hover:text-card-foreground hover:bg-muted transition-colors"
+        >
+            <x-lucide-chevron-left class="w-[18px] h-[18px]" />
+            <span>Collapse</span>
+        </button>
+
+        {{-- Expand button: only rendered by Alpine when collapsed --}}
         <template x-if="collapsed">
             <button
                 @click="collapsed = false"
@@ -116,16 +130,6 @@
                 class="w-11 h-11 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-card-foreground transition-colors"
             >
                 <x-lucide-chevron-right class="w-5 h-5" />
-            </button>
-        </template>
-        <template x-if="!collapsed">
-            <button
-                @click="collapsed = true"
-                title="Collapse sidebar"
-                class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-muted-foreground hover:text-card-foreground hover:bg-muted transition-colors"
-            >
-                <x-lucide-chevron-left class="w-[18px] h-[18px]" />
-                <span>Collapse</span>
             </button>
         </template>
     </div>

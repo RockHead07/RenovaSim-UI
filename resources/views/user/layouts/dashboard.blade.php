@@ -20,12 +20,14 @@
     x-data="{
         collapsed: localStorage.getItem('sidebar-collapsed') === 'true',
         mobileOpen: false,
-        isTablet: false,
+        isTablet: window.matchMedia('(min-width: 768px) and (max-width: 1023px)').matches,
+        isMdUp: window.matchMedia('(min-width: 768px)').matches,
         ready: false,
         init() {
-            const mq = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
-            this.isTablet = mq.matches;
-            mq.addEventListener('change', (e) => { this.isTablet = e.matches; });
+            const mqTablet = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
+            const mqMd     = window.matchMedia('(min-width: 768px)');
+            mqTablet.addEventListener('change', (e) => { this.isTablet = e.matches; });
+            mqMd.addEventListener('change',     (e) => { this.isMdUp   = e.matches; });
             this.$watch('collapsed', val => localStorage.setItem('sidebar-collapsed', val));
             this.$nextTick(() => { this.ready = true; });
         },
@@ -63,11 +65,10 @@
     <x-user::components.layout.sidebar />
 
     <main
-        :class="[
-            ready ? 'transition-[padding] duration-300 ease-in-out' : '',
-            effectiveCollapsed ? 'md:pl-[112px] lg:pl-[112px]' : 'md:pl-[112px] lg:pl-[264px]'
-        ]"
+        :class="ready ? 'transition-[padding] duration-300 ease-in-out' : ''"
+        :style="isMdUp ? { paddingLeft: effectiveCollapsed ? '112px' : '264px' } : {}"
         class="px-4 sm:px-6 lg:px-8 py-6 lg:py-8"
+        style="padding-left: 264px"
     >
         <div class="mx-auto max-w-[1400px]">
             {!! $slot !!}

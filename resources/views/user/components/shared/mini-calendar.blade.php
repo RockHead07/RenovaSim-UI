@@ -1,13 +1,20 @@
-{{-- ============================================================
-     <x-mini-calendar /> — port of MiniCalendar.tsx
-     Fully Alpine-driven month grid; today is highlighted in olive.
-============================================================ --}}
+@php
+    $phpMonthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    $phpDayLabels  = ['M','T','W','T','F','S','S'];
+    $phpToday      = now();
+    $phpFirstDay   = $phpToday->copy()->startOfMonth();
+    $phpOffset     = $phpFirstDay->dayOfWeek === 0 ? 6 : ($phpFirstDay->dayOfWeek - 1);
+    $phpCells      = array_merge(array_fill(0, $phpOffset, null), range(1, $phpToday->daysInMonth));
+    $phpTodayDay   = $phpToday->day;
+@endphp
+
 <div
     x-data="{
         monthNames: ['January','February','March','April','May','June','July','August','September','October','November','December'],
         dayLabels: ['M','T','W','T','F','S','S'],
         today: new Date(),
         view: { year: new Date().getFullYear(), month: new Date().getMonth() },
+        ready: false,
         get cells() {
             const first = new Date(this.view.year, this.view.month, 1);
             const offset = (first.getDay() + 6) % 7;
@@ -25,14 +32,21 @@
         move(delta) {
             const next = new Date(this.view.year, this.view.month + delta, 1);
             this.view = { year: next.getFullYear(), month: next.getMonth() };
+        },
+        init() {
+            this.$nextTick(() => { this.ready = true; });
         }
     }"
     class="bg-card rounded-[24px] shadow-sm p-6 h-full flex flex-col"
 >
+    {{-- Header: month name + year + nav buttons --}}
     <div class="flex items-center justify-between mb-4">
         <div>
-            <div class="font-['Playfair_Display'] italic text-lg text-secondary leading-tight" x-text="monthNames[view.month]"></div>
-            <div class="text-xs text-muted-foreground" x-text="view.year"></div>
+            {{-- PHP fallback shown before Alpine; Alpine replaces text after init --}}
+            <div class="font-['Playfair_Display'] italic text-lg text-secondary leading-tight"
+                 x-text="monthNames[view.month]">{{ $phpMonthNames[$phpToday->month - 1] }}</div>
+            <div class="text-xs text-muted-foreground"
+                 x-text="view.year">{{ $phpToday->year }}</div>
         </div>
         <div class="flex items-center gap-1">
             <button @click="move(-1)" class="w-7 h-7 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground">
@@ -44,10 +58,31 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-7 gap-1 text-center">
-        <template x-for="(d, i) in dayLabels" :key="i">
-            <div class="text-[10px] uppercase tracking-wider text-muted-foreground py-1" x-text="d"></div>
-        </template>
+    {{-- Day label row --}}
+    <div class="grid grid-cols-7 gap-1 text-center mb-1">
+        @foreach($phpDayLabels as $dl)
+            <div class="text-[10px] uppercase tracking-wider text-muted-foreground py-1">{{ $dl }}</div>
+        @endforeach
+    </div>
+
+    {{-- PHP-rendered grid: visible before Alpine, hidden once Alpine is ready --}}
+    <div x-show="!ready" class="grid grid-cols-7 gap-1 text-center">
+        @foreach($phpCells as $cell)
+            <div class="aspect-square flex items-center justify-center">
+                @if($cell === null)
+                    <span></span>
+                @else
+                    <span class="w-8 h-8 flex items-center justify-center rounded-full text-xs
+                        {{ $cell === $phpTodayDay ? 'bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/30' : 'text-card-foreground hover:bg-muted' }}">
+                        {{ $cell }}
+                    </span>
+                @endif
+            </div>
+        @endforeach
+    </div>
+
+    {{-- Alpine-rendered grid: hidden until Alpine is ready --}}
+    <div x-show="ready" style="display: none" class="grid grid-cols-7 gap-1 text-center">
         <template x-for="(c, i) in cells" :key="i">
             <div class="aspect-square flex items-center justify-center">
                 <template x-if="c === null"><span></span></template>
@@ -64,6 +99,7 @@
         </template>
     </div>
 
+    {{-- Upcoming events (static) --}}
     <div class="mt-auto pt-5 border-t border-border/60">
         <div class="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Upcoming</div>
         <div class="flex items-center gap-3">

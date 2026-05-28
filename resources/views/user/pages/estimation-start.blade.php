@@ -41,7 +41,7 @@
                                 ::class="open ? 'rotate-180' : ''" />
                         </button>
 
-                        <div x-show="open" x-collapse class="border-t border-border">
+                        <div x-show="open" x-collapse class="border-t border-border" style="display: none">
                             <div class="p-3 space-y-2">
                                 @foreach($projects as $project)
                                     <a href="{{ route('user.project.add-estimation', $project->id) }}"
