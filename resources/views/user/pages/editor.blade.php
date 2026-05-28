@@ -66,6 +66,15 @@
 
         <!-- Assets Tab -->
         <div id="tab-assets" class="panel-content" style="display:block;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:8px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--editor-border);border-radius:var(--editor-radius-sm);">
+                <span style="font-size:12px;font-weight:500;color:var(--editor-text-dim);display:flex;align-items:center;gap:6px;">
+                    🎯 Alignment Snapping
+                </span>
+                <label class="switch" style="position:relative;display:inline-block;width:34px;height:20px;">
+                    <input type="checkbox" id="assist-snap-toggle" checked onchange="RenovaEditor.toggleAlignmentAssist(this.checked)" style="opacity:0;width:0;height:0;">
+                    <span class="slider" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#4a4a4a;transition:.3s;border-radius:20px;"></span>
+                </label>
+            </div>
             <button class="toolbar-btn" style="width:100%;justify-content:center;margin-bottom:12px;border-color:var(--editor-accent);color:var(--editor-accent);font-weight:600;" onclick="RenovaEditor.startWallDraw()">
                 🧱 Draw Partition Wall
             </button>
@@ -111,22 +120,22 @@
 
         <!-- Room Size Tab -->
         <div id="tab-room-size" class="panel-content" style="display:none;">
-            <div class="property-label" style="margin-bottom:12px;">📐 Ukuran Ruangan (cm)</div>
+            <div class="property-label" style="margin-bottom:12px;">📐 Ukuran Ruangan (m)</div>
             <div class="property-group">
                 <div class="property-row" style="margin-bottom:10px;">
                     <label style="min-width:60px;font-size:13px;color:var(--editor-text-muted);">Lebar</label>
-                    <input id="room-width-cm" class="property-input" type="number" min="100" max="2000" step="10" value="800" style="flex:1;">
-                    <span style="font-size:11px;color:var(--editor-text-muted);margin-left:4px;">cm</span>
+                    <input id="room-width-m" class="property-input" type="number" min="1.0" max="20.0" step="0.1" value="8.0" style="flex:1;">
+                    <span style="font-size:11px;color:var(--editor-text-muted);margin-left:4px;">m</span>
                 </div>
                 <div class="property-row" style="margin-bottom:10px;">
                     <label style="min-width:60px;font-size:13px;color:var(--editor-text-muted);">Panjang</label>
-                    <input id="room-length-cm" class="property-input" type="number" min="100" max="2000" step="10" value="1000" style="flex:1;">
-                    <span style="font-size:11px;color:var(--editor-text-muted);margin-left:4px;">cm</span>
+                    <input id="room-length-m" class="property-input" type="number" min="1.0" max="20.0" step="0.1" value="10.0" style="flex:1;">
+                    <span style="font-size:11px;color:var(--editor-text-muted);margin-left:4px;">m</span>
                 </div>
                 <div class="property-row" style="margin-bottom:10px;">
                     <label style="min-width:60px;font-size:13px;color:var(--editor-text-muted);">Tinggi</label>
-                    <input id="room-height-cm" class="property-input" type="number" min="200" max="600" step="10" value="320" style="flex:1;">
-                    <span style="font-size:11px;color:var(--editor-text-muted);margin-left:4px;">cm</span>
+                    <input id="room-height-m" class="property-input" type="number" min="2.0" max="6.0" step="0.1" value="3.2" style="flex:1;">
+                    <span style="font-size:11px;color:var(--editor-text-muted);margin-left:4px;">m</span>
                 </div>
             </div>
             <button class="toolbar-btn" style="width:100%;justify-content:center;margin-top:8px;border-color:var(--editor-accent);color:var(--editor-accent);font-weight:600;" onclick="RenovaEditor.updateRoomSize()">
@@ -134,7 +143,7 @@
             </button>
             <div style="margin-top:14px;padding:10px;background:var(--editor-surface);border-radius:var(--editor-radius-sm);border:1px solid var(--editor-border);">
                 <div style="font-size:11px;color:var(--editor-text-muted);line-height:1.5;">
-                    💡 <strong>Tips:</strong> Masukkan ukuran ruangan dalam satuan sentimeter (cm). Contoh: 400 cm = 4 meter. Furniture yang sudah ada akan otomatis disesuaikan agar tetap di dalam ruangan.
+                    💡 <strong>Tips:</strong> Masukkan ukuran ruangan dalam satuan meter (m). Contoh: 4.5 = 4.5 meter. Furniture yang sudah ada akan otomatis disesuaikan agar tetap di dalam ruangan.
                 </div>
             </div>
         </div>
@@ -143,9 +152,6 @@
     <!-- ═══ EXPLORE HUD ═══ -->
     <div id="explore-hud" class="explore-hud" style="display:none;">
         <button class="hud-btn" onclick="RenovaEditor.switchMode('build')" title="Exit Explore">✕</button>
-        <button class="hud-btn" id="explore-catalog-btn" onclick="toggleExploreCatalog()" title="Catalog (C)" style="width:auto;padding:0 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">
-            <span>➕</span> Catalog <span style="font-size:10px;opacity:0.6;">[C]</span>
-        </button>
         <div style="display:flex;align-items:center;gap:4px;color:var(--editor-text-dim);font-size:12px;padding:0 12px;">
             <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;">W</kbd>
             <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;">A</kbd>
@@ -154,7 +160,7 @@
             <span style="margin-left:4px;">Move</span>
         </div>
         <div style="color:var(--editor-text-dim);font-size:12px;padding:0 8px;display:flex;align-items:center;">
-            🖱 Grab/Drop | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">R</kbd> Rotate | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">Space</kbd> Jump | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">C</kbd> Catalog
+            <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">E</kbd> Grab/Drop | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">R</kbd> Rotate | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">Space</kbd> Jump | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">C</kbd> Catalog | <kbd style="padding:2px 6px;background:var(--editor-bg);border:1px solid var(--editor-border);border-radius:4px;font-size:11px;margin:0 4px;">U</kbd> Undo
         </div>
     </div>
 
@@ -191,7 +197,7 @@
 
     <!-- ═══ TRANSFORM HINT ═══ -->
     <div id="transform-hint" class="transform-hint">
-        <kbd>Click</kbd> Select &nbsp; <kbd>Drag</kbd> Move &nbsp; <kbd>R</kbd> Rotate &nbsp; <kbd>Del</kbd> Delete
+        <kbd>Click</kbd> Select &nbsp; <kbd>Drag</kbd> Move &nbsp; <kbd>R</kbd> Rotate &nbsp; <kbd>Del</kbd> Delete &nbsp; <kbd>U</kbd> Undo
     </div>
 
     <!-- ═══ UPLOAD OVERLAY ═══ -->

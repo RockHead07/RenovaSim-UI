@@ -1,69 +1,43 @@
 {
   "id": "5ae06cc4-02d",
   "name": "Room 5ae06c",
-  "width": 13,
-  "length": 10.9,
-  "height": 2.5,
-  "wall_color": "#f5f2ed",
-  "floor_color": "#c0a880",
+  "width": 8,
+  "length": 10,
+  "height": 3.2,
+  "wall_color": "#f5f0eb",
+  "floor_color": "#c4a882",
   "objects": [
     {
-      "id": "ea28f5aa",
-      "type": "bed_single",
-      "name": "Single Bed",
-      "category": "bedroom",
-      "position": [
-        -2.5,
-        0.25,
-        -2.5
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        1.0,
-        0.5,
-        2.0
-      ],
-      "color": "#8b7355",
-      "detected": false,
-      "template": "studio_apartment"
-    },
-    {
-      "id": "3ecf14c1",
+      "id": "e73ddd76",
       "type": "sofa",
       "name": "Sofa",
       "category": "living",
       "position": [
-        1.5,
+        0,
         0.4,
-        -1.0
+        -1.8
       ],
       "rotation": [
         0,
-        -1.57,
+        0,
         0
       ],
       "scale": [
-        2.0,
+        2,
         0.8,
         0.9
       ],
-      "color": "#6b5b4f",
-      "detected": false,
-      "template": "studio_apartment"
+      "color": "#888888"
     },
     {
-      "id": "79a5ff35",
+      "id": "3f59dd50",
       "type": "coffee_table",
       "name": "Coffee Table",
       "category": "living",
       "position": [
         0,
         0.2,
-        0
+        -0.3
       ],
       "rotation": [
         0,
@@ -71,95 +45,21 @@
         0
       ],
       "scale": [
-        1.0,
+        1,
         0.4,
         0.6
       ],
-      "color": "#a0826d",
-      "detected": false,
-      "template": "studio_apartment"
+      "color": "#888888"
     },
     {
-      "id": "98941739",
+      "id": "5e5150ca",
       "type": "tv_stand",
       "name": "TV Stand",
       "category": "living",
       "position": [
-        -3.0,
+        0,
         0.25,
-        0
-      ],
-      "rotation": [
-        0,
-        1.57,
-        0
-      ],
-      "scale": [
-        1.4,
-        0.5,
-        0.4
-      ],
-      "color": "#323232",
-      "detected": false,
-      "template": "studio_apartment"
-    },
-    {
-      "id": "afbcaef9",
-      "type": "dining_table",
-      "name": "Dining Table",
-      "category": "kitchen",
-      "position": [
-        0,
-        0.39,
-        2.5
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        1.4,
-        0.78,
-        0.9
-      ],
-      "color": "#a0826d",
-      "detected": false,
-      "template": "studio_apartment"
-    },
-    {
-      "id": "0da7f124",
-      "type": "dining_chair",
-      "name": "Dining Chair",
-      "category": "kitchen",
-      "position": [
-        -0.5,
-        0.45,
-        1.8
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.45,
-        0.9,
-        0.45
-      ],
-      "color": "#654321",
-      "detected": false,
-      "template": "studio_apartment"
-    },
-    {
-      "id": "3db25de0",
-      "type": "dining_chair",
-      "name": "Dining Chair",
-      "category": "kitchen",
-      "position": [
-        0.5,
-        0.45,
-        3.2
+        3
       ],
       "rotation": [
         0,
@@ -167,47 +67,21 @@
         0
       ],
       "scale": [
-        0.45,
-        0.9,
-        0.45
+        1.4,
+        0.5,
+        0.4
       ],
-      "color": "#654321",
-      "detected": false,
-      "template": "studio_apartment"
+      "color": "#888888"
     },
     {
-      "id": "4af6c84d",
-      "type": "lamp_floor",
-      "name": "Floor Lamp",
-      "category": "decor",
-      "position": [
-        2.8,
-        0.75,
-        -2.5
-      ],
-      "rotation": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.3,
-        1.5,
-        0.3
-      ],
-      "color": "#ffdc50",
-      "detected": false,
-      "template": "studio_apartment"
-    },
-    {
-      "id": "3611524b",
+      "id": "7f8002fb",
       "type": "rug",
       "name": "Rug",
       "category": "living",
       "position": [
         0,
         0.01,
-        0
+        -0.5
       ],
       "rotation": [
         0,
@@ -219,19 +93,17 @@
         0.02,
         3.5
       ],
-      "color": "#a05050",
-      "detected": false,
-      "template": "studio_apartment"
+      "color": "#888888"
     },
     {
-      "id": "2170e04f",
-      "type": "plant_small",
-      "name": "Small Plant",
+      "id": "cd4daeb0",
+      "type": "lamp_floor",
+      "name": "Floor Lamp",
       "category": "decor",
       "position": [
-        -3.0,
-        0.225,
-        3.0
+        -2.493389676566347,
+        0.75,
+        -2.2
       ],
       "rotation": [
         0,
@@ -240,12 +112,120 @@
       ],
       "scale": [
         0.3,
-        0.45,
+        1.5,
         0.3
       ],
-      "color": "#228b22",
-      "detected": false,
-      "template": "studio_apartment"
+      "color": "#888888"
+    },
+    {
+      "id": "9bcad589",
+      "type": "plant_large",
+      "name": "Large Plant",
+      "category": "decor",
+      "position": [
+        2.8,
+        0.6,
+        -2.8
+      ],
+      "rotation": [
+        0,
+        0.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        1.2,
+        0.5
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "2c9f58b7",
+      "type": "painting",
+      "name": "Wall Painting",
+      "category": "decor",
+      "position": [
+        0,
+        1.8,
+        -4.759808416586051
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.8,
+        0.6,
+        0.05
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "8fb79e63",
+      "type": "armchair",
+      "name": "Armchair",
+      "category": "living",
+      "position": [
+        -2.2,
+        0.425,
+        0
+      ],
+      "rotation": [
+        0,
+        1.2,
+        0
+      ],
+      "scale": [
+        0.9,
+        0.85,
+        0.9
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "5b3be250",
+      "type": "bookshelf",
+      "name": "Bookshelf",
+      "category": "living",
+      "position": [
+        3.2,
+        0.9,
+        0
+      ],
+      "rotation": [
+        0,
+        -1.57,
+        0
+      ],
+      "scale": [
+        0.8,
+        1.8,
+        0.35
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "13dbd326",
+      "type": "curtain",
+      "name": "Curtain",
+      "category": "decor",
+      "position": [
+        -3.96,
+        1.4,
+        -1.5
+      ],
+      "rotation": [
+        0,
+        1.57,
+        0
+      ],
+      "scale": [
+        1.2,
+        2.2,
+        0.08
+      ],
+      "color": "#888888"
     }
   ],
   "detected_assets": [
@@ -854,7 +834,7 @@
   ],
   "created_at": "2026-05-23T23:48:28.477832",
   "status": "generated",
-  "thumbnail": "data:image/jpeg;base64,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",
-  "updated_at": "2026-05-25T21:04:28.590891",
-  "applied_template": "studio_apartment"
+  "thumbnail": "data:image/jpeg;base64,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",
+  "updated_at": "2026-05-25T22:16:33.898230",
+  "applied_template": "modern_living"
 }
