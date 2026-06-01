@@ -25,12 +25,10 @@ class PricingPlanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'price' => 'required|numeric|min:0',
+            'name'           => 'required|string|max:255',
+            'description'    => 'nullable|string|max:1000',
+            'price'          => 'required|numeric|min:0',
             'original_price' => 'nullable|numeric|min:0',
-            'features' => 'nullable|array',
-            'features.*.feature' => 'nullable|string|max:255',
         ]);
 
         $data = $request->only('name', 'description', 'price', 'original_price');
@@ -47,7 +45,6 @@ class PricingPlanController extends Controller
         }
 
         $plan = PricingPlan::create($data);
-        $this->syncFeatures($plan, $request->input('features', []));
 
         return redirect('/admin/pricing-plans')->with('success', 'Pricing plan added successfully.');
     }
@@ -69,12 +66,14 @@ class PricingPlanController extends Controller
         $plan = PricingPlan::with('features')->findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'price' => 'required|numeric|min:0',
-            'original_price' => 'nullable|numeric|min:0',
-            'features' => 'nullable|array',
-            'features.*.feature' => 'nullable|string|max:255',
+            'name'                       => 'required|string|max:255',
+            'description'                => 'nullable|string|max:1000',
+            'price'                      => 'required|numeric|min:0',
+            'original_price'             => 'nullable|numeric|min:0',
+            'features'                   => 'nullable|array',
+            'features.*.feature_key'     => 'nullable|string|max:100',
+            'features.*.feature_label'   => 'nullable|string|max:255',
+            'features.*.feature_value'   => 'nullable|string|max:255',
         ]);
 
         $data = $request->only('name', 'description', 'price', 'original_price');
@@ -91,7 +90,7 @@ class PricingPlanController extends Controller
         }
 
         $plan->update($data);
-        $this->syncFeatures($plan, $request->input('features', []));
+        $this->updateFeatures($plan, $request->input('features', []));
 
         return redirect('/admin/pricing-plans')->with('success', 'Pricing plan updated successfully.');
     }
@@ -104,20 +103,22 @@ class PricingPlanController extends Controller
         return redirect('/admin/pricing-plans')->with('success', 'Pricing plan deleted successfully.');
     }
 
-    private function syncFeatures(PricingPlan $plan, array $features): void
+    private function updateFeatures(PricingPlan $plan, array $features): void
     {
-        $plan->features()->delete();
-
         foreach ($features as $featureInput) {
-            $featureName = trim((string) ($featureInput['feature'] ?? ''));
-            if ($featureName === '') {
+            $key = trim((string) ($featureInput['feature_key'] ?? ''));
+            if ($key === '') {
                 continue;
             }
 
-            PlanFeature::create([
-                'pricing_plan_id' => $plan->id,
-                'feature' => $featureName,
-                'is_available' => isset($featureInput['is_available']),
+            $label = trim((string) ($featureInput['feature_label'] ?? ''));
+            $value = trim((string) ($featureInput['feature_value'] ?? ''));
+
+            $plan->features()->where('feature_key', $key)->update([
+                'feature_label' => $label,
+                'feature_value' => $value,
+                'feature'       => $label, // keep legacy column in sync
+                'is_available'  => isset($featureInput['is_available']),
             ]);
         }
     }

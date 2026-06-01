@@ -15,11 +15,12 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    $order = ['free' => 1, 'pro' => 2, 'enterprise' => 3];
     $pricingPlans = PricingPlan::with('features')
         ->where('is_active', true)
-        ->orderByDesc('is_popular')
-        ->orderBy('price')
-        ->get();
+        ->get()
+        ->sortBy(fn($p) => $order[$p->slug] ?? 99)
+        ->values();
 
     return view('welcome', compact('pricingPlans'));
 });

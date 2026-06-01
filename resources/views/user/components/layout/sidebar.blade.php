@@ -20,10 +20,7 @@
         mobileOpen ? 'translate-x-0' : '-translate-x-full',
         effectiveCollapsed ? 'md:w-20 md:items-center md:px-3 md:py-4' : 'md:w-60 md:p-4'
     ]"
-    :style="{
-        width: effectiveCollapsed ? '80px' : '240px',
-        visibility: ready ? 'visible' : 'hidden'
-    }"
+    :style="{ width: effectiveCollapsed ? '80px' : '240px' }"
     class="bg-card shadow-sm flex-col z-40 overflow-hidden
         fixed top-0 left-0 bottom-0 w-65 flex p-4
         md:translate-x-0 md:top-4 md:left-4 md:bottom-4 md:rounded-[20px]"
@@ -38,11 +35,11 @@
     </button>
 
     {{-- Logo --}}
-    <div :class="effectiveCollapsed ? 'md:justify-center md:w-full md:px-0' : 'px-2'" class="px-2 pt-2 pb-6 flex items-center gap-2.5">
+    <div :class="effectiveCollapsed ? 'md:justify-center md:w-full md:px-0' : 'px-2'" class="sb-logo px-2 pt-2 pb-6 flex items-center gap-2.5">
         <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
             <span class="text-primary-foreground font-bold text-sm">R</span>
         </div>
-        <div :class="effectiveCollapsed && 'md:hidden'" class="flex flex-col">
+        <div :class="effectiveCollapsed && 'md:hidden'" class="sb-hide flex flex-col">
             <div class="font-['Playfair_Display'] italic text-[17px] text-secondary leading-tight whitespace-nowrap">
                 RenovaSim
             </div>
@@ -53,7 +50,7 @@
     </div>
 
     {{-- Menu label --}}
-    <div :class="effectiveCollapsed && 'md:hidden'" class="text-[10px] uppercase tracking-wider text-muted-foreground px-3 pb-2">
+    <div :class="effectiveCollapsed && 'md:hidden'" class="sb-hide text-[10px] uppercase tracking-wider text-muted-foreground px-3 pb-2">
         Menu
     </div>
 
@@ -84,7 +81,7 @@
                         ::class="effectiveCollapsed ? 'w-5 h-5' : 'w-[18px] h-[18px]'"
                     />
                 </span>
-                <div :class="effectiveCollapsed && 'md:hidden'" class="flex flex-col">
+                <div :class="effectiveCollapsed && 'md:hidden'" class="sb-hide flex flex-col">
                     <span class="text-sm font-medium leading-tight whitespace-nowrap">{{ $it['label'] }}</span>
                     @if ($it['subtitle'])
                         <span @class([
@@ -101,7 +98,7 @@
     </nav>
 
     {{-- Tip of the day --}}
-    <div :class="effectiveCollapsed && 'md:hidden'" class="mt-auto bg-muted rounded-2xl p-4">
+    <div :class="effectiveCollapsed && 'md:hidden'" class="sb-hide mt-auto bg-muted rounded-2xl p-4">
         <div class="text-xs font-medium text-card-foreground mb-1 whitespace-nowrap">Tip of the day</div>
         <p class="text-[11px] text-muted-foreground leading-relaxed">
             Use RAI to generate a detailed estimate from a simple project description.

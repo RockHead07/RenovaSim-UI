@@ -51,6 +51,7 @@
                         <tr class="border-b border-border/10">
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">ID</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Name</th>
+                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Slug</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Price</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Features</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Popular</th>
@@ -60,13 +61,14 @@
                     </thead>
                     <tbody>
                         <template x-if="filtered().length === 0">
-                            <tr><td colspan="7" class="text-center text-paragraph text-sm py-8">No plans found.</td></tr>
+                            <tr><td colspan="8" class="text-center text-paragraph text-sm py-8">No plans found.</td></tr>
                         </template>
                         <template x-for="p in filtered()" :key="p.id">
                             <tr class="hover:bg-muted/50 transition-colors duration-200 border-b border-border/5">
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="'#' + p.id"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-foreground" x-text="p.name"></td>
-                                <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="'$' + p.price + '/mo'"></td>
+                                <td class="px-5 py-3 text-xs font-mono text-paragraph bg-muted/30" x-text="p.slug"></td>
+                                <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="formatRp(p.price)"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="p.featuresCount"></td>
                                 <td class="px-5 py-3 text-sm font-sans text-foreground">
                                     <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="p.popular ? 'bg-status-warning/15 text-status-warning' : 'bg-red-500/15 text-red-500'" x-text="p.popular ? 'Yes' : 'No'"></span>
@@ -91,37 +93,49 @@
 </div>
 @endsection
 
+@php
+    $plansJson = $plans->map(fn($p) => [
+        'id'            => $p->id,
+        'name'          => $p->name,
+        'slug'          => $p->slug,
+        'price'         => (float) $p->price,
+        'popular'       => (bool) $p->is_popular,
+        'active'        => (bool) $p->is_active,
+        'featuresCount' => $p->features->count(),
+    ]);
+@endphp
+
 @push('scripts')
 <script>
 function pricingPlansPage() {
     return {
         search: '',
-        plans: [],
-        async init() {
-            try {
-                const res = await apiFetch('/api/pricing-plans');
-                const raw = res.data ?? [];
-                this.plans = raw.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    price: Number(p.price).toFixed(2),
-                    popular: !!p.is_popular,
-                    active: !!p.is_active,
-                    featuresCount: p.features_count ?? (p.features ? p.features.length : 0),
-                }));
-            } catch (e) {
-                console.error('Failed to fetch pricing plans:', e);
-            }
+        plans: @json($plansJson),
+
+        formatRp(price) {
+            if (price === 0) return 'Gratis';
+            return 'Rp ' + new Intl.NumberFormat('id-ID').format(price) + '/bln';
         },
         filtered() {
             const q = this.search.toLowerCase();
-            return this.plans.filter(p => p.name.toLowerCase().includes(q));
+            return this.plans.filter(p =>
+                p.name.toLowerCase().includes(q) ||
+                p.slug.toLowerCase().includes(q)
+            );
         },
         async deletePlan(id) {
-            if (!confirm('Are you sure?')) return;
+            if (!confirm('Are you sure you want to delete this plan?')) return;
             try {
-                await apiFetch(`/api/pricing-plans/${id}`, { method: 'DELETE' });
-                this.plans = this.plans.filter(p => p.id !== id);
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const res = await fetch(`/admin/pricing-plans/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                });
+                if (res.ok || res.redirected) {
+                    this.plans = this.plans.filter(p => p.id !== id);
+                } else {
+                    alert('Error deleting plan');
+                }
             } catch (e) {
                 alert('Error deleting plan');
             }

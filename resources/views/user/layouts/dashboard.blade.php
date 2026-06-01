@@ -14,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'RenovaSim' }}</title>
     {{-- Prevent sidebar FOUC: read localStorage synchronously before render --}}
+    {{-- Prevent sidebar FOUC: read localStorage synchronously before render --}}
     <script>
     (function() {
         var c = localStorage.getItem('sidebar-collapsed') === 'true';
@@ -23,13 +24,37 @@
     </script>
     <style>
         @media (min-width: 768px) {
-            html[data-sb="1"] aside { width: 80px; }
-            html[data-sb="0"] aside { width: 240px; }
+            /* Width + padding */
+            html[data-sb="1"] aside { width: 80px; padding: 12px; }
+            html[data-sb="0"] aside { width: 240px; padding: 16px; }
             html[data-sb="1"] main  { padding-left: 112px; }
             html[data-sb="0"] main  { padding-left: 264px; }
+
+            /* Hide text elements when collapsed */
+            html[data-sb="1"] aside .sb-hide { display: none; }
+
+            /* Center logo when collapsed */
+            html[data-sb="1"] aside .sb-logo {
+                justify-content: center;
+                width: 100%;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            /* Icon-only nav items when collapsed */
+            html[data-sb="1"] aside nav {
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+            }
+            html[data-sb="1"] aside nav a {
+                width: 44px;
+                height: 44px;
+                padding: 0;
+                gap: 0;
+                justify-content: center;
+            }
         }
-        /* Hide sidebar until Alpine is ready to prevent content flash */
-        aside { visibility: hidden; }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/user/theme/css/user.css', 'resources/user/theme/js/user.js'])
 </head>
@@ -46,7 +71,11 @@
             const mqMd     = window.matchMedia('(min-width: 768px)');
             mqTablet.addEventListener('change', (e) => { this.isTablet = e.matches; });
             mqMd.addEventListener('change',     (e) => { this.isMdUp   = e.matches; });
-            this.$watch('collapsed', val => localStorage.setItem('sidebar-collapsed', val));
+            this.$watch('collapsed', val => {
+                localStorage.setItem('sidebar-collapsed', val);
+                var t = window.matchMedia('(min-width: 768px) and (max-width: 1023px)').matches;
+                document.documentElement.setAttribute('data-sb', (t || val) ? '1' : '0');
+            });
             this.$nextTick(() => { this.ready = true; });
         },
         get effectiveCollapsed() { return this.isTablet ? true : this.collapsed; },

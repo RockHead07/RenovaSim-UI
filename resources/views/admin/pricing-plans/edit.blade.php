@@ -137,24 +137,48 @@
     </div>
 
     <div class="space-y-3">
-      <div class="flex items-center justify-between">
-        <label class="block text-xs font-sans uppercase tracking-widest text-paragraph">Features</label>
-        <button type="button" @click="addFeature()" class="px-3 py-1.5 rounded text-xs font-sans font-medium bg-foreground text-background transition hover:opacity-85">Add Feature</button>
+      <label class="block text-xs font-sans uppercase tracking-widest text-paragraph">Features</label>
+      <div class="tidy-panel rounded-lg overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-white/10">
+              <th class="text-left px-4 py-2.5 text-[10px] uppercase tracking-widest text-paragraph font-normal w-48">Key</th>
+              <th class="text-left px-4 py-2.5 text-[10px] uppercase tracking-widest text-paragraph font-normal">Label</th>
+              <th class="text-left px-4 py-2.5 text-[10px] uppercase tracking-widest text-paragraph font-normal w-36">Value</th>
+              <th class="text-left px-4 py-2.5 text-[10px] uppercase tracking-widest text-paragraph font-normal w-28">Available</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($plan->features as $i => $feature)
+            <tr class="border-b border-white/5 last:border-0">
+              <td class="px-4 py-3">
+                <input type="hidden" name="features[{{ $i }}][feature_key]" value="{{ $feature->feature_key }}">
+                <span class="text-xs font-mono text-paragraph bg-white/5 px-2 py-1 rounded whitespace-nowrap">{{ $feature->feature_key }}</span>
+              </td>
+              <td class="px-4 py-3">
+                <input type="text" name="features[{{ $i }}][feature_label]"
+                       value="{{ old("features.$i.feature_label", $feature->feature_label) }}"
+                       class="w-full bg-background border border-border text-foreground rounded-lg px-3 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary hover:border-primary/40 transition-colors">
+              </td>
+              <td class="px-4 py-3">
+                <input type="text" name="features[{{ $i }}][feature_value]"
+                       value="{{ old("features.$i.feature_value", $feature->feature_value) }}"
+                       placeholder="2 / unlimited / true"
+                       class="w-full bg-background border border-border text-foreground rounded-lg px-3 py-2 text-sm font-sans font-mono focus:outline-none focus:ring-1 focus:ring-primary hover:border-primary/40 transition-colors">
+              </td>
+              <td class="px-4 py-3">
+                <div class="checkbox-wrapper-10">
+                  <input id="feat_avail_{{ $i }}" name="features[{{ $i }}][is_available]"
+                         type="checkbox" value="1" class="tgl tgl-flip"
+                         {{ old("features.$i.is_available", $feature->is_available) ? 'checked' : '' }}>
+                  <label class="tgl-btn" data-tg-off="No" data-tg-on="Yes" for="feat_avail_{{ $i }}"></label>
+                </div>
+              </td>
+            </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
-
-      <template x-for="(feature, index) in features" :key="index">
-        <div class="tidy-panel rounded-lg p-3 grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 items-center">
-          <input :name="`features[${index}][feature]`" type="text" x-model="feature.feature" placeholder="Feature name" class="sm:col-span-8 bg-background border border-border text-foreground rounded-lg px-4 py-2.5 text-sm font-sans transition-colors hover:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary">
-          <div class="sm:col-span-3 inline-flex items-center justify-between sm:justify-center gap-2">
-            <span class="text-xs text-foreground">Included</span>
-            <div class="checkbox-wrapper-10">
-              <input :id="`feature_available_edit_${index}`" :name="`features[${index}][is_available]`" type="checkbox" value="1" x-model="feature.is_available" class="tgl tgl-flip">
-              <label class="tgl-btn" data-tg-off="No" data-tg-on="Yes" :for="`feature_available_edit_${index}`"></label>
-            </div>
-          </div>
-          <button type="button" @click="removeFeature(index)" class="sm:col-span-1 justify-self-end text-destructive text-base px-2 py-1 rounded transition hover:bg-destructive/10">✕</button>
-        </div>
-      </template>
     </div>
 
     <div class="pt-2">
@@ -165,20 +189,11 @@
 @endsection
 
 @push('scripts')
-@php
-  $initialFeatures = old('features', $plan->features->map(function ($feature) {
-    return [
-      'feature' => $feature->feature,
-      'is_available' => (bool) $feature->is_available,
-    ];
-  })->toArray());
-@endphp
 <script>
 function planForm() {
   return {
     originalPrice: {{ old('original_price', $plan->original_price) ? (float) old('original_price', $plan->original_price) : 'null' }},
     finalPrice: {{ (float) old('price', $plan->price) }},
-    features: @json($initialFeatures),
     discountPercent() {
       if (!this.originalPrice || !this.finalPrice || this.originalPrice <= this.finalPrice) return 0;
       return Math.round(((this.originalPrice - this.finalPrice) / this.originalPrice) * 100);
@@ -195,16 +210,6 @@ function planForm() {
     },
     hasInvalidDiscount() {
       return !!this.originalPrice && !!this.finalPrice && this.originalPrice <= this.finalPrice;
-    },
-    init() {
-      if (!this.features.length) this.addFeature();
-    },
-    addFeature() {
-      this.features.push({ feature: '', is_available: true });
-    },
-    removeFeature(index) {
-      this.features.splice(index, 1);
-      if (!this.features.length) this.addFeature();
     },
   };
 }

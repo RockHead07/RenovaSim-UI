@@ -51,7 +51,7 @@
             get wizardValid() { return this.jobType.length > 0 && parseFloat(this.area) >= 1; },
             get aiValid() { return this.description.trim().length >= 10; },
         }"
-        class="flex-1 flex flex-col"
+        class="flex-1 flex flex-col min-h-screen justify-center items-center"
     >
         {{-- Step Indicator (shown when a mode is selected) --}}
         <div x-show="mode !== null" x-transition class="flex flex-col items-center mt-7 px-4" style="display: none">
@@ -95,7 +95,7 @@
         @endif
 
         {{-- Main Card --}}
-        <div class="flex-1 flex justify-center px-4 mt-6">
+        <div class="flex-1 flex justify-center items-center px-4 mt-6">
             <div class="w-full max-w-[640px] bg-card rounded-2xl p-5 sm:p-9 shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
 
                 {{-- ============================================ --}}
@@ -416,39 +416,61 @@
          style="background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);">
 
         <style>
-            @keyframes thinking-pulse {
-                0%, 100% { transform: scale(1); opacity: 0.9; }
-                50% { transform: scale(1.05); opacity: 1; }
-            }
-            @keyframes dot-appear {
-                0%, 100% { opacity: 0.2; transform: scale(0.8); }
-                50% { opacity: 1; transform: scale(1.2); }
+            @keyframes xbox-spin {
+                0%   { transform: rotate(0deg); }
+                100% { transform: rotate(-360deg); }
             }
             @keyframes dot-blink {
                 0%, 100% { opacity: 0; }
-                50% { opacity: 1; }
+                50%       { opacity: 1; }
+            }
+            #thinking-overlay .xb-logo {
+                width: 240px; height: 240px; position: relative;
+            }
+            #thinking-overlay .xb-ring {
+                padding: 18px;
+                border: 6px solid transparent;
+                border-top-color: #40A800;
+                border-radius: 50%;
+                width: 100%; height: 100%;
+                animation: xbox-spin 2.5s linear infinite;
+            }
+            #thinking-overlay .xb-hold {
+                position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            }
+            #thinking-overlay .xb-icon {
+                background: #fff;
+                width: 76px; height: 76px;
+                border-radius: 50%; overflow: hidden;
+                position: absolute; inset: 0; margin: auto;
+            }
+            #thinking-overlay .xb-icon::after,
+            #thinking-overlay .xb-icon::before {
+                content: '';
+                display: block;
+                border-top: 10px solid #222;
+                border-radius: 50%;
+                height: 90%; width: 120%;
+                transform: rotate(-45deg);
+                position: absolute;
+                right: -30%; top: 15%;
+            }
+            #thinking-overlay .xb-icon::before {
+                left: -30%;
+                transform: rotate(45deg);
             }
         </style>
 
-        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
-             xmlns="http://www.w3.org/2000/svg"
-             style="animation: thinking-pulse 2s ease-in-out infinite;">
-            <circle cx="60" cy="60" r="55" stroke="white" stroke-width="1.5"
-                    fill="none" opacity="0.6"/>
-            <circle cx="60" cy="38" r="14" stroke="white" stroke-width="1.5" fill="none"/>
-            <path d="M35 85 Q38 68 52 65 Q60 63 68 65 Q82 68 85 85"
-                  stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-            <path d="M52 75 Q50 70 54 66"
-                  stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-            <path d="M54 66 Q57 62 62 64"
-                  stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-            <circle cx="78" cy="28" r="2" fill="white" opacity="0.4"
-                    style="animation: dot-appear 1.5s ease-in-out infinite 0s;"/>
-            <circle cx="86" cy="22" r="2.5" fill="white" opacity="0.6"
-                    style="animation: dot-appear 1.5s ease-in-out infinite 0.3s;"/>
-            <circle cx="95" cy="15" r="3" fill="white" opacity="0.8"
-                    style="animation: dot-appear 1.5s ease-in-out infinite 0.6s;"/>
-        </svg>
+        <div class="xb-logo">
+            <div class="xb-ring">
+                <div class="xb-ring">
+                    <div class="xb-ring"></div>
+                </div>
+            </div>
+            <div class="xb-hold">
+                <div class="xb-icon"></div>
+            </div>
+        </div>
 
         <p style="color: white; font-family: 'Playfair Display', serif; font-style: italic;
                   font-size: 18px; margin-top: 28px; letter-spacing: 0.05em;">

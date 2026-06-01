@@ -26,29 +26,27 @@ class PricingPlan extends Model
 
     protected static function booted(): void
     {
-        static::saving(function (self $plan): void {
+        static::creating(function (self $plan): void {
+            // Slug is only auto-generated on CREATE, never on update
             if (is_string($plan->slug) && trim($plan->slug) !== '') {
                 $plan->slug = Str::slug($plan->slug);
                 return;
             }
-
             $base = Str::slug((string) $plan->name);
             $base = $base !== '' ? $base : 'plan';
-
             $candidate = $base;
             $i = 2;
             while (
                 static::query()
                     ->where('slug', $candidate)
-                    ->when($plan->exists, fn ($q) => $q->where('id', '!=', $plan->id))
                     ->exists()
             ) {
                 $candidate = "{$base}-{$i}";
                 $i++;
             }
-
             $plan->slug = $candidate;
         });
+        // Note: NO saving hook — slug never changes after creation
     }
 
     public function features()
