@@ -44,6 +44,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'account_status',
         'timezone',
         'language',
+        'default_location',
         'job_title',
         'plan',
         'pricing_plan_id',

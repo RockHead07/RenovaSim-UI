@@ -15,12 +15,11 @@
         </p>
     </div>
     <div class="flex items-center gap-2 shrink-0">
-        <button
-            type="button"
+        <a href="{{ route('user.settings') }}"
             class="flex items-center gap-2 bg-card text-card-foreground rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm shadow-sm hover:bg-muted transition-colors"
         >
             <x-lucide-settings class="w-[15px] h-[15px]" /> <span>Account</span>
-        </button>
+        </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button

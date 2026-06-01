@@ -98,16 +98,4 @@
             </div>
         </template>
     </div>
-
-    {{-- Upcoming events (static) --}}
-    <div class="mt-auto pt-5 border-t border-border/60">
-        <div class="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Upcoming</div>
-        <div class="flex items-center gap-3">
-            <div class="w-1.5 h-9 rounded-full bg-primary"></div>
-            <div>
-                <div class="text-sm font-medium text-card-foreground">Site visit · Pak Budi</div>
-                <div class="text-[11px] text-muted-foreground">Tomorrow · 10:00 AM</div>
-            </div>
-        </div>
-    </div>
 </div>

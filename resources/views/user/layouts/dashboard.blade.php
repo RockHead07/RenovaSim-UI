@@ -57,6 +57,7 @@
         }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/user/theme/css/user.css', 'resources/user/theme/js/user.js'])
+    @stack('head')
 </head>
 <body
     class="theme-user min-h-screen bg-background"
@@ -120,5 +121,6 @@
             {!! $slot !!}
         </div>
     </main>
+    @stack('scripts')
 </body>
 </html>
