@@ -21,9 +21,10 @@ class UserSettingsController extends Controller
     public function updateProfile(Request $request)
     {
         $user = auth()->user();
+        $service = app(\App\Services\SupabaseService::class);
 
         $request->validate([
-            'username'         => 'required|string|max:100|unique:users,username,' . $user->id,
+            'username'         => 'required|string|max:100',
             'first_name'       => 'nullable|string|max:100',
             'last_name'        => 'nullable|string|max:100',
             'phone'            => 'nullable|string|max:20',
@@ -50,7 +51,13 @@ class UserSettingsController extends Controller
             $data['avatar_path'] = null;
         }
 
-        $user->update($data);
+        // Extract user ID safely from array/object
+        $userId = is_array($user->getAttributes()) 
+            ? ($user->getAttributes()['id'] ?? $user->id) 
+            : $user->id;
+
+        // Use SupabaseService to update database
+        $service->update('users', $userId, $data);
 
         return back()->with('success_profile', 'Profil berhasil diperbarui.');
     }
@@ -58,6 +65,7 @@ class UserSettingsController extends Controller
     public function updatePassword(Request $request)
     {
         $user = auth()->user();
+        $service = app(\App\Services\SupabaseService::class);
 
         $request->validate([
             'current_password' => 'required|string',
@@ -68,7 +76,13 @@ class UserSettingsController extends Controller
             return back()->withErrors(['current_password' => 'Password saat ini tidak sesuai.'])->with('tab', 'password');
         }
 
-        $user->update(['password' => Hash::make($request->password)]);
+        // Extract user ID safely
+        $userId = is_array($user->getAttributes()) 
+            ? ($user->getAttributes()['id'] ?? $user->id) 
+            : $user->id;
+
+        // Use SupabaseService to update password
+        $service->update('users', $userId, ['password' => Hash::make($request->password)]);
 
         return back()->with('success_password', 'Password berhasil diperbarui.')->with('tab', 'password');
     }

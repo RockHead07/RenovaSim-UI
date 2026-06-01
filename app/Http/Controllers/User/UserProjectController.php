@@ -14,12 +14,49 @@ class UserProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::where('user_id', auth()->id())
-            ->with(['estimations' => fn($q) => $q->latest()->limit(1)])
-            ->latest()
-            ->get();
+        $service = app(\App\Services\SupabaseService::class);
+        
+        // Fetch projects via Supabase REST API
+        $projects = $service->select('projects', '*', ['user_id' => auth()->id()]);
+        
+        // Fetch estimations and filter invalid projects
+        $validProjects = [];
+        foreach ($projects as $project) {
+            if (!is_array($project)) {
+                $project = (array) $project;
+            }
+            
+            $projectId = $project['id'] ?? null;
+            if (!$projectId) {
+                continue;
+            }
+            
+            // Fetch latest estimation for this project
+            $estimations = $service->select('estimations', '*', ['project_id' => $projectId]);
+            $project['latest_estimation'] = count($estimations) > 0 ? $estimations[0] : null;
+            
+            $validProjects[] = $project;
+        }
+        
+        // Sort by created_at descending
+        usort($validProjects, function($a, $b) {
+            $aTime = 0;
+            $bTime = 0;
+            
+            if (is_array($a) && isset($a['created_at']) && !empty($a['created_at'])) {
+                $aTime = strtotime($a['created_at']);
+                if ($aTime === false) $aTime = 0;
+            }
+            
+            if (is_array($b) && isset($b['created_at']) && !empty($b['created_at'])) {
+                $bTime = strtotime($b['created_at']);
+                if ($bTime === false) $bTime = 0;
+            }
+            
+            return $bTime - $aTime;
+        });
 
-        return view('user.pages.projects', compact('projects'));
+        return view('user.pages.projects', ['projects' => $validProjects]);
     }
 
     /**
