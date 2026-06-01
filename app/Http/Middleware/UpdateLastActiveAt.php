@@ -5,9 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\User;
 
 class UpdateLastActiveAt
 {
@@ -16,15 +14,20 @@ class UpdateLastActiveAt
         $response = $next($request);
 
         $user = Auth::user();
-        if ($user instanceof User && Schema::hasColumn('users', 'last_active_at')) {
-            $updates = ['last_active_at' => now()];
+        if ($user) {
+            try {
+                $id = $user->getAuthIdentifier();
+                $updates = ['last_active_at' => now()->toISOString()];
 
-            $accountStatus = (string) $user->getAttribute('account_status');
-            if ($accountStatus !== 'suspended') {
-                $updates['account_status'] = 'active';
+                $accountStatus = (string) ($user->getAttribute('account_status') ?? '');
+                if ($accountStatus !== 'suspended') {
+                    $updates['account_status'] = 'active';
+                }
+
+                app(\App\Services\SupabaseService::class)->update('users', $id, $updates);
+            } catch (\Throwable) {
+                // Non-critical — don't break the response if tracking fails
             }
-
-            $user->forceFill($updates)->save();
         }
 
         return $response;

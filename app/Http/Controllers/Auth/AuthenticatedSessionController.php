@@ -11,32 +11,23 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        // Get user from session (set by LoginRequest)
-        $userData = $request->session()->get('auth_user');
-        
-        if (!$userData) {
-            return redirect()->intended(route('login'));
-        }
-        
-        $userArray = is_array($userData) ? $userData : (array) $userData;
-        $isAdmin = ($userArray['is_admin'] ?? false) || ($userArray['email'] ?? null) === 'admin@gmail.com' || ($userArray['role'] ?? null) === 'admin';
+        $user = Auth::user();
+        $role    = $user?->getAttribute('role');
+        $isAdmin = $user && (
+            $user->getAttribute('is_admin') ||
+            in_array($role, ['admin', 'owner', 'super_admin'], true) ||
+            $user->getAttribute('email') === 'admin@gmail.com'
+        );
 
         if ($isAdmin) {
             return redirect()->intended(route('admin.dashboard', absolute: false));
@@ -45,15 +36,10 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended('/user/dashboard');
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

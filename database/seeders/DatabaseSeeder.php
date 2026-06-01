@@ -2,47 +2,49 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Database\Seeders\OwnerSeeder;
-use Database\Seeders\PartnerSeeder;
+use App\Services\SupabaseService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
+        $supabase = app(SupabaseService::class);
+
         // Create admin user
-        User::firstOrCreate(
-            ['email' => 'admin@gmail.com'],
-            [
-                'username' => 'admin',
-                'email' => 'admin@gmail.com',
-                'password' => bcrypt('admin123'),
-                'is_admin' => true,
-                'account_status' => 'active',
-            ]
-        );
+        $this->upsertUser($supabase, [
+            'email'          => 'admin@gmail.com',
+            'username'       => 'admin',
+            'password'       => Hash::make('admin123'),
+            'role'           => 'admin',
+            'is_admin'       => true,
+            'account_status' => 'active',
+        ]);
 
         // Create test user
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'username' => 'testuser',
-                'email' => 'test@example.com',
-                'password' => bcrypt('password'),
-                'account_status' => 'active',
-            ]
-        );
+        $this->upsertUser($supabase, [
+            'email'          => 'test@example.com',
+            'username'       => 'testuser',
+            'password'       => Hash::make('password'),
+            'role'           => 'user',
+            'is_admin'       => false,
+            'account_status' => 'active',
+        ]);
 
         $this->call([
             OwnerSeeder::class,
-            PartnerSeeder::class,
         ]);
+    }
+
+    private function upsertUser(SupabaseService $supabase, array $data): void
+    {
+        $existing = $supabase->select('users', 'id', ['email' => $data['email']]);
+        if (!empty($existing)) {
+            $supabase->update('users', $existing[0]['id'], $data);
+        } else {
+            $supabase->insert('users', $data);
+        }
+        $this->command?->info("User {$data['email']} ready.");
     }
 }

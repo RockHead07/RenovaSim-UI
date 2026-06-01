@@ -160,7 +160,19 @@ class RoomController extends Controller
      */
     public function adminIndex()
     {
-        $rooms = Room::with('user')->orderBy('created_at', 'desc')->get();
+        $supabase = app(\App\Services\SupabaseService::class);
+        $rawRooms = $supabase->select('rooms', '*');
+        $users    = $supabase->select('users', 'id,username,email');
+        $userMap  = array_column($users, null, 'id');
+
+        usort($rawRooms, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
+
+        $rooms = collect($rawRooms)->map(function ($r) use ($userMap) {
+            $u = $userMap[$r['user_id']] ?? null;
+            $r['user'] = $u ? (object) $u : null;
+            return (object) $r;
+        });
+
         return view('admin.rooms.index', compact('rooms'));
     }
 

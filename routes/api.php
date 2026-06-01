@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\PricingPlanController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PlanFeatureController;
+use App\Http\Controllers\Api\PublicApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,6 +20,17 @@ use Illuminate\Support\Facades\Route;
 | Protected by auth:sanctum + admin middleware for admin endpoints.
 |
 */
+
+// ─── Public API v1 (Bearer token auth via RENOVASIM_API_KEY) ─────────
+Route::prefix('v1')->group(function () {
+    Route::get('users',          [PublicApiController::class, 'users']);
+    Route::get('users/{id}',     [PublicApiController::class, 'user']);
+    Route::get('projects',       [PublicApiController::class, 'projects']);
+    Route::get('estimations',    [PublicApiController::class, 'estimations']);
+    Route::get('materials',      [PublicApiController::class, 'materials']);
+    Route::get('partners',       [PublicApiController::class, 'partners']);
+    Route::get('pricing-plans',  [PublicApiController::class, 'pricingPlans']);
+});
 
 Route::post('login', [AuthController::class, 'login']);
 

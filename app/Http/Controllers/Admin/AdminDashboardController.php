@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Material;
-use App\Models\Partner;
-use App\Models\Project;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Services\SupabaseService;
+use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
 {
+    public function __construct(protected SupabaseService $supabase) {}
+
     public function index()
     {
         return view('admin.dashboard');
@@ -18,54 +17,52 @@ class AdminDashboardController extends Controller
 
     public function metrics()
     {
-        $totalUsers      = User::count();
-        $usersThisMonth  = User::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count();
-        $usersLastMonth  = User::whereMonth('created_at', now()->subMonth()->month)->whereYear('created_at', now()->subMonth()->year)->count();
-        $activeUsers     = User::where('account_status', 'active')->count();
-        $inactiveUsers   = User::where('account_status', '!=', 'active')->count();
+        $users    = $this->supabase->select('users',    'id,account_status,plan,created_at');
+        $projects = $this->supabase->select('projects', 'id,status,created_at');
+        $materials = $this->supabase->select('materials', 'id,name');
+        $partners  = $this->supabase->select('partners',  'id');
 
-        $totalProjects     = Project::count();
-        $draftProjects     = Project::where('status', 'draft')->count();
-        $activeProjects    = Project::where('status', 'active')->count();
-        $completedProjects = Project::where('status', 'completed')->count();
+        $now       = now();
+        $thisMonth = $now->month;
+        $thisYear  = $now->year;
+        $lastMonth = $now->copy()->subMonth();
 
-        $totalMaterials = Material::count();
-        $totalPartners  = Partner::count();
+        $totalUsers     = count($users);
+        $activeUsers    = count(array_filter($users, fn($u) => ($u['account_status'] ?? 'active') === 'active'));
+        $inactiveUsers  = $totalUsers - $activeUsers;
+        $usersThisMonth = count(array_filter($users, fn($u) => $this->inMonth($u['created_at'] ?? null, $thisYear, $thisMonth)));
+        $usersLastMonth = count(array_filter($users, fn($u) => $this->inMonth($u['created_at'] ?? null, $lastMonth->year, $lastMonth->month)));
+
+        $totalProjects     = count($projects);
+        $draftProjects     = count(array_filter($projects, fn($p) => ($p['status'] ?? '') === 'draft'));
+        $activeProjects    = count(array_filter($projects, fn($p) => ($p['status'] ?? '') === 'active'));
+        $completedProjects = count(array_filter($projects, fn($p) => ($p['status'] ?? '') === 'completed'));
 
         // Plan distribution
-        $planDist = User::selectRaw('COALESCE(plan, \'Free\') as plan, count(*) as count')
-            ->groupBy('plan')
-            ->get()
-            ->map(fn($p) => [
-                'name'       => $p->plan,
-                'percentage' => $totalUsers > 0 ? round(($p->count / $totalUsers) * 100) : 0,
-            ]);
+        $planCounts = [];
+        foreach ($users as $u) {
+            $plan = $u['plan'] ?? 'Free';
+            $planCounts[$plan] = ($planCounts[$plan] ?? 0) + 1;
+        }
+        $planDist = collect($planCounts)->map(fn($count, $plan) => [
+            'name'       => $plan,
+            'percentage' => $totalUsers > 0 ? round(($count / $totalUsers) * 100) : 0,
+        ])->values();
 
         // Top materials
-        $topMaterials = Material::take(5)->get()->map(fn($m) => [
-            'name'  => $m->name,
-            'count' => 1,
-        ]);
+        $topMaterials = collect(array_slice($materials, 0, 5))->map(fn($m) => [
+            'name' => $m['name'], 'count' => 1,
+        ])->values();
 
         // Chart data — last 6 months
-        $chartUsers = collect(range(5, 0))->map(function ($i) {
-            $date = now()->subMonths($i);
-            return [
-                'label' => $date->format('M'),
-                'count' => User::whereYear('created_at', $date->year)
-                               ->whereMonth('created_at', $date->month)
-                               ->count(),
-            ];
+        $chartUsers = collect(range(5, 0))->map(function ($i) use ($users) {
+            $d = now()->subMonths($i);
+            return ['label' => $d->format('M'), 'count' => count(array_filter($users, fn($u) => $this->inMonth($u['created_at'] ?? null, $d->year, $d->month)))];
         });
 
-        $chartProjects = collect(range(5, 0))->map(function ($i) {
-            $date = now()->subMonths($i);
-            return [
-                'label' => $date->format('M'),
-                'count' => Project::whereYear('created_at', $date->year)
-                                  ->whereMonth('created_at', $date->month)
-                                  ->count(),
-            ];
+        $chartProjects = collect(range(5, 0))->map(function ($i) use ($projects) {
+            $d = now()->subMonths($i);
+            return ['label' => $d->format('M'), 'count' => count(array_filter($projects, fn($p) => $this->inMonth($p['created_at'] ?? null, $d->year, $d->month)))];
         });
 
         return response()->json(['data' => [
@@ -79,35 +76,53 @@ class AdminDashboardController extends Controller
             'draft_projects'     => $draftProjects,
             'estimated_projects' => $activeProjects,
             'completed_projects' => $completedProjects,
-            'total_materials'    => $totalMaterials,
-            'total_partners'     => $totalPartners,
+            'total_materials'    => count($materials),
+            'total_partners'     => count($partners),
             'plan_distribution'  => $planDist,
             'top_materials'      => $topMaterials,
-            'chart_data'         => [
-                'users'    => $chartUsers,
-                'projects' => $chartProjects,
-            ],
+            'chart_data'         => ['users' => $chartUsers, 'projects' => $chartProjects],
         ]]);
     }
 
     public function activity()
     {
-        $recentUsers = User::latest()->take(5)->get()->map(fn($u) => [
+        $users    = $this->supabase->select('users',    'id,username,email,created_at');
+        $projects = $this->supabase->select('projects', 'id,name,user_id,created_at');
+
+        // Build user lookup map
+        $userMap = [];
+        foreach ($users as $u) {
+            $userMap[$u['id']] = $u['username'] ?? $u['email'] ?? "#{$u['id']}";
+        }
+
+        usort($users,    fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
+        usort($projects, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
+
+        $recentUsers = collect(array_slice($users, 0, 5))->map(fn($u) => [
             'type'    => 'user',
-            'message' => 'User baru terdaftar: ' . ($u->username ?? $u->email),
-            'time'    => $u->created_at->diffForHumans(),
+            'message' => 'User baru terdaftar: ' . ($u['username'] ?? $u['email']),
+            'time'    => $u['created_at'] ? Carbon::parse($u['created_at'])->diffForHumans() : '—',
         ]);
 
-        $recentProjects = Project::with('user')->latest()->take(5)->get()->map(fn($p) => [
+        $recentProjects = collect(array_slice($projects, 0, 5))->map(fn($p) => [
             'type'    => 'project',
-            'message' => 'Project dibuat: ' . $p->name . ($p->user ? ' oleh ' . $p->user->username : ''),
-            'time'    => $p->created_at->diffForHumans(),
+            'message' => 'Project dibuat: ' . $p['name'] . ' oleh ' . ($userMap[$p['user_id']] ?? "user #{$p['user_id']}"),
+            'time'    => $p['created_at'] ? Carbon::parse($p['created_at'])->diffForHumans() : '—',
         ]);
 
-        $activities = $recentUsers->concat($recentProjects)
-            ->take(10)
-            ->values();
+        $activities = $recentUsers->concat($recentProjects)->take(10)->values();
 
         return response()->json(['data' => $activities]);
+    }
+
+    private function inMonth(?string $date, int $year, int $month): bool
+    {
+        if (!$date) return false;
+        try {
+            $d = Carbon::parse($date);
+            return $d->year === $year && $d->month === $month;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }

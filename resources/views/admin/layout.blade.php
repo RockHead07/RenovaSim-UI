@@ -105,6 +105,14 @@
     <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
     <span x-show="!collapsed" x-transition>Partners</span>
   </a>
+
+          <div class="mt-4">
+            <p x-show="!collapsed" class="text-[10px] uppercase tracking-widest text-paragraph px-3 mb-2 font-sans">DEVELOPER</p>
+            <a href="/admin/api-manager" class="{{ request()->is('admin/api-manager*') ? 'bg-primary text-primary-foreground border-l-2 border-primary-accent' : 'text-paragraph hover:text-foreground hover:bg-muted' }} flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 transition-all duration-200 text-sm font-sans">
+              <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              <span x-show="!collapsed" x-transition>Manage API</span>
+            </a>
+          </div>
           </div>
         </nav>
         <div class="px-2 pb-4 border-t border-border/10 shrink-0">

@@ -10,18 +10,23 @@ use App\Http\Controllers\User\RabController;
 use App\Http\Controllers\User\UserSettingsController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\Auth\GoogleController;
-use App\Models\PricingPlan;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\ApiManagerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $order = ['free' => 1, 'pro' => 2, 'enterprise' => 3];
-    $pricingPlans = PricingPlan::with('features')
-        ->where('is_active', true)
-        ->get()
-        ->sortBy(fn($p) => $order[$p->slug] ?? 99)
-        ->values();
+    $order    = ['free' => 1, 'pro' => 2, 'enterprise' => 3];
+    $supabase = app(\App\Services\SupabaseService::class);
+
+    $rawPlans = $supabase->select('pricing_plans', '*', ['is_active' => true]);
+
+    // Attach features to each plan
+    $pricingPlans = collect($rawPlans)->map(function ($plan) use ($supabase) {
+        $features = $supabase->select('plan_features', '*', ['pricing_plan_id' => $plan['id']]);
+        $plan['features'] = collect($features)->map(fn($f) => (object) $f);
+        return (object) $plan;
+    })->sortBy(fn($p) => $order[$p->slug] ?? 99)->values();
 
     return view('welcome', compact('pricingPlans'));
 });
@@ -105,6 +110,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('/pricing-plans', PricingPlanController::class)->middleware('manage-pricing-plans');
     Route::resource('/partners', PartnerController::class);
     Route::get('/rooms', [RoomController::class, 'adminIndex'])->name('admin.rooms.index');
+
+    // Manage API
+    Route::get('/api-manager',  [ApiManagerController::class, 'index'])->name('admin.api');
+    Route::post('/api-manager/regenerate', [ApiManagerController::class, 'regenerate'])->name('admin.api.regenerate');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
