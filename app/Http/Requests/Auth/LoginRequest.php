@@ -29,24 +29,39 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $login = $this->input('email');
+        $password = $this->input('password');
 
         // cek apakah email atau username
         $field = filter_var($login, FILTER_VALIDATE_EMAIL)
             ? 'email'
             : 'username';
 
-        if (! Auth::attempt([
-            $field => $login,
-            'password' => $this->input('password'),
-        ], $this->boolean('remember'))) {
-
+        // Use Supabase API for authentication
+        $service = app(\App\Services\SupabaseService::class);
+        
+        // Query Supabase for user
+        $users = $service->select('users', '*', [$field => $login]);
+        
+        if (empty($users)) {
             RateLimiter::hit($this->throttleKey());
-
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
         }
 
+        $user = is_array($users) ? $users[0] : (array) $users;
+        $hashedPassword = $user['password'] ?? null;
+
+        // Verify password
+        if (!$hashedPassword || !\Hash::check($password, $hashedPassword)) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
+        }
+
+        // Store user in session
+        $this->session()->put('auth_user', $user);
         RateLimiter::clear($this->throttleKey());
     }
 

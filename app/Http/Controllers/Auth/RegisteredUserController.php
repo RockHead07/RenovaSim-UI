@@ -31,21 +31,43 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'username' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
+        $service = app(\App\Services\SupabaseService::class);
+
+        // Check if user already exists
+        $existing = $service->select('users', '*', ['email' => $request->email]);
+        if (!empty($existing)) {
+            throw ValidationException::withMessages([
+                'email' => 'Email sudah terdaftar.',
+            ]);
+        }
+
+        // Create user via Supabase API
+        $userData = [
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'user',
-        ]);
+            'is_admin' => false,
+        ];
+
+        $result = $service->insert('users', $userData);
+        
+        if (!$result) {
+            throw ValidationException::withMessages([
+                'email' => 'Gagal membuat akun. Silakan coba lagi.',
+            ]);
+        }
+
+        // Store user in session
+        $user = is_array($result) ? $result[0] : (array) $result;
+        $request->session()->put('auth_user', $user);
 
         event(new Registered($user));
-
-        Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
     }
