@@ -55,9 +55,12 @@ class SupabaseService
                 'apikey' => $this->key,
                 'Authorization' => 'Bearer ' . $this->key,
                 'Content-Type' => 'application/json',
-            ])->get($url, $params);
+            ])
+            ->withoutVerifying()  // Disable SSL verification for development
+            ->get($url, $params);
 
             if ($response->failed()) {
+                \Log::error('Supabase select failed: ' . $response->status() . ' - ' . $response->body());
                 return [];
             }
 
@@ -84,7 +87,9 @@ class SupabaseService
                 'Authorization' => 'Bearer ' . $this->key,
                 'Content-Type' => 'application/json',
                 'Prefer' => 'return=representation',
-            ])->post($url, $data);
+            ])
+            ->withoutVerifying()  // Disable SSL verification
+            ->post($url, $data);
 
             if ($response->failed()) {
                 \Log::error('Supabase insert error: ' . $response->body());
@@ -114,7 +119,9 @@ class SupabaseService
                 'apikey' => $this->key,
                 'Authorization' => 'Bearer ' . $this->key,
                 'Content-Type' => 'application/json',
-            ])->patch($url, $data);
+            ])
+            ->withoutVerifying()  // Disable SSL verification
+            ->patch($url, $data);
 
             if ($response->failed()) {
                 \Log::error('Supabase update error: ' . $response->body());
@@ -143,7 +150,9 @@ class SupabaseService
                 'apikey' => $this->key,
                 'Authorization' => 'Bearer ' . $this->key,
                 'Content-Type' => 'application/json',
-            ])->delete($url);
+            ])
+            ->withoutVerifying()  // Disable SSL verification
+            ->delete($url);
 
             if ($response->failed()) {
                 \Log::error('Supabase delete error: ' . $response->body());
@@ -172,7 +181,9 @@ class SupabaseService
                 'apikey' => $this->key,
                 'Authorization' => 'Bearer ' . $this->key,
                 'Content-Type' => 'application/json',
-            ])->post($url, $params);
+            ])
+            ->withoutVerifying()  // Disable SSL verification
+            ->post($url, $params);
 
             if ($response->failed()) {
                 return null;
