@@ -9,6 +9,7 @@
         ['label' => 'RAI',                 'subtitle' => 'Renovasim Estimate AI', 'icon' => 'sparkles',         'path' => '/user/estimation/start'],
         ['label' => 'Projects',            'subtitle' => null,                    'icon' => 'folder-kanban',    'path' => '/user/projects'],
         ['label' => '3D Design Modeling',  'subtitle' => 'House',                 'icon' => 'box',              'path' => '/user/3d'],
+        ['label' => 'Settings',            'subtitle' => null,                    'icon' => 'settings',         'path' => '/user/settings'],
     ];
     $current   = '/' . trim(request()->path(), '/');
     $isActive  = fn(string $path) => $current === $path || str_starts_with($current, rtrim($path, '/') . '/');
@@ -36,8 +37,15 @@
 
     {{-- Logo --}}
     <div :class="effectiveCollapsed ? 'md:justify-center md:w-full md:px-0' : 'px-2'" class="sb-logo px-2 pt-2 pb-6 flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
-            <span class="text-primary-foreground font-bold text-sm">R</span>
+        @php $sidebarUser = auth()->user(); @endphp
+        <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0 overflow-hidden">
+            @if($sidebarUser?->avatar_path)
+                <img src="{{ Storage::url($sidebarUser->avatar_path) }}" class="w-full h-full object-cover" alt="Avatar">
+            @else
+                <span class="text-primary-foreground font-bold text-sm">
+                    {{ strtoupper(substr($sidebarUser?->username ?? $sidebarUser?->email ?? 'U', 0, 1)) }}
+                </span>
+            @endif
         </div>
         <div :class="effectiveCollapsed && 'md:hidden'" class="sb-hide flex flex-col">
             <div class="font-['Playfair_Display'] italic text-[17px] text-secondary leading-tight whitespace-nowrap">

@@ -112,17 +112,27 @@ return [
     ],
 
     'job_type_id' => [
-        'painting'      => 'Pengecatan',
-        'ceramic'       => 'Pemasangan Keramik',
-        'plumbing'      => 'Plumbing',
+        // Existing — updated labels
+        'painting'      => 'Pengecatan Dinding & Plafon',
+        'ceramic'       => 'Pemasangan Keramik Lantai',
         'electrical'    => 'Instalasi Listrik',
+        'plumbing'      => 'Instalasi Plumbing & Pipa',
         'roofing'       => 'Pekerjaan Atap',
-        'waterproofing' => 'Waterproofing',
-        'carpentry'     => 'Pertukangan',
-        'plastering'    => 'Plesteran & Acian',
+        'waterproofing' => 'Waterproofing & Anti Bocor',
+        'carpentry'     => 'Pertukangan (Pintu Kayu)',
+
+        // New job types
         'ceiling'       => 'Pekerjaan Plafon',
-        'door_window'   => 'Pintu & Jendela',
-        'landscaping'   => 'Taman & Eksterior',
+        'wall'          => 'Plester & Acian Dinding',
+        'wall_tile'     => 'Pemasangan Keramik Dinding',
+        'window'        => 'Pemasangan Jendela & Kusen',
+        'flooring_wood' => 'Lantai Vinyl / Parket',
+        'fence'         => 'Pembangunan Pagar',
+        'carport'       => 'Kanopi & Carport',
+        'cabinet'       => 'Lemari & Wardrobe Built-in',
+        'demolition'    => 'Pekerjaan Bongkaran',
+        'insulation'    => 'Insulasi Panas & Suara',
+        'wallpaper'     => 'Wallpaper & Wall Panel',
     ],
 
     'assumption_field_id' => [

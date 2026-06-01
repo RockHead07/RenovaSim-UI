@@ -88,11 +88,20 @@
 
     <x-admin.form.input name="name" label="Name" :value="$plan->name" placeholder="Enter plan name" required />
 
+    <div class="space-y-1.5">
+        <label class="block text-xs font-sans uppercase tracking-widest text-paragraph">Slug (tidak dapat diubah)</label>
+        <div class="flex items-center gap-2 bg-white/5 border border-border rounded-lg px-3 py-2">
+            <span class="text-xs font-mono text-paragraph">{{ $plan->slug }}</span>
+            <span class="ml-auto text-[10px] text-paragraph/60 bg-white/5 px-2 py-0.5 rounded">read-only</span>
+        </div>
+        <p class="text-[11px] text-paragraph/60">Slug digunakan sebagai identitas internal plan dan tidak bisa diubah.</p>
+    </div>
+
     <x-admin.form.textarea name="description" label="Description" :value="$plan->description" rows="3" placeholder="Brief description for the landing page" />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <x-admin.form.input name="price" label="Current Price ($/mo)" type="number" step="0.01" min="0" :value="$plan->price" placeholder="Enter current monthly price" required x-model.number="finalPrice" />
-      <x-admin.form.input name="original_price" label="Original Price (Optional)" type="number" step="0.01" min="0" :value="$plan->original_price" placeholder="Example: 50" x-model.number="originalPrice" />
+      <x-admin.form.input name="price" label="Harga Saat Ini (Rp/bulan)" type="number" step="0.01" min="0" :value="$plan->price" placeholder="Enter current monthly price" required x-model.number="finalPrice" />
+      <x-admin.form.input name="original_price" label="Harga Asli/Coret (Opsional)" type="number" step="0.01" min="0" :value="$plan->original_price" placeholder="Example: 50000" x-model.number="originalPrice" />
     </div>
 
     <div class="tidy-panel rounded-lg p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
@@ -106,7 +115,7 @@
       </p>
       <p class="text-xs text-paragraph">
         You save:
-        <span class="text-status-warning font-semibold" x-text="'$' + savingsAmount()"></span>
+        <span class="text-status-warning font-semibold" x-text="savingsAmount()"></span>
       </p>
     </div>
     <p x-show="hasInvalidDiscount()" class="text-xs text-destructive -mt-2" style="display:none">
@@ -199,14 +208,14 @@ function planForm() {
       return Math.round(((this.originalPrice - this.finalPrice) / this.originalPrice) * 100);
     },
     savingsAmount() {
-      if (!this.originalPrice || !this.finalPrice || this.originalPrice <= this.finalPrice) return '0.00';
-      return (this.originalPrice - this.finalPrice).toFixed(2);
+      if (!this.originalPrice || !this.finalPrice || this.originalPrice <= this.finalPrice) return '0';
+      return 'Rp ' + (this.originalPrice - this.finalPrice).toLocaleString('id-ID');
     },
     discountLabel() {
       if (!this.originalPrice || this.originalPrice <= this.finalPrice) {
-        return `$${(this.finalPrice || 0).toFixed(2)}/mo`;
+        return 'Rp ' + (this.finalPrice || 0).toLocaleString('id-ID') + '/bulan';
       }
-      return `$${this.originalPrice.toFixed(2)} -> $${this.finalPrice.toFixed(2)}/mo`;
+      return 'Rp ' + this.originalPrice.toLocaleString('id-ID') + ' → Rp ' + this.finalPrice.toLocaleString('id-ID') + '/bulan';
     },
     hasInvalidDiscount() {
       return !!this.originalPrice && !!this.finalPrice && this.originalPrice <= this.finalPrice;

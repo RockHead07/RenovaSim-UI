@@ -98,4 +98,32 @@ class User extends Authenticatable implements FilamentUser, HasName
             ?? $this->email
             ?? 'User';
     }
+
+    public function activePlan(): \App\Models\PricingPlan
+    {
+        if ($this->pricingPlan) {
+            return $this->pricingPlan;
+        }
+        return \App\Models\PricingPlan::where('slug', 'free')->first()
+            ?? new \App\Models\PricingPlan(['slug' => 'free']);
+    }
+
+    public function planLimit(string $featureKey): ?int
+    {
+        $plan    = $this->activePlan();
+        $feature = $plan->features()->where('feature_key', $featureKey)->first();
+
+        if (!$feature) return null;
+        if ($feature->feature_value === 'unlimited') return null;
+        if (!is_numeric($feature->feature_value)) return null;
+
+        return (int) $feature->feature_value;
+    }
+
+    public function hasReachedLimit(string $featureKey, int $currentCount): bool
+    {
+        $limit = $this->planLimit($featureKey);
+        if ($limit === null) return false;
+        return $currentCount >= $limit;
+    }
 }

@@ -17,7 +17,7 @@
                         Daftar estimasi renovasi yang sudah kamu buat
                     </p>
                 </div>
-                <a href="{{ route('user.estimation.wizard') }}"
+                <a href="{{ route('user.project.setup') }}"
                    class="inline-flex items-center gap-2 bg-primary text-primary-foreground font-['DM_Sans'] font-medium text-sm rounded-xl px-4 py-2.5 hover:opacity-90 transition-opacity">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -48,7 +48,7 @@
                     <p class="font-['DM_Sans'] text-sm text-muted-foreground mt-1 max-w-xs leading-relaxed">
                         Mulai estimasi renovasimu dan simpan sebagai project untuk melanjutkannya kapan saja.
                     </p>
-                    <a href="{{ route('user.estimation.wizard') }}"
+                    <a href="{{ route('user.project.setup') }}"
                        class="mt-5 inline-flex items-center gap-2 bg-primary text-primary-foreground font-['DM_Sans'] font-medium text-sm rounded-xl px-5 py-2.5 hover:opacity-90 transition-opacity">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>

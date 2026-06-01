@@ -80,6 +80,33 @@ class UserProjectController extends Controller
 
         $user = auth()->user();
 
+        // --- PLAN LIMIT: max_projects ---
+        $currentProjectCount = Project::where('user_id', $user->id)->count();
+        if ($user->hasReachedLimit('max_projects', $currentProjectCount)) {
+            $limit = $user->planLimit('max_projects');
+            $plan  = $user->activePlan();
+            return redirect()->back()->with('error',
+                "Slot project kamu sudah penuh ({$limit} project). Upgrade plan untuk membuat lebih banyak project."
+            );
+        }
+
+        // --- PLAN LIMIT: max_estimations (for existing project via session) ---
+        $existingProjectId = session('current_project_id');
+        if ($existingProjectId) {
+            $existingProject = Project::where('user_id', $user->id)
+                ->find($existingProjectId);
+            if ($existingProject) {
+                $currentEstimationCount = $existingProject->estimations()->count();
+                if ($user->hasReachedLimit('max_estimations_per_project', $currentEstimationCount)) {
+                    $limit = $user->planLimit('max_estimations_per_project');
+                    $plan  = $user->activePlan();
+                    return redirect()->back()->with('error',
+                        "Project ini sudah mencapai batas {$limit} estimasi. Upgrade plan untuk menambah lebih banyak estimasi."
+                    );
+                }
+            }
+        }
+
         $project = Project::create([
             'user_id'           => $user->id,
             'name'              => $setup['project_name'] ?? $result['project_name'] ?? 'Renovasi',
@@ -155,11 +182,14 @@ class UserProjectController extends Controller
         $project = Project::where('user_id', auth()->id())->findOrFail($id);
 
         session()->put('current_project_id', $project->id);
+        $lastEstimation = $project->estimations()->latest()->first();
+
         session()->put('project_setup', [
             'project_name'  => $project->name,
             'building_type' => $project->building_type,
             'location'      => $project->location,
             'description'   => $project->description,
+            'area'          => $lastEstimation?->area ?? null,
         ]);
 
         return redirect()->route('user.estimation.wizard');

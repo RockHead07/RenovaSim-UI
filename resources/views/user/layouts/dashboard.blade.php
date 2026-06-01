@@ -112,6 +112,53 @@
 
     <x-user::components.layout.sidebar />
 
+    {{-- Global Flash Messages --}}
+    @if(session('error'))
+    <div
+        x-data="{ show: true }"
+        x-show="show"
+        x-init="setTimeout(() => show = false, 6000)"
+        x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2"
+        class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
+        style="display: none"
+    >
+        <div class="bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4 shadow-lg flex items-start gap-3">
+            <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div class="flex-1">
+                <p class="text-sm font-['DM_Sans'] font-medium">{{ session('error') }}</p>
+            </div>
+            <button @click="show = false" class="text-red-400 hover:text-red-600 shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
+    @endif
+
+    @if(session('success'))
+    <div
+        x-data="{ show: true }"
+        x-show="show"
+        x-init="setTimeout(() => show = false, 4000)"
+        x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2"
+        class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
+        style="display: none"
+    >
+        <div class="bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-4 shadow-lg flex items-start gap-3">
+            <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 16 4 11"/></svg>
+            <div class="flex-1">
+                <p class="text-sm font-['DM_Sans'] font-medium">{{ session('success') }}</p>
+            </div>
+            <button @click="show = false" class="text-green-400 hover:text-green-600 shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
+    @endif
+
     <main
         :class="ready ? 'transition-[padding] duration-300 ease-in-out' : ''"
         :style="isMdUp ? { paddingLeft: effectiveCollapsed ? '112px' : '264px' } : {}"

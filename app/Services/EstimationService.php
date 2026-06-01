@@ -60,6 +60,10 @@ class EstimationService
             $body['budget'] = (int)$data['budget'];
         }
 
+        if (!empty($data['area_hint'])) {
+            $body['area_hint'] = (float)$data['area_hint'];
+        }
+
         return $this->post('/api/v2/estimate/ai', $body);
     }
 
@@ -93,7 +97,7 @@ class EstimationService
     protected function post(string $endpoint, array $payload): array
     {
         try {
-            $response = Http::timeout(120)
+            $response = Http::timeout(270)
                 ->withHeaders([
                     'X-API-Key' => $this->apiKey,
                     'Accept'    => 'application/json',

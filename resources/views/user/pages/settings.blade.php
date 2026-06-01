@@ -199,6 +199,71 @@
                 </form>
             </div>
 
+            {{-- SECTION 3: Plan Info --}}
+            <div class="bg-card rounded-2xl shadow-sm p-6 mt-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-['DM_Sans'] font-semibold text-base text-card-foreground">Plan Saya</h2>
+                    @php
+                        $activePlan = auth()->user()->activePlan();
+                        $projectCount = \App\Models\Project::where('user_id', auth()->id())->count();
+                        $maxProjects = auth()->user()->planLimit('max_projects');
+                        $maxEstimations = auth()->user()->planLimit('max_estimations_per_project');
+                    @endphp
+                    @if($activePlan->slug !== 'enterprise')
+                        <a href="/#pricing"
+                           class="text-xs font-['DM_Sans'] font-medium text-primary hover:opacity-80 transition-opacity">
+                            Upgrade Plan →
+                        </a>
+                    @endif
+                </div>
+
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-['DM_Sans'] font-semibold bg-primary/10 text-primary">
+                        {{ $activePlan->name ?? 'Free Plan' }}
+                    </span>
+                    @if($activePlan->price > 0)
+                        <span class="text-sm text-muted-foreground">
+                            Rp {{ number_format($activePlan->price, 0, ',', '.') }}/bulan
+                        </span>
+                    @else
+                        <span class="text-sm text-muted-foreground">Gratis</span>
+                    @endif
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {{-- Max Projects --}}
+                    <div class="bg-muted/40 rounded-xl p-4">
+                        <p class="text-xs text-muted-foreground font-['DM_Sans'] mb-1">Project Digunakan</p>
+                        <p class="text-lg font-semibold text-card-foreground font-['DM_Sans']">
+                            {{ $projectCount }}
+                            <span class="text-sm font-normal text-muted-foreground">
+                                / {{ $maxProjects ?? '∞' }}
+                            </span>
+                        </p>
+                        @if($maxProjects && $projectCount >= $maxProjects)
+                            <p class="text-xs text-red-500 mt-1">Batas tercapai</p>
+                        @elseif($maxProjects)
+                            <div class="mt-2 h-1.5 bg-border rounded-full overflow-hidden">
+                                <div class="h-full bg-primary rounded-full transition-all"
+                                     style="width: {{ min(100, ($projectCount / $maxProjects) * 100) }}%"></div>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Max Estimations --}}
+                    <div class="bg-muted/40 rounded-xl p-4">
+                        <p class="text-xs text-muted-foreground font-['DM_Sans'] mb-1">Maks. Estimasi/Project</p>
+                        <p class="text-lg font-semibold text-card-foreground font-['DM_Sans']">
+                            {{ $maxEstimations ?? '∞' }}
+                            <span class="text-sm font-normal text-muted-foreground">estimasi</span>
+                        </p>
+                        @if(!$maxEstimations)
+                            <p class="text-xs text-primary mt-1">Unlimited</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
