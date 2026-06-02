@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PlanFeatureController;
 use App\Http\Controllers\Api\PublicApiController;
+use App\Http\Controllers\Api\Room3DController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +34,24 @@ Route::prefix('v1')->group(function () {
 });
 
 Route::post('login', [AuthController::class, 'login']);
+
+// 3D Room API — session auth (web middleware, not Sanctum token)
+Route::middleware(['web', 'auth'])->prefix('3d')->group(function () {
+    Route::get('/status',                     [Room3DController::class, 'status']);
+    Route::get('/furniture',                  [Room3DController::class, 'furniture']);
+    Route::get('/templates',                  [Room3DController::class, 'templates']);
+    Route::get('/paint-colors',               [Room3DController::class, 'paintColors']);
+    Route::get('/projects',                   [Room3DController::class, 'projects']);
+    Route::post('/upload-images',             [Room3DController::class, 'uploadImages']);
+    Route::get('/rooms/{id}',                 [Room3DController::class, 'getRoom']);
+    Route::post('/rooms/{id}/save',           [Room3DController::class, 'saveRoom']);
+    Route::post('/rooms/{id}/thumbnail',      [Room3DController::class, 'saveThumbnail']);
+    Route::post('/rooms/{id}/apply-template', [Room3DController::class, 'applyTemplate']);
+    Route::post('/rooms/{id}/update-wall',    [Room3DController::class, 'updateWall']);
+    Route::post('/rooms/{id}/rename',         [Room3DController::class, 'renameRoom']);
+    Route::delete('/rooms/{id}',              [Room3DController::class, 'deleteRoom']);
+    Route::post('/migrate',                   [Room3DController::class, 'migrateFromFlask']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('me', [AuthController::class, 'me']);

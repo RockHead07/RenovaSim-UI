@@ -65,8 +65,8 @@
 
     <script>
     (function() {
-        const API       = 'http://localhost:5000/api';
-        const USER_ID   = '{{ auth()->id() }}';
+        const API       = '/api/3d';
+        const CSRF      = document.querySelector('meta[name="csrf-token"]')?.content || '';
         const gridEl    = document.getElementById('projects-grid');
         const loadingEl = document.getElementById('projects-loading');
         const emptyEl   = document.getElementById('projects-empty');
@@ -109,7 +109,10 @@
             }
 
             try {
-                const r    = await fetch(API + '/projects?user_id=' + USER_ID);
+                const r    = await fetch(API + '/projects', {
+                    headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+                    credentials: 'same-origin',
+                });
                 const data = await r.json();
                 loadingEl.classList.add('hidden');
 
@@ -195,7 +198,11 @@
         window.deleteProject = async function(id) {
             if (!confirm('Hapus desain ini? Tindakan ini tidak dapat dibatalkan.')) return;
             try {
-                await fetch(API + '/rooms/' + id + '?user_id=' + USER_ID, { method: 'DELETE' });
+                await fetch(API + '/rooms/' + id, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': CSRF },
+                    credentials: 'same-origin',
+                });
                 loadProjects();
             } catch(e) { alert('Gagal menghapus desain.'); }
         };
