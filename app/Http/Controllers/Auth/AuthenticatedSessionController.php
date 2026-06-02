@@ -11,48 +11,35 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        // Redirect admin to admin profile, regular users to dashboard
         $user = Auth::user();
-        
-        // Auto-assign 'user' role if empty for backward compatibility
-        if ($user && empty($user->role) && !$user->is_admin && $user->email !== 'admin@gmail.com') {
-            $user->role = 'user';
-            $user->save();
-        }
+        $role    = $user?->getAttribute('role');
+        $isAdmin = $user && (
+            $user->getAttribute('is_admin') ||
+            in_array($role, ['admin', 'owner', 'super_admin'], true) ||
+            $user->getAttribute('email') === 'admin@gmail.com'
+        );
 
-        if ($user && ($user->is_admin || $user->email === 'admin@gmail.com' || $user->role === 'admin' || $user->role === 'owner')) {
+        if ($isAdmin) {
             return redirect()->intended(route('admin.dashboard', absolute: false));
         }
 
         return redirect()->intended('/user/dashboard');
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

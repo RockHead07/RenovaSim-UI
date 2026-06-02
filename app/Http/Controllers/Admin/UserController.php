@@ -3,49 +3,60 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Project;
-use App\Models\User;
+use App\Services\SupabaseService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    // READ + SEARCH + FILTER
+    public function __construct(protected SupabaseService $supabase) {}
+
     public function index(Request $request)
     {
-        $query = User::query();
+        $search = $request->input('search', '');
+        $plan   = $request->input('plan', 'All');
 
-        // 🔍 SEARCH (username + email)
-        if ($request->filled('search')) {
-            $search = $request->search;
+        $raw = $search
+            ? $this->supabase->selectOr('users', '*', "username.ilike.*{$search}*,email.ilike.*{$search}*")
+            : $this->supabase->select('users', '*');
 
-            $query->where(function ($q) use ($search) {
-                $q->where('username', 'like', "%$search%")
-                  ->orWhere('email', 'like', "%$search%");
-            });
+        if ($plan !== 'All' && $plan !== '') {
+            $raw = array_filter($raw, fn($u) => ($u['plan'] ?? 'Free') === $plan);
         }
 
-        // 🎯 FILTER PLAN
-        if ($request->filled('plan') && $request->plan !== 'All') {
-            $query->where('plan', $request->plan);
-        }
+        usort($raw, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
+        $raw = array_values($raw);
 
-        $users = $query->latest()->paginate(10)->withQueryString();
-        $usersData = $users->map(fn ($user) => [
-            'id'         => $user->id,
-            'name'       => $user->username,
-            'email'      => $user->email,
-            'role'       => $user->role ?? 'user',
-            'avatar_url' => $user->avatar_path ? asset('storage/' . $user->avatar_path) : null,
-            'roleLabel'  => match ($user->role ?? 'user') {
+        $perPage     = 10;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $slice       = array_slice($raw, ($currentPage - 1) * $perPage, $perPage);
+
+        $users = new LengthAwarePaginator(
+            collect($slice)->map(fn($u) => (object) $u),
+            count($raw),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $usersData = collect($slice)->map(fn($u) => [
+            'id'         => $u['id'],
+            'name'       => $u['username'] ?? '',
+            'email'      => $u['email'] ?? '',
+            'role'       => $u['role'] ?? 'user',
+            'avatar_url' => !empty($u['avatar_path']) ? asset('storage/' . $u['avatar_path']) : null,
+            'roleLabel'  => match ($u['role'] ?? 'user') {
                 'admin'       => 'Admin',
                 'super_admin' => 'Super Admin',
                 'owner'       => 'Owner',
                 default       => 'User',
             },
-            'plan'   => $user->plan ?? 'Free',
-            'joined' => $user->created_at->format('Y-m-d'),
-            'status' => match ($user->account_status ?? 'active') {
+            'plan'   => $u['plan'] ?? 'Free',
+            'joined' => isset($u['created_at']) ? Carbon::parse($u['created_at'])->format('Y-m-d') : '',
+            'status' => match ($u['account_status'] ?? 'active') {
                 'inactive'  => 'Inactive',
                 'suspended' => 'Suspended',
                 default     => 'Active',
@@ -55,172 +66,138 @@ class UserController extends Controller
         return view('admin.users.index', compact('users', 'usersData'));
     }
 
-    // JSON API for Users page (search/filter)
     public function api(Request $request)
     {
-        $query = User::query();
+        $search = $request->input('search', '');
+        $plan   = $request->input('plan', 'All');
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('username', 'like', "%$search%")
-                  ->orWhere('email', 'like', "%$search%");
-            });
+        $raw = $search
+            ? $this->supabase->selectOr('users', '*', "username.ilike.*{$search}*,email.ilike.*{$search}*")
+            : $this->supabase->select('users', '*');
+
+        if ($plan !== 'All' && $plan !== '') {
+            $raw = array_filter($raw, fn($u) => ($u['plan'] ?? 'Free') === $plan);
         }
 
-        if ($request->filled('plan') && $request->plan !== 'All') {
-            $query->where('plan', $request->plan);
-        }
+        usort($raw, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
 
-        $users = $query->latest()->limit(200)->get();
-
-        return response()->json(
-            $users->map(fn ($user) => [
-                'id'         => $user->id,
-                'name'       => $user->username,
-                'email'      => $user->email,
-                'role'       => $user->role ?? 'user',
-                'avatar_url' => $user->avatar_path ? asset('storage/' . $user->avatar_path) : null,
-                'roleLabel'  => match ($user->role ?? 'user') {
-                    'admin'       => 'Admin',
-                    'super_admin' => 'Super Admin',
-                    'owner'       => 'Owner',
-                    default       => 'User',
-                },
-                'plan'   => $user->plan ?? 'Free',
-                'joined' => optional($user->created_at)->format('Y-m-d'),
-                'status' => match ($user->account_status ?? 'active') {
-                    'inactive'  => 'Inactive',
-                    'suspended' => 'Suspended',
-                    default     => 'Active',
-                },
-            ])->values()
-        );
+        return response()->json(collect(array_values($raw))->map(fn($u) => [
+            'id'         => $u['id'],
+            'name'       => $u['username'] ?? '',
+            'email'      => $u['email'] ?? '',
+            'role'       => $u['role'] ?? 'user',
+            'avatar_url' => !empty($u['avatar_path']) ? asset('storage/' . $u['avatar_path']) : null,
+            'roleLabel'  => match ($u['role'] ?? 'user') {
+                'admin' => 'Admin', 'super_admin' => 'Super Admin', 'owner' => 'Owner', default => 'User',
+            },
+            'plan'   => $u['plan'] ?? 'Free',
+            'joined' => isset($u['created_at']) ? Carbon::parse($u['created_at'])->format('Y-m-d') : '',
+            'status' => match ($u['account_status'] ?? 'active') {
+                'inactive' => 'Inactive', 'suspended' => 'Suspended', default => 'Active',
+            },
+        ])->values());
     }
 
-    // SHOW CREATE FORM
     public function create()
     {
-        $projects = Project::query()->orderBy('name')->get(['id', 'name']);
+        $projectsRaw = $this->supabase->select('projects', 'id,name');
+        usort($projectsRaw, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
+        $projects = collect($projectsRaw)->map(fn($p) => (object) $p);
+
         $timezones = \DateTimeZone::listIdentifiers();
-        $languages = [
-            'en' => 'English',
-            'es' => 'Spanish',
-            'fr' => 'French',
-            'de' => 'German',
-            'pt' => 'Portuguese',
-        ];
+        $languages = ['en' => 'English', 'es' => 'Spanish', 'fr' => 'French', 'de' => 'German', 'pt' => 'Portuguese'];
 
         return view('admin.users.create', compact('projects', 'timezones', 'languages'));
     }
 
-    // CREATE
     public function store(Request $request)
     {
         $request->validate([
-            'username' => 'required|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'role' => 'required|in:user,admin,super_admin,owner',
-            'first_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:50',
-            'avatar' => 'nullable|image|max:5120',
+            'username'       => 'required|string|max:100',
+            'email'          => 'required|email|max:255',
+            'password'       => 'required|min:6',
+            'role'           => 'required|in:user,admin,super_admin,owner',
+            'first_name'     => 'nullable|string|max:255',
+            'last_name'      => 'nullable|string|max:255',
+            'phone'          => 'nullable|string|max:50',
+            'avatar'         => 'nullable|image|max:5120',
             'account_status' => 'required|in:active,suspended,inactive',
-            'timezone' => 'nullable|timezone',
-            'language' => 'nullable|string|max:10',
-            'job_title' => 'nullable|string|max:255',
-            'assigned_projects' => 'nullable|array',
-            'assigned_projects.*' => 'integer|exists:projects,id',
         ]);
 
-        $avatarPath = null;
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        if (!empty($this->supabase->select('users', 'id', ['email' => $request->email]))) {
+            return back()->withErrors(['email' => 'Email already taken.'])->withInput();
+        }
+        if (!empty($this->supabase->select('users', 'id', ['username' => $request->username]))) {
+            return back()->withErrors(['username' => 'Username already taken.'])->withInput();
         }
 
-        $user = User::create([
-            'username' => $request->username,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'avatar_path' => $avatarPath,
-            'password' => bcrypt($request->password),
-            'role' => $request->role,
-            'account_status' => $request->account_status,
-            'timezone' => $request->timezone,
-            'language' => $request->language,
-            'job_title' => $request->job_title,
-            'plan' => 'Free',
-        ]);
+        $data = $request->only('username', 'first_name', 'last_name', 'email', 'phone', 'role', 'account_status', 'timezone', 'language', 'job_title');
+        $data['password'] = Hash::make($request->password);
+        $data['plan'] = 'Free';
 
-        $user->assignedProjects()->sync($request->input('assigned_projects', []));
+        if ($request->hasFile('avatar')) {
+            $data['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
+        }
 
-        return redirect('/admin/users')->with('success', 'User created successfully');
+        $this->supabase->insert('users', $data);
+        return redirect('/admin/users')->with('success', 'User created successfully.');
     }
 
-    // SHOW EDIT FORM
-    public function edit(User $user)
+    public function edit(int $user)
     {
-        $projects = Project::query()->orderBy('name')->get(['id', 'name']);
-        $selectedProjectIds = $user->assignedProjects()->pluck('projects.id')->all();
-        $timezones = \DateTimeZone::listIdentifiers();
-        $languages = [
-            'en' => 'English',
-            'es' => 'Spanish',
-            'fr' => 'French',
-            'de' => 'German',
-            'pt' => 'Portuguese',
-        ];
+        $rows = $this->supabase->select('users', '*', ['id' => $user]);
+        if (empty($rows)) abort(404);
+        $userObj = (object) $rows[0];
+
+        $projectsRaw = $this->supabase->select('projects', 'id,name');
+        usort($projectsRaw, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
+        $projects = collect($projectsRaw)->map(fn($p) => (object) $p);
+
+        $selectedProjectIds = [];
+        $timezones    = \DateTimeZone::listIdentifiers();
+        $languages    = ['en' => 'English', 'es' => 'Spanish', 'fr' => 'French', 'de' => 'German', 'pt' => 'Portuguese'];
         $pricingPlans = \App\Models\PricingPlan::where('is_active', true)->get();
 
-        return view('admin.users.edit', compact('user', 'projects', 'selectedProjectIds', 'timezones', 'languages', 'pricingPlans'));
+        return view('admin.users.edit', [
+            'user'               => $userObj,
+            'projects'           => $projects,
+            'selectedProjectIds' => $selectedProjectIds,
+            'timezones'          => $timezones,
+            'languages'          => $languages,
+            'pricingPlans'       => $pricingPlans,
+        ]);
     }
 
-    // UPDATE
-    public function update(Request $request, User $user)
+    public function update(Request $request, int $user)
     {
+        $rows = $this->supabase->select('users', '*', ['id' => $user]);
+        if (empty($rows)) abort(404);
+        $existing = $rows[0];
+
         $request->validate([
-            'username' => 'required|unique:users,username,' . $user->id,
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:user,admin,super_admin,owner',
-            'first_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:50',
-            'avatar' => 'nullable|image|max:5120',
-            'remove_avatar' => 'nullable|boolean',
+            'username'       => 'required|string|max:100',
+            'email'          => 'required|email|max:255',
+            'role'           => 'required|in:user,admin,super_admin,owner',
             'account_status' => 'required|in:active,suspended,inactive',
-            'timezone' => 'nullable|timezone',
-            'language' => 'nullable|string|max:10',
-            'job_title' => 'nullable|string|max:255',
-            'assigned_projects' => 'nullable|array',
-            'assigned_projects.*' => 'integer|exists:projects,id',
         ]);
 
-        $data = $request->only([
-            'username',
-            'email',
-            'role',
-            'first_name',
-            'last_name',
-            'phone',
-            'account_status',
-            'timezone',
-            'language',
-            'job_title',
-        ]);
-
-        $removeAvatar = (bool) $request->boolean('remove_avatar');
-        if ($removeAvatar && $user->avatar_path) {
-            Storage::disk('public')->delete($user->avatar_path);
-            $data['avatar_path'] = null;
+        $emailRows = $this->supabase->select('users', 'id', ['email' => $request->email]);
+        if (!empty($emailRows) && $emailRows[0]['id'] != $user) {
+            return back()->withErrors(['email' => 'Email already taken.'])->withInput();
+        }
+        $unameRows = $this->supabase->select('users', 'id', ['username' => $request->username]);
+        if (!empty($unameRows) && $unameRows[0]['id'] != $user) {
+            return back()->withErrors(['username' => 'Username already taken.'])->withInput();
         }
 
+        $data = $request->only('username', 'email', 'role', 'first_name', 'last_name', 'phone', 'account_status', 'timezone', 'language', 'job_title');
+
+        if ($request->boolean('remove_avatar') && ($existing['avatar_path'] ?? null)) {
+            Storage::disk('public')->delete($existing['avatar_path']);
+            $data['avatar_path'] = null;
+        }
         if ($request->hasFile('avatar')) {
-            if ($user->avatar_path) {
-                Storage::disk('public')->delete($user->avatar_path);
-            }
+            if ($existing['avatar_path'] ?? null) Storage::disk('public')->delete($existing['avatar_path']);
             $data['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
         }
 
@@ -232,17 +209,17 @@ class UserController extends Controller
             }
         }
 
-        $user->update($data);
-        $user->assignedProjects()->sync($request->input('assigned_projects', []));
-
-        return redirect('/admin/users')->with('success', 'User updated successfully');
+        $this->supabase->update('users', $user, $data);
+        return redirect('/admin/users')->with('success', 'User updated successfully.');
     }
 
-    // DELETE
-    public function destroy(User $user)
+    public function destroy(int $user)
     {
-        $user->delete();
-
-        return redirect('/admin/users')->with('success', 'User deleted successfully');
+        $rows = $this->supabase->select('users', 'id,avatar_path', ['id' => $user]);
+        if (!empty($rows) && $rows[0]['avatar_path'] ?? null) {
+            Storage::disk('public')->delete($rows[0]['avatar_path']);
+        }
+        $this->supabase->delete('users', $user);
+        return redirect('/admin/users')->with('success', 'User deleted successfully.');
     }
 }

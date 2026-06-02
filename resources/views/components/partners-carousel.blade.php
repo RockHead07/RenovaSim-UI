@@ -17,23 +17,19 @@
 </style>
 
 @php
-    // Fetch active partners from database, ordered by 'order' column
-    $partners = \App\Models\Partner::where('is_active', true)
-                                    ->orderBy('order')
-                                    ->get();
-    
-    // Fallback to static partners if no database partners exist
-    if ($partners->isEmpty()) {
-        $partners = collect([
-            ['name' => 'IKEA', 'logo' => 'images/partners/ikea.png'],
-            ['name' => 'INFORMA', 'logo' => 'images/partners/informa.png'],
-            ['name' => 'Mitra10', 'logo' => 'images/partners/mitra10.png'],
-            ['name' => 'BJ Home', 'logo' => 'images/partners/bjhome.png'],
-            ['name' => 'Qhomemart', 'logo' => 'images/partners/qhomemart.png'],
-            ['name' => 'Kanggo', 'logo' => 'images/partners/kanggo.png'],
-            ['name' => 'Tukang.com', 'logo' => 'images/partners/tukangcom.png'],
-        ]);
-    }
+    $supabase = app(\App\Services\SupabaseService::class);
+    $rawPartners = $supabase->select('partners', 'id,name,logo,logo_image,order', ['is_active' => true]);
+    usort($rawPartners, fn($a, $b) => ($a['order'] ?? 0) - ($b['order'] ?? 0));
+
+    $partners = !empty($rawPartners) ? collect(array_map(fn($p) => (object) $p, $rawPartners)) : collect([
+        (object)['name' => 'IKEA',       'logo' => 'images/partners/ikea.png',      'logo_image' => null],
+        (object)['name' => 'INFORMA',    'logo' => 'images/partners/informa.png',   'logo_image' => null],
+        (object)['name' => 'Mitra10',    'logo' => 'images/partners/mitra10.png',   'logo_image' => null],
+        (object)['name' => 'BJ Home',    'logo' => 'images/partners/bjhome.png',    'logo_image' => null],
+        (object)['name' => 'Qhomemart', 'logo' => 'images/partners/qhomemart.png', 'logo_image' => null],
+        (object)['name' => 'Kanggo',     'logo' => 'images/partners/kanggo.png',    'logo_image' => null],
+        (object)['name' => 'Tukang.com','logo' => 'images/partners/tukangcom.png', 'logo_image' => null],
+    ]);
 @endphp
 
 <section class="py-16 bg-background" style="border-bottom: 1px solid rgba(245, 245, 245, 0.1);" x-data="partnerCarousel()">

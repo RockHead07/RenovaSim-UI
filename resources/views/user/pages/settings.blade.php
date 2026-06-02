@@ -203,12 +203,7 @@
             <div class="bg-card rounded-2xl shadow-sm p-6 mt-4">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="font-['DM_Sans'] font-semibold text-base text-card-foreground">Plan Saya</h2>
-                    @php
-                        $activePlan = auth()->user()->activePlan();
-                        $projectCount = \App\Models\Project::where('user_id', auth()->id())->count();
-                        $maxProjects = auth()->user()->planLimit('max_projects');
-                        $maxEstimations = auth()->user()->planLimit('max_estimations_per_project');
-                    @endphp
+                    {{-- $activePlan, $projectCount, $maxProjects, $maxEstimations passed from controller --}}
                     @if($activePlan->slug !== 'enterprise')
                         <a href="/#pricing"
                            class="text-xs font-['DM_Sans'] font-medium text-primary hover:opacity-80 transition-opacity">

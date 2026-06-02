@@ -59,8 +59,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return [
             'email_verified_at' => 'datetime',
-            'last_active_at' => 'datetime',
-            'password' => 'hashed',
+            'last_active_at'    => 'datetime',
+            'password'          => 'hashed',
+            'is_admin'          => 'boolean',
         ];
     }
 

@@ -1,5 +1,5 @@
 @php
-    $hasProjects = $projects->isNotEmpty();
+    $hasProjects = is_array($projects) && count($projects) > 0;
 @endphp
 
 <x-user::layouts.dashboard title="RenovaSim — Mulai Estimasi">
@@ -44,25 +44,34 @@
                         <div x-show="open" x-collapse class="border-t border-border" style="display: none">
                             <div class="p-3 space-y-2">
                                 @foreach($projects as $project)
-                                    <a href="{{ route('user.project.add-estimation', $project->id) }}"
-                                       class="flex items-center justify-between px-4 py-3 rounded-xl bg-muted/40 hover:bg-primary/10 hover:border-primary/30 border border-transparent transition-all group">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                                <span class="text-primary font-semibold text-xs">
-                                                    {{ strtoupper(substr($project->name, 0, 1)) }}
-                                                </span>
+                                    @php
+                                        $projectId = $project['id'] ?? null;
+                                        $projectName = $project['name'] ?? 'Untitled';
+                                        $projectLocation = $project['location'] ?? '—';
+                                        $estimationCount = $project['estimations_count'] ?? 0;
+                                    @endphp
+                                    
+                                    @if($projectId)
+                                        <a href="{{ route('user.project.add-estimation', $projectId) }}"
+                                           class="flex items-center justify-between px-4 py-3 rounded-xl bg-muted/40 hover:bg-primary/10 hover:border-primary/30 border border-transparent transition-all group">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                                    <span class="text-primary font-semibold text-xs">
+                                                        {{ strtoupper(substr($projectName, 0, 1)) }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p class="font-['DM_Sans'] font-medium text-sm text-card-foreground">
+                                                        {{ $projectName }}
+                                                    </p>
+                                                    <p class="font-['DM_Sans'] text-xs text-muted-foreground capitalize">
+                                                        {{ $projectLocation }} · {{ $estimationCount }} estimasi
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p class="font-['DM_Sans'] font-medium text-sm text-card-foreground">
-                                                    {{ $project->name }}
-                                                </p>
-                                                <p class="font-['DM_Sans'] text-xs text-muted-foreground capitalize">
-                                                    {{ $project->location ?? '—' }} · {{ $project->estimations_count }} estimasi
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <x-lucide-arrow-right class="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                                    </a>
+                                            <x-lucide-arrow-right class="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                        </a>
+                                    @endif
                                 @endforeach
                             </div>
                         </div>

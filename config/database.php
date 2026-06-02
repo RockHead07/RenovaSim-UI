@@ -114,6 +114,11 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        // Null driver - used for REST API only (Supabase)
+        'null' => [
+            'driver' => 'null',
+        ],
+
     ],
 
     /*
