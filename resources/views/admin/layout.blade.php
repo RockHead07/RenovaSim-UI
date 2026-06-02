@@ -91,11 +91,6 @@
     <span x-show="!collapsed" x-transition>3D Saves</span>
   </a>
             
-  <a href="/admin/materials" class="{{ request()->is('admin/materials*') ? 'bg-primary text-primary-foreground border-l-2 border-primary-accent' : 'text-paragraph hover:text-foreground hover:bg-muted' }} flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 transition-all duration-200 text-sm font-sans">
-    <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16V8"/><path d="M12 16V5"/><path d="M17 16v-3"/></svg>
-    <span x-show="!collapsed" x-transition>Materials</span>
-  </a>
-            
   <a href="/admin/pricing-plans" class="{{ request()->is('admin/pricing-plans*') ? 'bg-primary text-primary-foreground border-l-2 border-primary-accent' : 'text-paragraph hover:text-foreground hover:bg-muted' }} flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 transition-all duration-200 text-sm font-sans">
     <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
     <span x-show="!collapsed" x-transition>Pricing Plans</span>

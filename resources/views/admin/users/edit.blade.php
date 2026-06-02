@@ -45,6 +45,37 @@
       </div>
     </details>
 
+    <details open class="rounded-xl border border-border/10 bg-background/40">
+        <summary class="cursor-pointer select-none px-4 py-3 text-sm font-sans font-medium text-foreground flex items-center justify-between">
+            <span>Pricing Plan</span>
+            <span class="text-paragraph text-xs">Assign plan manual</span>
+        </summary>
+        <div class="px-4 pb-4 pt-2 space-y-3">
+            <p class="text-xs text-muted-foreground">Assign plan jika user sudah melakukan pembayaran di luar sistem.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                @foreach($pricingPlans as $plan)
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="pricing_plan_id" value="{{ $plan->id }}"
+                           class="sr-only peer"
+                           {{ old('pricing_plan_id', $user->pricing_plan_id) == $plan->id ? 'checked' : '' }}>
+                    <div class="border border-border/20 rounded-xl p-4 peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-semibold text-foreground">{{ $plan->name }}</span>
+                            @if($plan->is_popular)
+                                <span class="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full">Popular</span>
+                            @endif
+                        </div>
+                        <p class="text-xs text-muted-foreground font-mono">{{ $plan->slug }}</p>
+                        <p class="text-sm font-medium text-foreground mt-1">
+                            {{ $plan->price > 0 ? 'Rp ' . number_format($plan->price, 0, ',', '.') : 'Gratis' }}
+                        </p>
+                    </div>
+                </label>
+                @endforeach
+            </div>
+        </div>
+    </details>
+
     <details class="rounded-xl border border-border/10 bg-background/40">
       <summary class="cursor-pointer select-none px-4 py-3 text-sm font-sans font-medium text-foreground flex items-center justify-between">
         <span>Personal Information</span>

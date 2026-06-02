@@ -39,8 +39,15 @@
             <div class="bg-card rounded-[12px] border border-border/10 p-4 space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-semibold text-foreground shrink-0"
-                             :style="{ background: planColors[u.plan] ?? '#838383' }" x-text="initials(u.name)"></div>
+                        <div class="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-[11px] font-semibold text-foreground shrink-0"
+                             :style="u.avatar_url ? '' : `background: ${planColors[u.plan] ?? '#838383'}`">
+                            <template x-if="u.avatar_url">
+                                <img :src="u.avatar_url" class="w-full h-full object-cover" alt="">
+                            </template>
+                            <template x-if="!u.avatar_url">
+                                <span x-text="initials(u.name)"></span>
+                            </template>
+                        </div>
                         <div>
                             <p class="text-sm font-medium text-foreground leading-tight" x-text="u.name"></p>
                             <p class="text-[11px] text-paragraph" x-text="u.email"></p>
@@ -104,7 +111,20 @@
                         <template x-for="(u, i) in paginated()" :key="u.id">
                             <tr class="hover:bg-muted/50 transition-colors duration-200 border-b border-border/5">
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="'#' + u.id"></td>
-                                <td class="px-5 py-3 text-sm font-sans text-foreground" x-text="u.name"></td>
+                                <td class="px-5 py-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-semibold text-foreground shrink-0"
+                                             :style="u.avatar_url ? '' : `background: ${planColors[u.plan] ?? '#838383'}`">
+                                            <template x-if="u.avatar_url">
+                                                <img :src="u.avatar_url" class="w-full h-full object-cover" alt="">
+                                            </template>
+                                            <template x-if="!u.avatar_url">
+                                                <span x-text="initials(u.name)"></span>
+                                            </template>
+                                        </div>
+                                        <span class="text-sm font-sans text-foreground" x-text="u.name"></span>
+                                    </div>
+                                </td>
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="u.email"></td>
                                 <td class="px-5 py-3">
                                     <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="roleBadgeClass(u.role)" x-text="u.roleLabel"></span>
@@ -149,7 +169,7 @@ function usersPage() {
         planFilter: 'All',
         page: 1,
         perPage: 10,
-        plans: ['All', 'Free', 'Smart', 'Pro'],
+        plans: ['All', @foreach(\App\Models\PricingPlan::where('is_active', true)->get() as $p)'{{ $p->name }}', @endforeach],
         planColors: { Free: '#838383', Smart: '#8BA023', Pro: '#d4941a' },
         users: [],
         async init() {
@@ -165,14 +185,15 @@ function usersPage() {
                 const raw = await res.json();
 
                 this.users = raw.map(u => ({
-                    id:        u.id,
-                    name:      u.name,
-                    email:     u.email,
-                    role:      u.role,
-                    roleLabel: u.roleLabel,
-                    plan:      u.plan,
-                    joined:    u.joined,
-                    status:    u.status,
+                    id:         u.id,
+                    name:       u.name,
+                    email:      u.email,
+                    role:       u.role,
+                    avatar_url: u.avatar_url ?? null,
+                    roleLabel:  u.roleLabel,
+                    plan:       u.plan,
+                    joined:     u.joined,
+                    status:     u.status,
                 }));
                 this.page = 1;
             } catch (e) {

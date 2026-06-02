@@ -3,7 +3,10 @@
     "allow": [
       "Bash(composer require *)",
       "Read(//d/Dev/SDKs/php-8.4.21/**)",
-      "Bash(php -r \"require 'vendor/autoload.php'; echo 'PHP OK';\")"
+      "Bash(php -r \"require 'vendor/autoload.php'; echo 'PHP OK';\")",
+      "Bash(Get-ChildItem d:\\\\Dev\\\\Projects\\\\Web\\\\Laravel\\\\RenovaSim-UI\\\\app\\\\Models)",
+      "Bash(Select-Object Name)",
+      "Bash(python fix_room_user_ids.py)"
     ],
     "additionalDirectories": [
       "D:\\Dev\\SDKs\\php-8.4.21"

@@ -25,7 +25,7 @@
     <div class="space-y-4">
 
     {{-- ════════════════════════ TOP STATS ROW ════════════════════════ --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
         {{-- Total Users --}}
         <div class="relative bg-card rounded-[14px] border border-border/10 flex flex-col min-h-[250px] overflow-hidden transition-all duration-200 hover:shadow-xl hover:border-border/20">
@@ -151,31 +151,10 @@
             </div>
         </div>
 
-        {{-- Active Subscriptions --}}
-        <div class="relative bg-card rounded-[14px] border border-border/10 flex flex-col min-h-[250px] overflow-hidden transition-all duration-200 hover:shadow-xl hover:border-border/20">
-            <div class="absolute top-0 left-0 right-0 h-[3px] rounded-t-[14px]" style="background: linear-gradient(90deg, #8BA023, #8BA02366)"></div>
-            <div class="absolute top-0 left-0 w-32 h-32 rounded-full pointer-events-none" style="background: radial-gradient(circle at top left, rgba(139,160,35,0.1), transparent 70%)"></div>
-            <div class="px-6 pt-7 pb-3 flex-1">
-                <p class="text-[10px] uppercase tracking-[0.15em] font-sans text-paragraph">Materials & Partners</p>
-                <div class="flex items-center gap-6 mt-3">
-                    <div>
-                        <p class="text-[9px] uppercase tracking-widest text-paragraph">Materials</p>
-                        <p class="text-2xl font-serif text-foreground mt-0.5" x-text="metrics.total_materials?.toLocaleString() ?? '0'"></p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] uppercase tracking-widest text-paragraph">Partners</p>
-                        <p class="text-2xl font-serif text-foreground mt-0.5" x-text="metrics.total_partners?.toLocaleString() ?? '0'"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="w-full" style="height:100px">
-                <canvas id="activeSubsChart"></canvas>
-            </div>
-        </div>
     </div>
 
     {{-- ════════════════════════ MIDDLE CHARTS ════════════════════════ --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
 
         {{-- Projects Growth --}}
         <div class="bg-card rounded-[14px] border border-border/10 p-6">
@@ -206,21 +185,6 @@
             </div>
         </div>
 
-        {{-- Top Materials --}}
-        <div class="bg-card rounded-[14px] border border-border/10 p-6">
-            <p class="text-[10px] uppercase tracking-[0.15em] font-sans text-paragraph mb-4">Top Materials</p>
-            <div style="height:180px">
-                <canvas id="topMaterialsChart"></canvas>
-            </div>
-        </div>
-
-        {{-- Cost Distribution --}}
-        <div class="bg-card rounded-[14px] border border-border/10 p-6">
-            <p class="text-[10px] uppercase tracking-[0.15em] font-sans text-paragraph mb-4">Cost Distribution</p>
-            <div style="height:180px">
-                <canvas id="costDistChart"></canvas>
-            </div>
-        </div>
     </div>
 
     {{-- ════════════════════════ RECENT ACTIVITY ════════════════════════ --}}
@@ -233,8 +197,15 @@
             <template x-for="(a, i) in activities" :key="i">
                 <div class="flex items-start gap-3">
                     <div class="relative shrink-0">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-semibold text-foreground"
-                             :style="{ background: dotColors[a.type] ?? '#838383' }" x-text="a.initials"></div>
+                        <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-[11px] font-semibold text-foreground"
+                             :style="a.avatar_url ? '' : `background: ${dotColors[a.type] ?? '#838383'}`">
+                            <template x-if="a.avatar_url">
+                                <img :src="a.avatar_url" class="w-full h-full object-cover" alt="">
+                            </template>
+                            <template x-if="!a.avatar_url">
+                                <span x-text="a.initials"></span>
+                            </template>
+                        </div>
                         <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card"
                               :style="{ background: dotColors[a.type] ?? '#838383' }"></span>
                     </div>
@@ -269,7 +240,7 @@ function dashboardPage() {
         metrics: {},
         activities: [],
         formattedDate: new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }),
-        dotColors: { project:'#8BA023', plan:'#d4941a', material:'#838383', user:'#F5F5F5' },
+        dotColors: { project:'#8BA023', plan:'#d4941a', user:'#F5F5F5' },
         planChartColors: ['#838383', '#8BA023', '#d4941a', '#6b8e23', '#b8860b'],
 
         get gaugeActive() {
@@ -354,21 +325,6 @@ function dashboardPage() {
                 });
             }
 
-            // Active Subs bar (uses user chart data as bar)
-            const activeSubsEl = document.getElementById('activeSubsChart');
-            if (activeSubsEl) {
-                new Chart(activeSubsEl, {
-                    type: 'bar',
-                    data: {
-                        labels: usersChart.map(d => d.label),
-                        datasets: [{ data: usersChart.map(d => d.count),
-                            backgroundColor: accent + 'cc',
-                            borderRadius: 3, barPercentage: 0.6 }]
-                    },
-                    options: { ...this.chartDefaults }
-                });
-            }
-
             // Projects Growth line
             const projGrowthEl = document.getElementById('projectsGrowthChart');
             if (projGrowthEl) {
@@ -418,52 +374,6 @@ function dashboardPage() {
                 });
             }
 
-            // Top Materials horizontal bar
-            const topMats = this.metrics.top_materials ?? [];
-            const topMatsEl = document.getElementById('topMaterialsChart');
-            if (topMatsEl) {
-                new Chart(topMatsEl, {
-                    type: 'bar',
-                    data: {
-                        labels: topMats.map(m => m.name),
-                        datasets: [{ data: topMats.map(m => m.count),
-                            backgroundColor: accent+'bb',
-                            borderRadius: 4, barPercentage:0.6 }]
-                    },
-                    options: {
-                        indexAxis:'y',
-                        responsive:true, maintainAspectRatio:false,
-                        plugins:{ legend:{ display:false } },
-                        scales:{
-                            x:{ ticks:{ color:'#838383', font:{size:10} }, grid:{ color:'rgba(245,245,245,0.05)' } },
-                            y:{ ticks:{ color:'#838383', font:{size:10} }, grid:{ display:false } }
-                        }
-                    }
-                });
-            }
-
-            // Cost Distribution bar
-            const costDist = this.metrics.cost_distribution ?? [];
-            const costDistEl = document.getElementById('costDistChart');
-            if (costDistEl) {
-                new Chart(costDistEl, {
-                    type: 'bar',
-                    data: {
-                        labels: costDist.map(c => c.label),
-                        datasets:[{ data: costDist.map(c => c.count),
-                            backgroundColor: accent+'bb',
-                            borderRadius:4, barPercentage:0.6 }]
-                    },
-                    options:{
-                        responsive:true, maintainAspectRatio:false,
-                        plugins:{ legend:{ display:false } },
-                        scales:{
-                            x:{ ticks:{ color:'#838383', font:{size:10} }, grid:{ display:false } },
-                            y:{ ticks:{ color:'#838383', font:{size:10} }, grid:{ color:'rgba(245,245,245,0.05)' } }
-                        }
-                    }
-                });
-            }
         },
     }
 }

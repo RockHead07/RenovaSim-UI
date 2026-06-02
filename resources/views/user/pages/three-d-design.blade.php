@@ -66,6 +66,7 @@
     <script>
     (function() {
         const API       = 'http://localhost:5000/api';
+        const USER_ID   = '{{ auth()->id() }}';
         const gridEl    = document.getElementById('projects-grid');
         const loadingEl = document.getElementById('projects-loading');
         const emptyEl   = document.getElementById('projects-empty');
@@ -108,7 +109,7 @@
             }
 
             try {
-                const r    = await fetch(API + '/projects');
+                const r    = await fetch(API + '/projects?user_id=' + USER_ID);
                 const data = await r.json();
                 loadingEl.classList.add('hidden');
 
@@ -194,7 +195,7 @@
         window.deleteProject = async function(id) {
             if (!confirm('Hapus desain ini? Tindakan ini tidak dapat dibatalkan.')) return;
             try {
-                await fetch(API + '/rooms/' + id, { method: 'DELETE' });
+                await fetch(API + '/rooms/' + id + '?user_id=' + USER_ID, { method: 'DELETE' });
                 loadProjects();
             } catch(e) { alert('Gagal menghapus desain.'); }
         };

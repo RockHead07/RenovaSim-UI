@@ -32,22 +32,23 @@ class UserController extends Controller
 
         $users = $query->latest()->paginate(10)->withQueryString();
         $usersData = $users->map(fn ($user) => [
-            'id' => $user->id,
-            'name' => $user->username,
-            'email' => $user->email,
-            'role' => $user->role ?? 'user',
-            'roleLabel' => match ($user->role ?? 'user') {
-                'admin' => 'Admin',
+            'id'         => $user->id,
+            'name'       => $user->username,
+            'email'      => $user->email,
+            'role'       => $user->role ?? 'user',
+            'avatar_url' => $user->avatar_path ? asset('storage/' . $user->avatar_path) : null,
+            'roleLabel'  => match ($user->role ?? 'user') {
+                'admin'       => 'Admin',
                 'super_admin' => 'Super Admin',
-                'owner' => 'Owner',
-                default => 'User',
+                'owner'       => 'Owner',
+                default       => 'User',
             },
-            'plan' => $user->plan ?? 'Free',
+            'plan'   => $user->plan ?? 'Free',
             'joined' => $user->created_at->format('Y-m-d'),
             'status' => match ($user->account_status ?? 'active') {
-                'inactive' => 'Inactive',
+                'inactive'  => 'Inactive',
                 'suspended' => 'Suspended',
-                default => 'Active',
+                default     => 'Active',
             },
         ])->values();
 
@@ -75,22 +76,23 @@ class UserController extends Controller
 
         return response()->json(
             $users->map(fn ($user) => [
-                'id' => $user->id,
-                'name' => $user->username,
-                'email' => $user->email,
-                'role' => $user->role ?? 'user',
-                'roleLabel' => match ($user->role ?? 'user') {
-                    'admin' => 'Admin',
+                'id'         => $user->id,
+                'name'       => $user->username,
+                'email'      => $user->email,
+                'role'       => $user->role ?? 'user',
+                'avatar_url' => $user->avatar_path ? asset('storage/' . $user->avatar_path) : null,
+                'roleLabel'  => match ($user->role ?? 'user') {
+                    'admin'       => 'Admin',
                     'super_admin' => 'Super Admin',
-                    'owner' => 'Owner',
-                    default => 'User',
+                    'owner'       => 'Owner',
+                    default       => 'User',
                 },
-                'plan' => $user->plan ?? 'Free',
+                'plan'   => $user->plan ?? 'Free',
                 'joined' => optional($user->created_at)->format('Y-m-d'),
                 'status' => match ($user->account_status ?? 'active') {
-                    'inactive' => 'Inactive',
+                    'inactive'  => 'Inactive',
                     'suspended' => 'Suspended',
-                    default => 'Active',
+                    default     => 'Active',
                 },
             ])->values()
         );
@@ -171,8 +173,9 @@ class UserController extends Controller
             'de' => 'German',
             'pt' => 'Portuguese',
         ];
+        $pricingPlans = \App\Models\PricingPlan::where('is_active', true)->get();
 
-        return view('admin.users.edit', compact('user', 'projects', 'selectedProjectIds', 'timezones', 'languages'));
+        return view('admin.users.edit', compact('user', 'projects', 'selectedProjectIds', 'timezones', 'languages', 'pricingPlans'));
     }
 
     // UPDATE
@@ -219,6 +222,14 @@ class UserController extends Controller
                 Storage::disk('public')->delete($user->avatar_path);
             }
             $data['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        if ($request->filled('pricing_plan_id')) {
+            $plan = \App\Models\PricingPlan::find($request->input('pricing_plan_id'));
+            if ($plan) {
+                $data['pricing_plan_id'] = $plan->id;
+                $data['plan'] = $plan->name;
+            }
         }
 
         $user->update($data);

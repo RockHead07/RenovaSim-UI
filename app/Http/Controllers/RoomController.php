@@ -156,12 +156,34 @@ class RoomController extends Controller
     }
 
     /**
-     * List all users' rooms for admin
+     * List all users' rooms for admin (Laravel DB, with Flask fallback)
      */
     public function adminIndex()
     {
         $rooms = Room::with('user')->orderBy('created_at', 'desc')->get();
-        return view('admin.rooms.index', compact('rooms'));
+
+        if ($rooms->isEmpty()) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                    ->get('http://localhost:5000/api/projects');
+
+                if ($response->successful()) {
+                    return view('admin.rooms.index', [
+                        'rooms'      => collect([]),
+                        'flaskRooms' => collect($response->json()['projects'] ?? []),
+                        'fromFlask'  => true,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Flask server not available
+            }
+        }
+
+        return view('admin.rooms.index', [
+            'rooms'      => $rooms,
+            'flaskRooms' => collect([]),
+            'fromFlask'  => false,
+        ]);
     }
 
     /**

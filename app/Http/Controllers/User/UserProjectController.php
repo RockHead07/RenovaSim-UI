@@ -80,51 +80,58 @@ class UserProjectController extends Controller
 
         $user = auth()->user();
 
-        // --- PLAN LIMIT: max_projects ---
-        $currentProjectCount = Project::where('user_id', $user->id)->count();
-        if ($user->hasReachedLimit('max_projects', $currentProjectCount)) {
-            $limit = $user->planLimit('max_projects');
-            $plan  = $user->activePlan();
-            return redirect()->back()->with('error',
-                "Slot project kamu sudah penuh ({$limit} project). Upgrade plan untuk membuat lebih banyak project."
-            );
-        }
-
-        // --- PLAN LIMIT: max_estimations (for existing project via session) ---
+        // Check if adding to EXISTING project
         $existingProjectId = session('current_project_id');
-        if ($existingProjectId) {
-            $existingProject = Project::where('user_id', $user->id)
-                ->find($existingProjectId);
-            if ($existingProject) {
-                $currentEstimationCount = $existingProject->estimations()->count();
-                if ($user->hasReachedLimit('max_estimations_per_project', $currentEstimationCount)) {
-                    $limit = $user->planLimit('max_estimations_per_project');
-                    $plan  = $user->activePlan();
-                    return redirect()->back()->with('error',
-                        "Project ini sudah mencapai batas {$limit} estimasi. Upgrade plan untuk menambah lebih banyak estimasi."
-                    );
-                }
+        $project = $existingProjectId
+            ? Project::where('user_id', $user->id)->find($existingProjectId)
+            : null;
+
+        if ($project) {
+            // --- PLAN LIMIT: max_estimations_per_project ---
+            $currentEstimationCount = $project->estimations()->count();
+            if ($user->hasReachedLimit('max_estimations_per_project', $currentEstimationCount)) {
+                $limit = $user->planLimit('max_estimations_per_project');
+                $plan  = $user->activePlan();
+                return redirect()->back()->with('error',
+                    "Project ini sudah mencapai batas {$limit} estimasi untuk plan {$plan->name}. "
+                    . "Upgrade plan untuk menambah lebih banyak estimasi."
+                );
             }
+        } else {
+            // --- PLAN LIMIT: max_projects ---
+            $currentProjectCount = Project::where('user_id', $user->id)->count();
+            if ($user->hasReachedLimit('max_projects', $currentProjectCount)) {
+                $limit = $user->planLimit('max_projects');
+                $plan  = $user->activePlan();
+                return redirect()->back()->with('error',
+                    "Slot project kamu sudah penuh ({$limit} project). Upgrade plan untuk membuat lebih banyak project."
+                );
+            }
+
+            // Create NEW project
+            $project = Project::create([
+                'user_id'           => $user->id,
+                'name'              => $setup['project_name'] ?? $result['project_name'] ?? 'Renovasi',
+                'building_type'     => $setup['building_type'] ?? null,
+                'location'          => $setup['location'] ?? $result['location'] ?? null,
+                'description'       => $setup['description'] ?? null,
+                'status'            => 'active',
+                'total_cost'        => 0,
+                'estimations_count' => 0,
+            ]);
         }
 
-        $project = Project::create([
-            'user_id'           => $user->id,
-            'name'              => $setup['project_name'] ?? $result['project_name'] ?? 'Renovasi',
-            'building_type'     => $setup['building_type'] ?? null,
-            'location'          => $setup['location'] ?? $result['location'] ?? null,
-            'description'       => $setup['description'] ?? null,
-            'status'            => 'active',
-            'total_cost'        => 0,
-            'estimations_count' => 0,
-        ]);
+        // Add estimation to project (existing or new)
+        $breakdown = $result['breakdown'] ?? [];
+        $jobTypes  = collect($breakdown)->pluck('job_type')->filter()->implode(', ');
 
         Estimation::create([
             'project_id'       => $project->id,
             'user_id'          => $user->id,
-            'label'            => $result['breakdown'][0]['job_type'] ?? 'Estimasi',
+            'label'            => $jobTypes ?: ($result['project_name'] ?? 'Estimasi'),
             'mode'             => $result['mode'] ?? 'wizard',
-            'job_type'         => $result['breakdown'][0]['job_type'] ?? null,
-            'area'             => $result['breakdown'][0]['area'] ?? null,
+            'job_type'         => $breakdown[0]['job_type'] ?? null,
+            'area'             => $breakdown[0]['area'] ?? null,
             'location'         => $result['location'] ?? null,
             'quality'          => $result['quality'] ?? null,
             'cost_min'         => $result['total_range']['min'] ?? 0,
@@ -140,8 +147,12 @@ class UserProjectController extends Controller
         session()->forget(['estimation_result', 'project_setup']);
         session()->put('current_project_id', $project->id);
 
+        $message = $existingProjectId
+            ? 'Estimasi berhasil ditambahkan ke project!'
+            : 'Estimasi berhasil disimpan!';
+
         return redirect()->route('user.projects')
-            ->with('success', 'Estimasi berhasil disimpan! Klik project untuk melihat detail.');
+            ->with('success', $message);
     }
 
     /**

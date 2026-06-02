@@ -12,6 +12,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="user-id" content="{{ auth()->id() }}">
     <title>{{ $title ?? 'RenovaSim' }}</title>
     {{-- Prevent sidebar FOUC: read localStorage synchronously before render --}}
     {{-- Prevent sidebar FOUC: read localStorage synchronously before render --}}

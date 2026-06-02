@@ -68,22 +68,29 @@ class AdminDashboardController extends Controller
             ];
         });
 
+        $usersGrowth = $usersLastMonth > 0
+            ? round((($usersThisMonth - $usersLastMonth) / $usersLastMonth) * 100)
+            : 0;
+
         return response()->json(['data' => [
-            'total_users'        => $totalUsers,
-            'active_rate'        => $totalUsers > 0 ? round(($activeUsers / $totalUsers) * 100) : 0,
-            'users_this_month'   => $usersThisMonth,
-            'users_last_month'   => $usersLastMonth,
-            'active_users'       => $activeUsers,
-            'inactive_users'     => $inactiveUsers,
-            'total_projects'     => $totalProjects,
-            'draft_projects'     => $draftProjects,
-            'estimated_projects' => $activeProjects,
-            'completed_projects' => $completedProjects,
-            'total_materials'    => $totalMaterials,
-            'total_partners'     => $totalPartners,
-            'plan_distribution'  => $planDist,
-            'top_materials'      => $topMaterials,
-            'chart_data'         => [
+            'total_users'          => $totalUsers,
+            'active_rate'          => $totalUsers > 0 ? round(($activeUsers / $totalUsers) * 100) : 0,
+            'users_growth'         => $usersGrowth,
+            'new_users_this_month' => $usersThisMonth,
+            'new_users_last_month' => $usersLastMonth,
+            'active_users'         => $activeUsers,
+            'inactive_users'       => $inactiveUsers,
+            'total_projects'       => $totalProjects,
+            'projects_by_status'   => [
+                'draft'     => $draftProjects,
+                'estimated' => $activeProjects,
+                'completed' => $completedProjects,
+            ],
+            'total_materials'      => $totalMaterials,
+            'total_partners'       => $totalPartners,
+            'plan_distribution'    => $planDist,
+            'top_materials'        => $topMaterials,
+            'chart_data'           => [
                 'users'    => $chartUsers,
                 'projects' => $chartProjects,
             ],
@@ -92,20 +99,31 @@ class AdminDashboardController extends Controller
 
     public function activity()
     {
-        $recentUsers = User::latest()->take(5)->get()->map(fn($u) => [
-            'type'    => 'user',
-            'message' => 'User baru terdaftar: ' . ($u->username ?? $u->email),
-            'time'    => $u->created_at->diffForHumans(),
+        $recentUsers = User::latest()->take(4)->get()->map(fn($u) => [
+            'type'       => 'user',
+            'initials'   => strtoupper(substr($u->username ?? $u->email ?? 'U', 0, 2)),
+            'avatar_url' => $u->avatar_path ? asset('storage/' . $u->avatar_path) : null,
+            'user'       => $u->username ?? $u->email,
+            'action'     => 'mendaftar sebagai user baru',
+            'detail'     => $u->email,
+            'status'     => 'New',
+            'time_human' => $u->created_at->diffForHumans(),
         ]);
 
-        $recentProjects = Project::with('user')->latest()->take(5)->get()->map(fn($p) => [
-            'type'    => 'project',
-            'message' => 'Project dibuat: ' . $p->name . ($p->user ? ' oleh ' . $p->user->username : ''),
-            'time'    => $p->created_at->diffForHumans(),
+        $recentProjects = Project::with('user')->latest()->take(4)->get()->map(fn($p) => [
+            'type'       => 'project',
+            'initials'   => strtoupper(substr($p->name ?? 'P', 0, 2)),
+            'avatar_url' => $p->user?->avatar_path ? asset('storage/' . $p->user->avatar_path) : null,
+            'user'       => $p->user?->username ?? $p->user?->email ?? 'Unknown',
+            'action'     => 'membuat project',
+            'detail'     => $p->name . ' — ' . ($p->location ?? 'lokasi tidak diset'),
+            'status'     => 'Done',
+            'time_human' => $p->created_at->diffForHumans(),
         ]);
 
         $activities = $recentUsers->concat($recentProjects)
-            ->take(10)
+            ->sortByDesc(fn($a) => $a['time_human'])
+            ->take(8)
             ->values();
 
         return response()->json(['data' => $activities]);

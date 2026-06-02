@@ -1,4 +1,5 @@
-const API = 'http://localhost:5000/api';
+const API     = 'http://localhost:5000/api';
+const USER_ID = document.querySelector('meta[name="user-id"]')?.content || '';
 
 export async function checkStatus() {
     try {
@@ -10,6 +11,7 @@ export async function checkStatus() {
 export async function uploadImages(files) {
     const fd = new FormData();
     files.forEach(f => fd.append('images', f));
+    fd.append('user_id', USER_ID);
     const r = await fetch(`${API}/upload-images`, { method: 'POST', body: fd });
     return r.json();
 }
@@ -38,7 +40,7 @@ export async function getRoom(roomId) {
 export async function saveRoom(roomId, data) {
     const r = await fetch(`${API}/rooms/${roomId}/save`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, user_id: USER_ID }),
     });
     return r.json();
 }

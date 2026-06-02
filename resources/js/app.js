@@ -1,14 +1,6 @@
 import './bootstrap';
 
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-// Alpine auto-initializes when loaded from CDN with defer
-// Only call start() if it's not already running
-if (document.querySelectorAll('[x-data]').length > 0 && !Alpine.closest) {
-    Alpine.start();
-}
+// Alpine is initialized in user.js — skip here to avoid double init
 
 if (document.body.classList.contains("landing")) {
     const dot = document.querySelector(".cursor-dot");

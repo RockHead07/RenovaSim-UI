@@ -543,13 +543,17 @@ api.add_resource(EditorStatus, '/api/status')
 
 @app.route('/api/projects', methods=['GET'])
 def list_projects():
-    """List all saved room projects"""
+    """List all saved room projects, optionally filtered by user_id"""
+    user_id = request.args.get('user_id')
     projects = []
     for fname in os.listdir(DATA_DIR):
         if fname.startswith('room_') and fname.endswith('.json'):
             try:
                 with open(os.path.join(DATA_DIR, fname), 'r') as f:
                     data = json.load(f)
+                room_user_id = str(data.get('user_id', ''))
+                if user_id and room_user_id and room_user_id != str(user_id):
+                    continue
                 projects.append({
                     "id": data.get("id", fname.replace('room_', '').replace('.json', '')),
                     "name": data.get("name", "Untitled Room"),
@@ -565,9 +569,10 @@ def list_projects():
                     "updated_at": data.get("updated_at", ""),
                     "status": data.get("status", "saved"),
                     "thumbnail": data.get("thumbnail", None),
+                    "user_id": data.get("user_id"),
                 })
-            except:
-                pass
+            except Exception as e:
+                print(f"Error reading {fname}: {e}")
     projects.sort(key=lambda x: x.get("updated_at") or x.get("created_at") or "", reverse=True)
     return jsonify({"projects": projects, "count": len(projects)}), 200
 
@@ -603,6 +608,7 @@ def upload_images():
     """Upload room photos and generate 3D room"""
     room_id = str(uuid.uuid4())[:12]
     images_info = []
+    user_id = request.form.get('user_id') or (request.get_json(silent=True) or {}).get('user_id')
 
     if 'images' in request.files:
         files = request.files.getlist('images')
@@ -622,6 +628,8 @@ def upload_images():
         return jsonify({"error": "No images provided"}), 400
 
     room_data = generate_room_from_images(images_info, room_id)
+    room_data['user_id'] = user_id
+    save_room(room_id, room_data)
     return jsonify({
         "status": "success",
         "room_id": room_id,
@@ -702,20 +710,22 @@ def update_wall_color(room_id):
 @app.route('/api/rooms/<room_id>/save', methods=['POST'])
 def save_room_route(room_id):
     """Save room data"""
-    data = request.get_json()
-    room_data = load_room(room_id) or {
+    incoming = request.get_json()
+    existing = load_room(room_id) or {
         "id": room_id,
-        "name": data.get("name", f"Room {room_id}"),
-        "width": data.get("width", 8),
-        "length": data.get("length", 10),
-        "height": data.get("height", 3.2),
+        "name": incoming.get("name", f"Room {room_id}"),
+        "width": incoming.get("width", 8),
+        "length": incoming.get("length", 10),
+        "height": incoming.get("height", 3.2),
         "objects": [],
         "created_at": datetime.now().isoformat(),
     }
-    room_data.update(data)
-    room_data["updated_at"] = datetime.now().isoformat()
-    save_room(room_id, room_data)
-    return jsonify({"status": "success", "data": room_data}), 200
+    existing_user_id = existing.get('user_id')
+    existing.update(incoming)
+    existing['user_id'] = incoming.get('user_id', existing_user_id)
+    existing['updated_at'] = datetime.now().isoformat()
+    save_room(room_id, existing)
+    return jsonify({"status": "success", "data": existing}), 200
 
 
 @app.route('/uploads/<filename>')
