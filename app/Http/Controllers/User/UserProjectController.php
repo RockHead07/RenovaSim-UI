@@ -6,19 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Models\Estimation;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class UserProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::where('user_id', auth()->id())
-            ->with(['estimations' => fn($q) => $q->latest()->limit(1)])
-            ->latest()
-            ->get()
-            ->map(function ($p) {
-                $p->latest_estimation = $p->estimations->first();
-                return $p;
-            });
+        $userId = auth()->id();
+
+        $projects = Cache::remember('user_projects_'.$userId, 60, function () use ($userId) {
+            return Project::where('user_id', $userId)
+                ->with(['estimations' => fn ($q) => $q->latest()->limit(1)])
+                ->latest()
+                ->get()
+                ->map(function ($p) {
+                    $p->latest_estimation = $p->estimations->first();
+
+                    return $p;
+                });
+        });
 
         return view('user.pages.projects', ['projects' => $projects]);
     }
@@ -53,6 +59,8 @@ class UserProjectController extends Controller
         $proj = Project::where('id', $project)->where('user_id', auth()->id())->firstOrFail();
         $proj->estimations()->delete();
         $proj->delete();
+
+        $this->clearUserCache();
 
         return redirect()->route('user.projects')
             ->with('success', 'Project "' . $proj->name . '" berhasil dihapus.');
@@ -131,11 +139,20 @@ class UserProjectController extends Controller
             session()->put('current_project_id', $projectId);
         }
 
+        $this->clearUserCache();
+
         $message = $existingProjectId
             ? 'Estimasi berhasil ditambahkan ke project!'
             : 'Estimasi berhasil disimpan!';
 
         return redirect()->route('user.projects')->with('success', $message);
+    }
+
+    private function clearUserCache(): void
+    {
+        $userId = auth()->id();
+        Cache::forget('user_projects_'.$userId);
+        Cache::forget('user_stats_'.$userId);
     }
 
     public function showOverview()

@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\RabShare;
 use App\Exports\RabExport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -17,6 +18,8 @@ class RabController extends Controller
      */
     public function buildRabData(Project $project): array
     {
+        $jobTypeLabels = Cache::remember('renovasim_job_type_id', 3600, fn () => config('renovasim.job_type_id', []));
+
         $estimations = $project->estimations()->get();
         $jobGroups   = [];
 
@@ -39,7 +42,7 @@ class RabController extends Controller
                 if (!isset($jobGroups[$jobType])) {
                     $jobGroups[$jobType] = [
                         'job_type'   => $jobType,
-                        'label'      => config('renovasim.job_type_id')[$jobType] ?? ucfirst($jobType),
+                        'label'      => $jobTypeLabels[$jobType] ?? ucfirst($jobType),
                         'total_area' => 0,
                         'total_min'  => 0,
                         'total_max'  => 0,

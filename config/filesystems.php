@@ -60,6 +60,32 @@ return [
             'report'                  => false,
         ],
 
+        'thumbnails' => [
+            'driver'                  => 's3',
+            'key'                     => env('AWS_ACCESS_KEY_ID'),
+            'secret'                  => env('AWS_SECRET_ACCESS_KEY'),
+            'region'                  => env('AWS_DEFAULT_REGION', 'ap-northeast-1'),
+            'bucket'                  => env('AWS_THUMBNAILS_BUCKET', 'thumbnails'),
+            'url'                     => env('SUPABASE_THUMBNAILS_URL'),
+            'endpoint'                => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
+            'throw'                   => true,
+            'report'                  => false,
+        ],
+
+        'room_uploads' => [
+            'driver'                  => 's3',
+            'key'                     => env('AWS_ACCESS_KEY_ID'),
+            'secret'                  => env('AWS_SECRET_ACCESS_KEY'),
+            'region'                  => env('AWS_DEFAULT_REGION', 'ap-northeast-1'),
+            'bucket'                  => env('AWS_ROOM_UPLOADS_BUCKET', 'room-uploads'),
+            'url'                     => env('SUPABASE_UPLOADS_URL'),
+            'endpoint'                => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
+            'throw'                   => true,
+            'report'                  => false,
+        ],
+
     ],
 
     /*

@@ -142,8 +142,12 @@
                     ? new Date(date).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})
                     : '—';
 
-                const thumbHtml = p.thumbnail
-                    ? `<img src="${p.thumbnail}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;">`
+                const thumb = p.thumbnail
+                    && (p.thumbnail.startsWith('http') || p.thumbnail.startsWith('data:image'))
+                    ? p.thumbnail
+                    : null;
+                const thumbHtml = thumb
+                    ? `<img src="${thumb}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;">`
                     : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">${SVG.cube}</div>`;
 
                 const card = document.createElement('div');

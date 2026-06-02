@@ -36,7 +36,7 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name(
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
 Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
-    Route::view('/dashboard', 'user.pages.dashboard')->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
     Route::view('/project-stage', 'user.pages.project-stage');
     Route::view('/project-details', 'user.pages.project-details');
     Route::get('/project-overview', [UserProjectController::class, 'showOverview'])->name('user.project-overview');

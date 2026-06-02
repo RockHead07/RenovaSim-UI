@@ -7,6 +7,8 @@ use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class Room3DController extends Controller
 {
@@ -123,9 +125,26 @@ class Room3DController extends Controller
     {
         $room = $this->roomQuery($id)->firstOrFail();
 
-        $room->update(['thumbnail' => $request->input('thumbnail')]);
+        $thumbnailData = $request->input('thumbnail');
 
-        return response()->json(['success' => true]);
+        if ($thumbnailData && str_starts_with($thumbnailData, 'data:image')) {
+            try {
+                $base64    = preg_replace('/^data:image\/\w+;base64,/', '', $thumbnailData);
+                $imageData = base64_decode($base64);
+                $filename  = ($room->external_id ?? $room->id).'_'.time().'.jpg';
+
+                Storage::disk('thumbnails')->put($filename, $imageData, 'public');
+                $url = Storage::disk('thumbnails')->url($filename);
+
+                $room->update(['thumbnail' => $url]);
+            } catch (\Exception $e) {
+                $room->update(['thumbnail' => $thumbnailData]);
+            }
+        } else {
+            $room->update(['thumbnail' => $thumbnailData]);
+        }
+
+        return response()->json(['success' => true, 'thumbnail' => $room->fresh()->thumbnail]);
     }
 
     public function uploadImages(Request $request)
@@ -135,37 +154,102 @@ class Room3DController extends Controller
             $files = $files ? [$files] : [];
         }
 
-        $http = Http::timeout(120);
-        foreach ($files as $file) {
-            $http = $http->attach(
-                'images',
-                file_get_contents($file->getRealPath()),
-                $file->getClientOriginalName()
-            );
+        Log::info('uploadImages called', [
+            'files_count' => count($files),
+            'flask_url'   => $this->flaskUrl,
+        ]);
+
+        if (empty($files)) {
+            return response()->json(['error' => 'No images provided'], 422);
         }
 
-        $response = $http->post("{$this->flaskUrl}/upload-images");
-        $result = $response->json();
+        try {
+            $multipart = Http::timeout(120)->asMultipart();
+            foreach ($files as $file) {
+                $multipart = $multipart->attach(
+                    'images',
+                    file_get_contents($file->getRealPath()),
+                    $file->getClientOriginalName()
+                );
+            }
 
-        if (! empty($result['room'])) {
-            $roomData = $result['room'];
-            $externalId = $roomData['id'];
+            $response = $multipart->post("{$this->flaskUrl}/upload-images");
 
-            $room = Room::create([
-                'user_id'          => Auth::id(),
-                'external_id'      => $externalId,
-                'name'             => $roomData['name'] ?? 'Room '.substr($externalId, 0, 6),
-                'width'            => $roomData['width'] ?? 8,
-                'length'           => $roomData['length'] ?? 10,
-                'height'           => $roomData['height'] ?? 3.2,
-                'wall_color'       => $roomData['wall_color'] ?? '#f5f0eb',
-                'floor_color'      => $roomData['floor_color'] ?? '#c4a882',
-                'layout_data'      => $roomData['objects'] ?? [],
-                'status'           => 'generated',
-                'recommended_type' => $roomData['recommended_type'] ?? null,
+            if (! $response->successful()) {
+                Log::error('Flask YOLO HTTP error', [
+                    'status' => $response->status(),
+                    'body'   => $response->body(),
+                ]);
+
+                return response()->json([
+                    'error'  => 'YOLO service error',
+                    'status' => $response->status(),
+                    'body'   => $response->json() ?? $response->body(),
+                ], $response->status() >= 400 ? $response->status() : 502);
+            }
+
+            $result = $response->json() ?? [];
+
+            Log::info('Flask YOLO response', [
+                'status'          => $response->status(),
+                'has_room'        => ! empty($result['room']),
+                'detected_assets' => $result['room']['detected_assets'] ?? [],
+                'objects_count'   => count($result['room']['objects'] ?? []),
             ]);
 
-            $result['room']['supabase_id'] = $room->id;
+        } catch (\Exception $e) {
+            Log::error('uploadImages failed', ['error' => $e->getMessage()]);
+
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
+        if (! empty($result['room'])) {
+            $roomData   = $result['room'];
+            $externalId = $roomData['id'] ?? ($result['room_id'] ?? null);
+
+            if ($externalId) {
+                $room = Room::create([
+                    'user_id'          => Auth::id(),
+                    'external_id'      => $externalId,
+                    'name'             => $roomData['name'] ?? 'Room '.substr($externalId, 0, 6),
+                    'width'            => $roomData['width'] ?? 8,
+                    'length'           => $roomData['length'] ?? 10,
+                    'height'           => $roomData['height'] ?? 3.2,
+                    'wall_color'       => $roomData['wall_color'] ?? '#f5f0eb',
+                    'floor_color'      => $roomData['floor_color'] ?? '#c4a882',
+                    'layout_data'      => $roomData['objects'] ?? [],
+                    'status'           => 'generated',
+                    'recommended_type' => $roomData['recommended_type'] ?? null,
+                ]);
+
+                $result['room']['supabase_id'] = $room->id;
+
+                try {
+                    Http::timeout(10)->post(
+                        "{$this->flaskUrl}/rooms/{$externalId}/save",
+                        array_merge($roomData, ['user_id' => (string) Auth::id()])
+                    );
+                } catch (\Exception $e) {
+                    Log::warning('Flask sync failed after upload', ['error' => $e->getMessage()]);
+                }
+            }
+        }
+
+        $imageNames = $result['images'] ?? ($result['room']['images'] ?? []);
+        if (! empty($imageNames)) {
+            $uploadedUrls = [];
+            foreach ($imageNames as $imageName) {
+                $localPath = base_path("RAI/data/uploads/{$imageName}");
+                if (file_exists($localPath)) {
+                    try {
+                        Storage::disk('room_uploads')->put($imageName, file_get_contents($localPath), 'public');
+                        $uploadedUrls[] = Storage::disk('room_uploads')->url($imageName);
+                    } catch (\Exception $e) {
+                        $uploadedUrls[] = null;
+                    }
+                }
+            }
+            $result['image_urls'] = $uploadedUrls;
         }
 
         return response()->json($result);
