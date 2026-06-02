@@ -45,11 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('dashboard/activity', [DashboardController::class, 'activity']);
 
         // CRUD Resources
-        Route::apiResource('users', UserController::class);
-        Route::apiResource('projects', ProjectController::class);
-        Route::apiResource('materials', MaterialController::class);
-        Route::apiResource('pricing-plans', PricingPlanController::class);
-        Route::apiResource('partners', PartnerController::class);
-        Route::apiResource('plan-features', PlanFeatureController::class);
+        Route::apiResource('users', UserController::class)->names('api.users');
+        Route::apiResource('projects', ProjectController::class)->names('api.projects');
+        Route::apiResource('materials', MaterialController::class)->names('api.materials');
+        Route::apiResource('pricing-plans', PricingPlanController::class)->names('api.pricing-plans');
+        Route::apiResource('partners', PartnerController::class)->names('api.partners');
+        Route::apiResource('plan-features', PlanFeatureController::class)->names('api.plan-features');
     });
 });

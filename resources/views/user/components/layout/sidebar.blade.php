@@ -40,7 +40,7 @@
         @php $sidebarUser = auth()->user(); @endphp
         <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0 overflow-hidden">
             @if($sidebarUser?->avatar_path)
-                <img src="{{ Storage::url($sidebarUser->avatar_path) }}" class="w-full h-full object-cover" alt="Avatar">
+                <img src="{{ config('filesystems.default') === 's3' ? Storage::disk('s3')->url($sidebarUser->avatar_path) : Storage::url($sidebarUser->avatar_path) }}" class="w-full h-full object-cover" alt="Avatar">
             @else
                 <x-lucide-user class="w-5 h-5 text-primary-foreground" />
             @endif

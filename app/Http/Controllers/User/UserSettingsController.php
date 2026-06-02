@@ -27,6 +27,13 @@ class UserSettingsController extends Controller
 
     public function updateProfile(Request $request)
     {
+        \Log::info('updateProfile called', [
+            'has_avatar_base64'    => $request->filled('avatar_base64'),
+            'avatar_base64_length' => strlen($request->input('avatar_base64', '')),
+            'disk'                 => config('filesystems.default'),
+            'all_keys'             => array_keys($request->all()),
+        ]);
+
         $user = auth()->user();
 
         $request->validate([
@@ -49,16 +56,35 @@ class UserSettingsController extends Controller
         if ($request->filled('avatar_base64')) {
             $base64    = $request->input('avatar_base64');
             $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $base64));
-            $filename  = 'avatars/' . $user->id . '_' . time() . '.jpg';
-            Storage::disk('public')->put($filename, $imageData);
+            $filename  = $user->id . '_' . time() . '.jpg';
+            $disk      = config('filesystems.default', 'public');
+
+            // Silently try to delete old avatar — it may not exist on this disk
             if ($user->avatar_path) {
-                Storage::disk('public')->delete($user->avatar_path);
+                try {
+                    Storage::disk($disk)->delete($user->avatar_path);
+                } catch (\Exception $e) {
+                    \Log::warning('Old avatar delete skipped', ['path' => $user->avatar_path, 'reason' => $e->getMessage()]);
+                }
             }
-            $data['avatar_path'] = $filename;
+
+            try {
+                Storage::disk($disk)->put($filename, $imageData, 'public');
+                $data['avatar_path'] = $filename;
+                \Log::info('Avatar uploaded successfully', ['disk' => $disk, 'path' => $filename]);
+            } catch (\Exception $e) {
+                \Log::error('Avatar upload failed', ['error' => $e->getMessage(), 'disk' => $disk]);
+                return back()->withErrors(['avatar' => 'Gagal upload foto: ' . $e->getMessage()]);
+            }
         }
 
         if ($request->boolean('remove_avatar') && $user->avatar_path) {
-            Storage::disk('public')->delete($user->avatar_path);
+            $disk = config('filesystems.default', 'public');
+            try {
+                Storage::disk($disk)->delete($user->avatar_path);
+            } catch (\Exception $e) {
+                \Log::warning('Avatar delete on remove skipped', ['path' => $user->avatar_path, 'reason' => $e->getMessage()]);
+            }
             $data['avatar_path'] = null;
         }
 

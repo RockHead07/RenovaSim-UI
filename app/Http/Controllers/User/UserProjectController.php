@@ -124,7 +124,7 @@ class UserProjectController extends Controller
                 'cost_display'     => $result['total_range']['display'] ?? '-',
                 'confidence_score' => $result['confidence']['score'] ?? null,
                 'confidence_label' => $result['confidence']['label'] ?? null,
-                'fastapi_response' => json_encode($result),
+                'fastapi_response' => $result,
             ]);
 
             session()->forget(['estimation_result', 'project_setup']);

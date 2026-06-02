@@ -33,6 +33,24 @@ class Estimation extends Model
         'fastapi_response' => 'array',
     ];
 
+    public function getFastapiResponseAttribute($value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        $decoded = $value;
+        for ($i = 0; $i < 3 && is_string($decoded); $i++) {
+            $next = json_decode($decoded, true);
+            if ($next === null && json_last_error() !== JSON_ERROR_NONE) {
+                break;
+            }
+            $decoded = $next;
+        }
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

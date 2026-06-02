@@ -22,7 +22,13 @@ class RabController extends Controller
 
         foreach ($estimations as $estimation) {
             $response = $estimation->fastapi_response;
-            if (!$response || empty($response['breakdown'])) continue;
+            // Handle string (not yet decoded)
+            if (is_string($response)) {
+                $response = json_decode($response, true);
+            }
+            if (!is_array($response) || empty($response['breakdown'])) {
+                continue;
+            }
 
             foreach ($response['breakdown'] as $item) {
                 $jobType = $item['job_type'];

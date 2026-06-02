@@ -18,13 +18,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasName;
-use Filament\Panel;
 
 #[Fillable(['username', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements FilamentUser, HasName
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -95,19 +92,6 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function pricingPlan(): BelongsTo
     {
         return $this->belongsTo(PricingPlan::class, 'pricing_plan_id');
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return in_array($this->role, ['admin', 'super_admin', 'owner']);
-    }
-
-    public function getFilamentName(): string
-    {
-        return $this->name
-            ?? $this->username
-            ?? $this->email
-            ?? 'User';
     }
 
     public function activePlan(): \App\Models\PricingPlan
