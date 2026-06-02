@@ -168,9 +168,25 @@ class RoomController extends Controller
                     ->get('http://localhost:5000/api/projects');
 
                 if ($response->successful()) {
+                    $flaskRooms = collect($response->json()['projects'] ?? []);
+
+                    // Resolve user data from Laravel DB
+                    $userIds = $flaskRooms->pluck('user_id')->filter()->unique();
+                    $users   = \App\Models\User::whereIn('id', $userIds)->get()->keyBy('id');
+
+                    $flaskRooms = $flaskRooms->map(fn($room) => array_merge($room, [
+                        'username'  => $users[$room['user_id'] ?? '']?->username
+                                       ?? ('User #' . ($room['user_id'] ?? '?')),
+                        'full_name' => trim(
+                                           ($users[$room['user_id'] ?? '']?->first_name ?? '') . ' ' .
+                                           ($users[$room['user_id'] ?? '']?->last_name  ?? '')
+                                       ) ?: null,
+                        'email'     => $users[$room['user_id'] ?? '']?->email ?? '',
+                    ]));
+
                     return view('admin.rooms.index', [
                         'rooms'      => collect([]),
-                        'flaskRooms' => collect($response->json()['projects'] ?? []),
+                        'flaskRooms' => $flaskRooms,
                         'fromFlask'  => true,
                     ]);
                 }
