@@ -42,9 +42,7 @@
             @if($sidebarUser?->avatar_path)
                 <img src="{{ Storage::url($sidebarUser->avatar_path) }}" class="w-full h-full object-cover" alt="Avatar">
             @else
-                <span class="text-primary-foreground font-bold text-sm">
-                    {{ strtoupper(substr($sidebarUser?->username ?? $sidebarUser?->email ?? 'U', 0, 1)) }}
-                </span>
+                <x-lucide-user class="w-5 h-5 text-primary-foreground" />
             @endif
         </div>
         <div :class="effectiveCollapsed && 'md:hidden'" class="sb-hide flex flex-col">

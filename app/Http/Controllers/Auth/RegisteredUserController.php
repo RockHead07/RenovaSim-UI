@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -27,37 +26,21 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $service = app(\App\Services\SupabaseService::class);
-
-        // Check if email already exists
-        $existing = $service->select('users', 'id', ['email' => $request->email]);
-        if (!empty($existing)) {
-            throw ValidationException::withMessages([
-                'email' => 'Email sudah terdaftar.',
-            ]);
+        if (User::where('email', $request->email)->exists()) {
+            throw ValidationException::withMessages(['email' => 'Email sudah terdaftar.']);
         }
 
-        // Insert user into Supabase
-        $result = $service->insert('users', [
+        if (User::where('username', $request->username)->exists()) {
+            throw ValidationException::withMessages(['username' => 'Username sudah digunakan.']);
+        }
+
+        $user = User::create([
             'username' => $request->username,
             'email'    => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
             'role'     => 'user',
             'is_admin' => false,
         ]);
-
-        if (!$result) {
-            throw ValidationException::withMessages([
-                'email' => 'Gagal membuat akun. Silakan coba lagi.',
-            ]);
-        }
-
-        $userData = is_array($result) ? ($result[0] ?? $result) : (array) $result;
-
-        // Hydrate a User model and log in
-        $user = new User();
-        $user->setRawAttributes($userData);
-        $user->exists = true;
 
         Auth::login($user);
 

@@ -200,49 +200,12 @@ class EstimationController extends Controller
      */
     public function showStart()
     {
-        $service = app(\App\Services\SupabaseService::class);
-        
-        // Fetch projects via Supabase REST API
-        $projects = $service->select('projects', '*', ['user_id' => auth()->id()]);
-        
-        // Fetch estimations for each project to count them
-        $validProjects = [];
-        foreach ($projects as $project) {
-            if (!is_array($project)) {
-                $project = (array) $project;
-            }
-            
-            $projectId = $project['id'] ?? null;
-            if (!$projectId) {
-                continue;
-            }
-            
-            // Fetch estimations for this project
-            $estimations = $service->select('estimations', '*', ['project_id' => $projectId]);
-            $project['estimations_count'] = count($estimations);
-            
-            $validProjects[] = $project;
-        }
-        
-        // Sort by created_at descending
-        usort($validProjects, function($a, $b) {
-            $aTime = 0;
-            $bTime = 0;
-            
-            if (is_array($a) && isset($a['created_at']) && !empty($a['created_at'])) {
-                $aTime = strtotime($a['created_at']);
-                if ($aTime === false) $aTime = 0;
-            }
-            
-            if (is_array($b) && isset($b['created_at']) && !empty($b['created_at'])) {
-                $bTime = strtotime($b['created_at']);
-                if ($bTime === false) $bTime = 0;
-            }
-            
-            return $bTime - $aTime;
-        });
+        $projects = \App\Models\Project::where('user_id', auth()->id())
+            ->withCount('estimations')
+            ->latest()
+            ->get();
 
-        return view('user.pages.estimation-start', ['projects' => $validProjects]);
+        return view('user.pages.estimation-start', ['projects' => $projects]);
     }
 
     /**

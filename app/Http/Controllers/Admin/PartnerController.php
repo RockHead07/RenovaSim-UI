@@ -3,30 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\SupabaseService;
+use App\Models\Partner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class PartnerController extends Controller
 {
-    public function __construct(protected SupabaseService $supabase) {}
-
     private function getAvailableOrders(?int $excludeId = null): array
     {
-        $all = $this->supabase->select('partners', 'id,order');
-        $usedOrders = array_column(
-            $excludeId ? array_filter($all, fn($p) => $p['id'] != $excludeId) : $all,
-            'order'
-        );
-        $total = count($all);
+        $query = Partner::select('id', 'order');
+        if ($excludeId) $query->where('id', '!=', $excludeId);
+        $usedOrders = $query->pluck('order')->toArray();
+        $total = Partner::count();
         return array_values(array_diff(range(1, $total + 1), $usedOrders));
     }
 
     public function index()
     {
-        $raw = $this->supabase->select('partners', '*');
-        usort($raw, fn($a, $b) => ($a['order'] ?? 0) - ($b['order'] ?? 0));
-        $partners = collect($raw)->map(fn($p) => (object) $p);
+        $partners = Partner::orderBy('order')->get();
         return view('admin.partners.index', compact('partners'));
     }
 
@@ -52,32 +46,26 @@ class PartnerController extends Controller
             $data['logo_image'] = $request->file('logo_image')->store('partners', 'public');
         }
 
-        $this->supabase->insert('partners', $data);
+        Partner::create($data);
         return redirect('/admin/partners')->with('success', 'Partner added successfully.');
     }
 
     public function show(int $id)
     {
-        $rows = $this->supabase->select('partners', '*', ['id' => $id]);
-        if (empty($rows)) abort(404);
-        $partner = (object) $rows[0];
+        $partner = Partner::findOrFail($id);
         return view('admin.partners.show', compact('partner'));
     }
 
     public function edit(int $id)
     {
-        $rows = $this->supabase->select('partners', '*', ['id' => $id]);
-        if (empty($rows)) abort(404);
-        $partner = (object) $rows[0];
+        $partner = Partner::findOrFail($id);
         $availableOrders = $this->getAvailableOrders($id);
         return view('admin.partners.edit', compact('partner', 'availableOrders'));
     }
 
     public function update(Request $request, int $id)
     {
-        $rows = $this->supabase->select('partners', '*', ['id' => $id]);
-        if (empty($rows)) abort(404);
-        $existing = $rows[0];
+        $partner = Partner::findOrFail($id);
 
         $request->validate([
             'name'       => 'required|string|max:255',
@@ -90,25 +78,23 @@ class PartnerController extends Controller
         $data['is_active'] = $request->input('status') === 'Active';
 
         if ($request->hasFile('logo_image')) {
-            if (!empty($existing['logo_image']) && Storage::disk('public')->exists($existing['logo_image'])) {
-                Storage::disk('public')->delete($existing['logo_image']);
+            if ($partner->logo_image && Storage::disk('public')->exists($partner->logo_image)) {
+                Storage::disk('public')->delete($partner->logo_image);
             }
             $data['logo_image'] = $request->file('logo_image')->store('partners', 'public');
         }
 
-        $this->supabase->update('partners', $id, $data);
+        $partner->update($data);
         return redirect('/admin/partners')->with('success', 'Partner updated successfully.');
     }
 
     public function destroy(int $id)
     {
-        $rows = $this->supabase->select('partners', 'id,logo_image', ['id' => $id]);
-        if (!empty($rows) && !empty($rows[0]['logo_image'])) {
-            if (Storage::disk('public')->exists($rows[0]['logo_image'])) {
-                Storage::disk('public')->delete($rows[0]['logo_image']);
-            }
+        $partner = Partner::findOrFail($id);
+        if ($partner->logo_image && Storage::disk('public')->exists($partner->logo_image)) {
+            Storage::disk('public')->delete($partner->logo_image);
         }
-        $this->supabase->delete('partners', $id);
+        $partner->delete();
         return redirect('/admin/partners')->with('success', 'Partner deleted successfully.');
     }
 }

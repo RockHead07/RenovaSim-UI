@@ -3,99 +3,61 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Services\SupabaseService;
+use App\Models\Estimation;
+use App\Models\Project;
 use Illuminate\Http\Request;
 
 class UserProjectController extends Controller
 {
-    protected SupabaseService $supabase;
-
-    public function __construct(SupabaseService $supabase)
-    {
-        $this->supabase = $supabase;
-    }
-
-    /**
-     * GET /user/projects
-     */
     public function index()
     {
-        $userId   = auth()->id();
-        $projects = $this->supabase->select('projects', '*', ['user_id' => $userId]);
+        $projects = Project::where('user_id', auth()->id())
+            ->with(['estimations' => fn($q) => $q->latest()->limit(1)])
+            ->latest()
+            ->get()
+            ->map(function ($p) {
+                $p->latest_estimation = $p->estimations->first();
+                return $p;
+            });
 
-        $validProjects = [];
-        foreach ($projects as $project) {
-            $project = is_array($project) ? $project : (array) $project;
-            $projectId = $project['id'] ?? null;
-            if (!$projectId) continue;
-
-            $estimations = $this->supabase->select('estimations', '*', ['project_id' => $projectId]);
-            $project['latest_estimation'] = !empty($estimations) ? $estimations[0] : null;
-            $validProjects[] = $project;
-        }
-
-        usort($validProjects, fn($a, $b) =>
-            strtotime($b['created_at'] ?? '0') - strtotime($a['created_at'] ?? '0')
-        );
-
-        return view('user.pages.projects', ['projects' => $validProjects]);
+        return view('user.pages.projects', ['projects' => $projects]);
     }
 
-    /**
-     * GET /user/projects/{project}
-     */
     public function show(int $project)
     {
-        $userId    = auth()->id();
-        $rows      = $this->supabase->select('projects', '*', ['id' => $project, 'user_id' => $userId]);
-        $proj      = $rows[0] ?? null;
+        $proj = Project::where('id', $project)->where('user_id', auth()->id())->firstOrFail();
 
-        if (!$proj) abort(403);
-
-        $estimations = $this->supabase->select('estimations', '*', ['project_id' => $project]);
-        $estimation  = $estimations[0] ?? null;
-
-        $total    = (int) ($estimation['cost_min'] ?? 0);
-        $labor    = (int) round($total * 0.4);
-        $material = $total - $labor;
+        $estimation = $proj->estimations()->latest()->first();
+        $total      = (int) ($estimation?->cost_min ?? 0);
+        $labor      = (int) round($total * 0.4);
+        $material   = $total - $labor;
 
         $query = http_build_query([
-            'projectName'    => $proj['name'],
-            'city'           => $proj['location'] ?? '—',
-            'renovationType' => $estimation && isset($estimation['job_type'])
-                ? (config('renovasim.job_type_id')[$estimation['job_type']] ?? $estimation['job_type'])
+            'projectName'    => $proj->name,
+            'city'           => $proj->location ?? '—',
+            'renovationType' => $estimation?->job_type
+                ? (config('renovasim.job_type_id')[$estimation->job_type] ?? $estimation->job_type)
                 : 'Renovasi',
-            'quality'        => $estimation['quality'] ?? 'Standar',
-            'totalCost'      => $total,
-            'materialCost'   => $material,
-            'laborCost'      => $labor,
-            'id'             => $proj['id'],
+            'quality'      => $estimation?->quality ?? 'Standar',
+            'totalCost'    => $total,
+            'materialCost' => $material,
+            'laborCost'    => $labor,
+            'id'           => $proj->id,
         ]);
 
         return redirect(route('user.project-overview') . '?' . $query);
     }
 
-    /**
-     * DELETE /user/projects/{project}
-     */
     public function destroy(int $project)
     {
-        $userId = auth()->id();
-        $rows   = $this->supabase->select('projects', 'id,name', ['id' => $project, 'user_id' => $userId]);
-        $proj   = $rows[0] ?? null;
-
-        if (!$proj) abort(403);
-
-        $this->supabase->deleteWhere('estimations', ['project_id' => $project]);
-        $this->supabase->delete('projects', $project);
+        $proj = Project::where('id', $project)->where('user_id', auth()->id())->firstOrFail();
+        $proj->estimations()->delete();
+        $proj->delete();
 
         return redirect()->route('user.projects')
-            ->with('success', 'Project "' . $proj['name'] . '" berhasil dihapus.');
+            ->with('success', 'Project "' . $proj->name . '" berhasil dihapus.');
     }
 
-    /**
-     * POST /user/project/save-estimation
-     */
     public function saveEstimation(Request $request)
     {
         $result = session('estimation_result');
@@ -109,18 +71,14 @@ class UserProjectController extends Controller
         $user   = auth()->user();
         $userId = $user->getAuthIdentifier();
 
-        // Check if adding to EXISTING project
         $existingProjectId = session('current_project_id');
         $existingProject   = null;
         if ($existingProjectId) {
-            $rows = $this->supabase->select('projects', '*', ['id' => $existingProjectId, 'user_id' => $userId]);
-            $existingProject = $rows[0] ?? null;
+            $existingProject = Project::where('id', $existingProjectId)->where('user_id', $userId)->first();
         }
 
         if ($existingProject) {
-            // Plan limit: max_estimations_per_project
-            $estRows = $this->supabase->select('estimations', 'id', ['project_id' => $existingProjectId]);
-            $currentEstimationCount = count($estRows);
+            $currentEstimationCount = $existingProject->estimations()->count();
             if ($user->hasReachedLimit('max_estimations_per_project', $currentEstimationCount)) {
                 $limit = $user->planLimit('max_estimations_per_project');
                 $plan  = $user->activePlan();
@@ -129,11 +87,9 @@ class UserProjectController extends Controller
                     . "Upgrade plan untuk menambah lebih banyak estimasi."
                 );
             }
-            $projectId = $existingProjectId;
+            $projectId = $existingProject->id;
         } else {
-            // Plan limit: max_projects
-            $currentProjects = $this->supabase->select('projects', 'id', ['user_id' => $userId]);
-            $currentCount    = count($currentProjects);
+            $currentCount = Project::where('user_id', $userId)->count();
             if ($user->hasReachedLimit('max_projects', $currentCount)) {
                 $limit = $user->planLimit('max_projects');
                 return redirect()->back()->with('error',
@@ -141,8 +97,7 @@ class UserProjectController extends Controller
                 );
             }
 
-            // Create new project via Supabase
-            $projectData = $this->supabase->insert('projects', [
+            $proj = Project::create([
                 'user_id'    => $userId,
                 'name'       => $setup['project_name'] ?? $result['project_name'] ?? 'Renovasi',
                 'room_type'  => $setup['building_type'] ?? 'Lainnya',
@@ -151,16 +106,11 @@ class UserProjectController extends Controller
                 'total_cost' => (float) ($result['total_range']['min'] ?? 0),
             ]);
 
-            if (!$projectData) {
-                return redirect()->back()->with('error', 'Gagal membuat project. Silakan coba lagi.');
-            }
-
-            $project   = is_array($projectData) ? ($projectData[0] ?? $projectData) : (array) $projectData;
-            $projectId = $project['id'] ?? null;
+            $projectId = $proj->id;
         }
 
         if ($projectId) {
-            $this->supabase->insert('estimations', [
+            Estimation::create([
                 'project_id'       => $projectId,
                 'user_id'          => $userId,
                 'label'            => $result['breakdown'][0]['job_type'] ?? 'Estimasi',
@@ -185,13 +135,9 @@ class UserProjectController extends Controller
             ? 'Estimasi berhasil ditambahkan ke project!'
             : 'Estimasi berhasil disimpan!';
 
-        return redirect()->route('user.projects')
-            ->with('success', $message);
+        return redirect()->route('user.projects')->with('success', $message);
     }
 
-    /**
-     * GET /user/project-overview
-     */
     public function showOverview()
     {
         $projectId = session('current_project_id') ?? request()->query('id');
@@ -201,52 +147,36 @@ class UserProjectController extends Controller
                 ->with('error', 'Tidak ada project aktif. Silakan buat project baru.');
         }
 
-        $rows = $this->supabase->select('projects', '*', ['id' => $projectId]);
-        if (empty($rows)) {
+        $proj = Project::find($projectId);
+        if (!$proj) {
             return redirect()->route('user.project.setup')->with('error', 'Project tidak ditemukan.');
         }
 
-        $proj        = (object) $rows[0];
-        $estRows     = $this->supabase->select('estimations', '*', ['project_id' => $projectId]);
-        $proj->estimations = collect(array_map(fn($e) => (object) $e, $estRows));
-
+        $proj->load('estimations');
         return view('user.pages.project-overview', ['project' => $proj]);
     }
 
-    /**
-     * GET /user/project/{id}/view
-     */
     public function viewProject(int $id)
     {
-        $userId = auth()->id();
-        $rows   = $this->supabase->select('projects', 'id', ['id' => $id, 'user_id' => $userId]);
-        if (empty($rows)) abort(403);
-
+        Project::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
         session()->put('current_project_id', $id);
         return redirect()->route('user.project-overview');
     }
 
-    /**
-     * GET /user/project/{id}/add-estimation
-     */
     public function addEstimation(int $id)
     {
-        $userId = auth()->id();
-        $rows   = $this->supabase->select('projects', '*', ['id' => $id, 'user_id' => $userId]);
-        if (empty($rows)) abort(403);
+        $proj = Project::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
 
-        $proj = $rows[0];
         session()->put('current_project_id', $id);
 
-        $estRows = $this->supabase->select('estimations', '*', ['project_id' => $id]);
-        $lastEst = !empty($estRows) ? $estRows[0] : null;
+        $lastEst = $proj->estimations()->latest()->first();
 
         session()->put('project_setup', [
-            'project_name'  => $proj['name'],
-            'building_type' => $proj['building_type'] ?? null,
-            'location'      => $proj['location'] ?? null,
-            'description'   => $proj['description'] ?? null,
-            'area'          => $lastEst['area'] ?? null,
+            'project_name'  => $proj->name,
+            'building_type' => $proj->building_type ?? null,
+            'location'      => $proj->location ?? null,
+            'description'   => $proj->description ?? null,
+            'area'          => $lastEst?->area ?? null,
         ]);
 
         return redirect()->route('user.estimation.wizard');

@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\SupabaseService;
+use App\Models\Material;
+use App\Models\Partner;
+use App\Models\Project;
+use App\Models\User;
 use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
 {
-    public function __construct(protected SupabaseService $supabase) {}
-
     public function index()
     {
         return view('admin.dashboard');
@@ -17,49 +18,48 @@ class AdminDashboardController extends Controller
 
     public function metrics()
     {
-        $users    = $this->supabase->select('users',    'id,account_status,plan,created_at');
-        $projects = $this->supabase->select('projects', 'id,status,created_at');
-        $materials = $this->supabase->select('materials', 'id,name');
-        $partners  = $this->supabase->select('partners',  'id');
-
         $now       = now();
         $thisMonth = $now->month;
         $thisYear  = $now->year;
         $lastMonth = $now->copy()->subMonth();
 
-        $totalUsers     = count($users);
-        $activeUsers    = count(array_filter($users, fn($u) => ($u['account_status'] ?? 'active') === 'active'));
+        $totalUsers     = User::count();
+        $activeUsers    = User::where('account_status', 'active')->orWhereNull('account_status')->count();
         $inactiveUsers  = $totalUsers - $activeUsers;
-        $usersThisMonth = count(array_filter($users, fn($u) => $this->inMonth($u['created_at'] ?? null, $thisYear, $thisMonth)));
-        $usersLastMonth = count(array_filter($users, fn($u) => $this->inMonth($u['created_at'] ?? null, $lastMonth->year, $lastMonth->month)));
+        $usersThisMonth = User::whereYear('created_at', $thisYear)->whereMonth('created_at', $thisMonth)->count();
+        $usersLastMonth = User::whereYear('created_at', $lastMonth->year)->whereMonth('created_at', $lastMonth->month)->count();
 
-        $totalProjects     = count($projects);
-        $draftProjects     = count(array_filter($projects, fn($p) => ($p['status'] ?? '') === 'draft'));
-        $activeProjects    = count(array_filter($projects, fn($p) => ($p['status'] ?? '') === 'active'));
-        $completedProjects = count(array_filter($projects, fn($p) => ($p['status'] ?? '') === 'completed'));
+        $totalProjects     = Project::count();
+        $draftProjects     = Project::where('status', 'draft')->count();
+        $activeProjects    = Project::where('status', 'active')->count();
+        $completedProjects = Project::where('status', 'completed')->count();
 
-        $planCounts = [];
-        foreach ($users as $u) {
-            $plan = $u['plan'] ?? 'Free';
-            $planCounts[$plan] = ($planCounts[$plan] ?? 0) + 1;
-        }
-        $planDist = collect($planCounts)->map(fn($count, $plan) => [
+        $planCounts = User::selectRaw("COALESCE(plan, 'Free') as plan, COUNT(*) as cnt")
+            ->groupBy('plan')
+            ->pluck('cnt', 'plan');
+
+        $planDist = $planCounts->map(fn($count, $plan) => [
             'name'       => $plan,
             'percentage' => $totalUsers > 0 ? round(($count / $totalUsers) * 100) : 0,
         ])->values();
 
-        $topMaterials = collect(array_slice($materials, 0, 5))->map(fn($m) => [
-            'name' => $m['name'], 'count' => 1,
-        ])->values();
+        $topMaterials = Material::select('name')->limit(5)->get()
+            ->map(fn($m) => ['name' => $m->name, 'count' => 1])->values();
 
-        $chartUsers = collect(range(5, 0))->map(function ($i) use ($users) {
+        $chartUsers = collect(range(5, 0))->map(function ($i) {
             $d = now()->subMonths($i);
-            return ['label' => $d->format('M'), 'count' => count(array_filter($users, fn($u) => $this->inMonth($u['created_at'] ?? null, $d->year, $d->month)))];
+            return [
+                'label' => $d->format('M'),
+                'count' => User::whereYear('created_at', $d->year)->whereMonth('created_at', $d->month)->count(),
+            ];
         });
 
-        $chartProjects = collect(range(5, 0))->map(function ($i) use ($projects) {
+        $chartProjects = collect(range(5, 0))->map(function ($i) {
             $d = now()->subMonths($i);
-            return ['label' => $d->format('M'), 'count' => count(array_filter($projects, fn($p) => $this->inMonth($p['created_at'] ?? null, $d->year, $d->month)))];
+            return [
+                'label' => $d->format('M'),
+                'count' => Project::whereYear('created_at', $d->year)->whereMonth('created_at', $d->month)->count(),
+            ];
         });
 
         $usersGrowth = $usersLastMonth > 0
@@ -80,11 +80,11 @@ class AdminDashboardController extends Controller
                 'estimated' => $activeProjects,
                 'completed' => $completedProjects,
             ],
-            'total_materials'      => count($materials),
-            'total_partners'       => count($partners),
-            'plan_distribution'    => $planDist,
-            'top_materials'        => $topMaterials,
-            'chart_data'           => [
+            'total_materials'   => Material::count(),
+            'total_partners'    => Partner::count(),
+            'plan_distribution' => $planDist,
+            'top_materials'     => $topMaterials,
+            'chart_data'        => [
                 'users'    => $chartUsers,
                 'projects' => $chartProjects,
             ],
@@ -93,42 +93,38 @@ class AdminDashboardController extends Controller
 
     public function activity()
     {
-        $users    = $this->supabase->select('users',    'id,username,email,avatar_path,created_at');
-        $projects = $this->supabase->select('projects', 'id,name,user_id,created_at');
+        $recentUsers = User::select('id', 'username', 'email', 'avatar_path', 'created_at')
+            ->latest()
+            ->limit(4)
+            ->get()
+            ->map(fn($u) => [
+                'type'       => 'user',
+                'initials'   => strtoupper(substr($u->username ?? $u->email ?? 'U', 0, 2)),
+                'avatar_url' => $u->avatar_path ? asset('storage/' . $u->avatar_path) : null,
+                'user'       => $u->username ?? $u->email,
+                'action'     => 'mendaftar sebagai user baru',
+                'detail'     => $u->email ?? '',
+                'status'     => 'New',
+                'time_human' => $u->created_at ? $u->created_at->diffForHumans() : '—',
+                '_ts'        => $u->created_at?->toIso8601String() ?? '',
+            ]);
 
-        $userMap = [];
-        foreach ($users as $u) {
-            $userMap[$u['id']] = $u;
-        }
-
-        usort($users,    fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
-        usort($projects, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
-
-        $recentUsers = collect(array_slice($users, 0, 4))->map(fn($u) => [
-            'type'       => 'user',
-            'initials'   => strtoupper(substr($u['username'] ?? $u['email'] ?? 'U', 0, 2)),
-            'avatar_url' => !empty($u['avatar_path']) ? asset('storage/' . $u['avatar_path']) : null,
-            'user'       => $u['username'] ?? $u['email'],
-            'action'     => 'mendaftar sebagai user baru',
-            'detail'     => $u['email'] ?? '',
-            'status'     => 'New',
-            'time_human' => $u['created_at'] ? Carbon::parse($u['created_at'])->diffForHumans() : '—',
-            '_ts'        => $u['created_at'] ?? '',
-        ]);
-
-        $recentProjects = collect(array_slice($projects, 0, 4))->map(fn($p) => [
-            'type'       => 'project',
-            'initials'   => strtoupper(substr($p['name'] ?? 'P', 0, 2)),
-            'avatar_url' => !empty($userMap[$p['user_id'] ?? '']['avatar_path'])
-                            ? asset('storage/' . $userMap[$p['user_id']]['avatar_path'])
-                            : null,
-            'user'       => $userMap[$p['user_id'] ?? '']['username'] ?? $userMap[$p['user_id'] ?? '']['email'] ?? 'Unknown',
-            'action'     => 'membuat project',
-            'detail'     => $p['name'],
-            'status'     => 'Done',
-            'time_human' => $p['created_at'] ? Carbon::parse($p['created_at'])->diffForHumans() : '—',
-            '_ts'        => $p['created_at'] ?? '',
-        ]);
+        $recentProjects = Project::with('user:id,username,email,avatar_path')
+            ->select('id', 'name', 'user_id', 'created_at')
+            ->latest()
+            ->limit(4)
+            ->get()
+            ->map(fn($p) => [
+                'type'       => 'project',
+                'initials'   => strtoupper(substr($p->name ?? 'P', 0, 2)),
+                'avatar_url' => $p->user?->avatar_path ? asset('storage/' . $p->user->avatar_path) : null,
+                'user'       => $p->user?->username ?? $p->user?->email ?? 'Unknown',
+                'action'     => 'membuat project',
+                'detail'     => $p->name,
+                'status'     => 'Done',
+                'time_human' => $p->created_at ? $p->created_at->diffForHumans() : '—',
+                '_ts'        => $p->created_at?->toIso8601String() ?? '',
+            ]);
 
         $activities = $recentUsers->concat($recentProjects)
             ->sortByDesc('_ts')
@@ -137,16 +133,5 @@ class AdminDashboardController extends Controller
             ->values();
 
         return response()->json(['data' => $activities]);
-    }
-
-    private function inMonth(?string $date, int $year, int $month): bool
-    {
-        if (!$date) return false;
-        try {
-            $d = Carbon::parse($date);
-            return $d->year === $year && $d->month === $month;
-        } catch (\Throwable) {
-            return false;
-        }
     }
 }

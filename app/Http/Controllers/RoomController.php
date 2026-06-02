@@ -160,20 +160,20 @@ class RoomController extends Controller
      */
     public function adminIndex()
     {
-        $supabase = app(\App\Services\SupabaseService::class);
-        $rawRooms = $supabase->select('rooms', '*');
+        $rooms = \App\Models\Room::with('user:id,username,email,first_name,last_name')
+            ->latest()
+            ->get();
 
-        if (empty($rawRooms)) {
-            // Fallback to Flask JSON server for 3D rooms not yet in Supabase
+        if ($rooms->isEmpty()) {
+            // Fallback to Flask JSON server for 3D rooms not yet in DB
             try {
                 $response = \Illuminate\Support\Facades\Http::timeout(5)
                     ->get('http://localhost:5000/api/projects');
 
                 if ($response->successful()) {
                     $flaskRooms = collect($response->json()['projects'] ?? []);
-
-                    $userIds = $flaskRooms->pluck('user_id')->filter()->unique();
-                    $users   = \App\Models\User::whereIn('id', $userIds)->get()->keyBy('id');
+                    $userIds    = $flaskRooms->pluck('user_id')->filter()->unique();
+                    $users      = \App\Models\User::whereIn('id', $userIds)->get()->keyBy('id');
 
                     $flaskRooms = $flaskRooms->map(fn($room) => array_merge($room, [
                         'username'  => $users[$room['user_id'] ?? '']?->username
@@ -195,18 +195,6 @@ class RoomController extends Controller
                 // Flask server not available
             }
         }
-
-        $sbUsers = $supabase->select('users', 'id,username,email,first_name,last_name');
-        $userMap = array_column($sbUsers, null, 'id');
-
-        usort($rawRooms, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
-
-        $rooms = collect($rawRooms)->map(function ($r) use ($userMap) {
-            $u = $userMap[$r['user_id'] ?? ''] ?? null;
-            $r['user']       = $u ? (object) $u : null;
-            $r['created_at'] = isset($r['created_at']) ? \Carbon\Carbon::parse($r['created_at']) : null;
-            return (object) $r;
-        });
 
         return view('admin.rooms.index', [
             'rooms'      => $rooms,

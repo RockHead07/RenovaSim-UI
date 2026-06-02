@@ -3,18 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\SupabaseService;
+use App\Models\Material;
 use Illuminate\Http\Request;
 
 class MaterialController extends Controller
 {
-    public function __construct(protected SupabaseService $supabase) {}
-
     public function index()
     {
-        $raw = $this->supabase->select('materials', '*');
-        usort($raw, fn($a, $b) => strcmp($a['category'] ?? '', $b['category'] ?? ''));
-        $materials = collect($raw)->map(fn($m) => (object) $m);
+        $materials = Material::orderBy('category')->orderBy('name')->get();
         return view('admin.materials.index', compact('materials'));
     }
 
@@ -32,29 +28,25 @@ class MaterialController extends Controller
             'unit'           => 'required|string|max:50',
         ]);
 
-        $this->supabase->insert('materials', $request->only('name', 'category', 'price_per_unit', 'unit'));
+        Material::create($request->only('name', 'category', 'price_per_unit', 'unit'));
         return redirect('/admin/materials')->with('success', 'Material added successfully.');
     }
 
     public function show(int $id)
     {
-        $rows = $this->supabase->select('materials', '*', ['id' => $id]);
-        if (empty($rows)) abort(404);
-        $material = (object) $rows[0];
+        $material = Material::findOrFail($id);
         return view('admin.materials.show', compact('material'));
     }
 
     public function edit(int $id)
     {
-        $rows = $this->supabase->select('materials', '*', ['id' => $id]);
-        if (empty($rows)) abort(404);
-        $material = (object) $rows[0];
+        $material = Material::findOrFail($id);
         return view('admin.materials.edit', compact('material'));
     }
 
     public function update(Request $request, int $id)
     {
-        if (empty($this->supabase->select('materials', 'id', ['id' => $id]))) abort(404);
+        $material = Material::findOrFail($id);
 
         $request->validate([
             'name'           => 'required|string|max:255',
@@ -63,13 +55,13 @@ class MaterialController extends Controller
             'unit'           => 'required|string|max:50',
         ]);
 
-        $this->supabase->update('materials', $id, $request->only('name', 'category', 'price_per_unit', 'unit'));
+        $material->update($request->only('name', 'category', 'price_per_unit', 'unit'));
         return redirect('/admin/materials')->with('success', 'Material updated successfully.');
     }
 
     public function destroy(int $id)
     {
-        $this->supabase->delete('materials', $id);
+        Material::findOrFail($id)->delete();
         return redirect('/admin/materials')->with('success', 'Material deleted successfully.');
     }
 }

@@ -47,9 +47,7 @@
                                 @if($user->avatar_path)
                                     <img src="{{ Storage::url($user->avatar_path) }}" class="w-full h-full object-cover" alt="Avatar">
                                 @else
-                                    <span class="text-primary-foreground font-bold text-xl">
-                                        {{ strtoupper(substr($user->username ?? $user->email, 0, 1)) }}
-                                    </span>
+                                    <x-lucide-user class="w-8 h-8 text-primary-foreground" />
                                 @endif
                             </template>
                         </div>

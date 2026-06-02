@@ -3,24 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\SupabaseService;
+use App\Models\PlanFeature;
+use App\Models\PricingPlan;
 use Illuminate\Http\Request;
 
 class PricingPlanController extends Controller
 {
-    public function __construct(protected SupabaseService $supabase) {}
-
     public function index()
     {
-        $raw = $this->supabase->select('pricing_plans', '*');
-        usort($raw, fn($a, $b) => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
-
-        $plans = collect($raw)->map(function ($p) {
-            $features = $this->supabase->select('plan_features', '*', ['pricing_plan_id' => $p['id']]);
-            $p['features'] = collect($features)->map(fn($f) => (object) $f);
-            return (object) $p;
-        });
-
+        $plans = PricingPlan::with('features')->latest()->get();
         return view('admin.pricing-plans.index', compact('plans'));
     }
 
@@ -48,40 +39,28 @@ class PricingPlanController extends Controller
         }
 
         if ($data['is_popular']) {
-            $allPlans = $this->supabase->select('pricing_plans', 'id');
-            foreach ($allPlans as $p) {
-                $this->supabase->update('pricing_plans', $p['id'], ['is_popular' => false]);
-            }
+            PricingPlan::query()->update(['is_popular' => false]);
         }
 
-        $this->supabase->insert('pricing_plans', $data);
+        PricingPlan::create($data);
         return redirect('/admin/pricing-plans')->with('success', 'Pricing plan added successfully.');
     }
 
     public function show(int $id)
     {
-        $rows = $this->supabase->select('pricing_plans', '*', ['id' => $id]);
-        if (empty($rows)) abort(404);
-        $plan = (object) $rows[0];
-        $plan->features = collect($this->supabase->select('plan_features', '*', ['pricing_plan_id' => $id]))
-            ->map(fn($f) => (object) $f);
+        $plan = PricingPlan::with('features')->findOrFail($id);
         return view('admin.pricing-plans.show', compact('plan'));
     }
 
     public function edit(int $id)
     {
-        $rows = $this->supabase->select('pricing_plans', '*', ['id' => $id]);
-        if (empty($rows)) abort(404);
-        $plan = (object) $rows[0];
-        $plan->features = collect($this->supabase->select('plan_features', '*', ['pricing_plan_id' => $id]))
-            ->map(fn($f) => (object) $f);
+        $plan = PricingPlan::with('features')->findOrFail($id);
         return view('admin.pricing-plans.edit', compact('plan'));
     }
 
     public function update(Request $request, int $id)
     {
-        $rows = $this->supabase->select('pricing_plans', '*', ['id' => $id]);
-        if (empty($rows)) abort(404);
+        $plan = PricingPlan::findOrFail($id);
 
         $request->validate([
             'name'           => 'required|string|max:255',
@@ -100,28 +79,23 @@ class PricingPlanController extends Controller
         }
 
         if ($data['is_popular']) {
-            $allPlans = $this->supabase->select('pricing_plans', 'id');
-            foreach ($allPlans as $p) {
-                if ($p['id'] != $id) $this->supabase->update('pricing_plans', $p['id'], ['is_popular' => false]);
-            }
+            PricingPlan::where('id', '!=', $id)->update(['is_popular' => false]);
         }
 
-        $this->supabase->update('pricing_plans', $id, $data);
+        $plan->update($data);
 
-        // Update features
         foreach ($request->input('features', []) as $featureInput) {
             $key = trim((string) ($featureInput['feature_key'] ?? ''));
             if ($key === '') continue;
 
-            $featureRows = $this->supabase->select('plan_features', 'id', ['pricing_plan_id' => $id, 'feature_key' => $key]);
-            if (!empty($featureRows)) {
-                $this->supabase->update('plan_features', $featureRows[0]['id'], [
+            PlanFeature::where('pricing_plan_id', $id)
+                ->where('feature_key', $key)
+                ->update([
                     'feature_label' => trim($featureInput['feature_label'] ?? ''),
                     'feature_value' => trim($featureInput['feature_value'] ?? ''),
                     'feature'       => trim($featureInput['feature_label'] ?? ''),
                     'is_available'  => isset($featureInput['is_available']),
                 ]);
-            }
         }
 
         return redirect('/admin/pricing-plans')->with('success', 'Pricing plan updated successfully.');
@@ -129,8 +103,9 @@ class PricingPlanController extends Controller
 
     public function destroy(int $id)
     {
-        $this->supabase->deleteWhere('plan_features', ['pricing_plan_id' => $id]);
-        $this->supabase->delete('pricing_plans', $id);
+        $plan = PricingPlan::findOrFail($id);
+        $plan->features()->delete();
+        $plan->delete();
         return redirect('/admin/pricing-plans')->with('success', 'Pricing plan deleted successfully.');
     }
 }
