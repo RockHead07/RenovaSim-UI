@@ -102,7 +102,7 @@ class UserProjectController extends Controller
                 'name'       => $setup['project_name'] ?? $result['project_name'] ?? 'Renovasi',
                 'room_type'  => $setup['building_type'] ?? 'Lainnya',
                 'area_size'  => $setup['area'] ?? ($result['breakdown'][0]['area'] ?? 0),
-                'status'     => 'active',
+                'status'     => 'estimated',
                 'total_cost' => (float) ($result['total_range']['min'] ?? 0),
             ]);
 

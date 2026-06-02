@@ -36,7 +36,7 @@
             @endif
 
             {{-- Empty state --}}
-            @if(!is_array($projects) || count($projects) === 0)
+            @if($projects->isEmpty())
                 <div class="bg-card rounded-2xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] flex flex-col items-center justify-center py-16 px-6 text-center">
                     <div class="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
                         <svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,7 +63,7 @@
                     @foreach($projects as $project)
                         @php
                             // Extract project data from array
-                            $projectArray = is_array($project) ? $project : (array) $project;
+                            $projectArray = $project->toArray();
                             $projectId = $projectArray['id'] ?? null;
                             $projectName = $projectArray['name'] ?? 'Untitled';
                             $projectLocation = $projectArray['location'] ?? null;
@@ -72,7 +72,7 @@
                             $latestEst = $projectArray['latest_estimation'] ?? null;
                             
                             // Extract estimation data if exists
-                            $estArray = $latestEst ? (is_array($latestEst) ? $latestEst : (array) $latestEst) : [];
+                            $estArray = $latestEst ? (is_array($latestEst) ? $latestEst : $latestEst->toArray()) : [];
                             $costMin = (int) ($estArray['cost_min'] ?? 0);
                             $costMax = (int) ($estArray['cost_max'] ?? 0);
                             $costAvg = $costMin > 0 ? (int)(($costMin + $costMax) / 2) : 0;
@@ -87,12 +87,12 @@
                                 default  => '#e05555',
                             };
                             $statusColor = match($projectStatus) {
-                                'active'    => 'bg-primary/10 text-primary',
+                                'estimated' => 'bg-primary/10 text-primary',
                                 'completed' => 'bg-[hsl(210,80%,94%)] text-[hsl(210,80%,40%)]',
                                 default     => 'bg-muted text-muted-foreground',
                             };
                             $statusLabel = match($projectStatus) {
-                                'active'    => 'Aktif',
+                                'estimated' => 'Estimasi',
                                 'completed' => 'Selesai',
                                 default     => 'Draft',
                             };

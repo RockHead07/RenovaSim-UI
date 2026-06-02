@@ -31,7 +31,7 @@ class AdminDashboardController extends Controller
 
         $totalProjects     = Project::count();
         $draftProjects     = Project::where('status', 'draft')->count();
-        $activeProjects    = Project::where('status', 'active')->count();
+        $activeProjects    = Project::where('status', 'estimated')->count();
         $completedProjects = Project::where('status', 'completed')->count();
 
         $planCounts = User::selectRaw("COALESCE(plan, 'Free') as plan, COUNT(*) as cnt")

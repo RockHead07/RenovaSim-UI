@@ -16,15 +16,14 @@ class UpdateLastActiveAt
         $user = Auth::user();
         if ($user) {
             try {
-                $id = $user->getAuthIdentifier();
-                $updates = ['last_active_at' => now()->toISOString()];
+                $updates = ['last_active_at' => now()];
 
                 $accountStatus = (string) ($user->getAttribute('account_status') ?? '');
                 if ($accountStatus !== 'suspended') {
                     $updates['account_status'] = 'active';
                 }
 
-                app(\App\Services\SupabaseService::class)->update('users', $id, $updates);
+                \App\Models\User::where('id', $user->getAuthIdentifier())->update($updates);
             } catch (\Throwable) {
                 // Non-critical — don't break the response if tracking fails
             }

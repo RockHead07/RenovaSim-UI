@@ -75,6 +75,16 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->hasMany(Room::class);
     }
 
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    public function estimations(): HasMany
+    {
+        return $this->hasMany(Estimation::class);
+    }
+
     /**
      * Check if user is admin
      */

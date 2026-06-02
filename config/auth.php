@@ -63,7 +63,7 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'supabase',
+            'driver' => 'eloquent',
             'model' => User::class,
         ],
     ],
