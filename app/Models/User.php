@@ -128,6 +128,19 @@ class User extends Authenticatable
         return $currentCount >= $limit;
     }
 
+    public function getIsOnlineAttribute(): bool
+    {
+        if (! $this->last_active_at) {
+            return false;
+        }
+        return \Carbon\Carbon::parse($this->last_active_at)->gt(now()->subMinutes(10));
+    }
+
+    public function getOnlineStatusAttribute(): string
+    {
+        return $this->is_online ? 'online' : 'offline';
+    }
+
     public function getAvatarUrlAttribute(): ?string
     {
         if (! $this->avatar_path) {

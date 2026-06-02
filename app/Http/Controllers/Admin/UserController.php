@@ -28,24 +28,29 @@ class UserController extends Controller
         $users = $query->latest()->paginate(10)->withQueryString();
 
         $usersData = collect($users->items())->map(fn($u) => [
-            'id'         => $u->id,
-            'name'       => $u->username ?? '',
-            'email'      => $u->email ?? '',
-            'role'       => $u->role ?? 'user',
-            'avatar_url' => $u->avatar_url,
-            'roleLabel'  => match ($u->role ?? 'user') {
+            'id'            => $u->id,
+            'name'          => $u->username ?? '',
+            'email'         => $u->email ?? '',
+            'role'          => $u->role ?? 'user',
+            'avatar_url'    => $u->avatar_url,
+            'roleLabel'     => match ($u->role ?? 'user') {
                 'admin'       => 'Admin',
                 'super_admin' => 'Super Admin',
                 'owner'       => 'Owner',
                 default       => 'User',
             },
-            'plan'   => $u->plan ?? 'Free',
-            'joined' => $u->created_at ? Carbon::parse($u->created_at)->format('Y-m-d') : '',
-            'status' => match ($u->account_status ?? 'active') {
+            'plan'          => $u->plan ?? 'Free',
+            'joined'        => $u->created_at ? Carbon::parse($u->created_at)->format('Y-m-d') : '',
+            'status'        => match ($u->account_status ?? 'active') {
                 'inactive'  => 'Inactive',
                 'suspended' => 'Suspended',
                 default     => 'Active',
             },
+            'is_online'     => $u->is_online,
+            'online_status' => $u->online_status,
+            'last_active'   => $u->last_active_at
+                ? Carbon::parse($u->last_active_at)->diffForHumans()
+                : 'Never',
         ])->values();
 
         return view('admin.users.index', compact('users', 'usersData'));
@@ -66,19 +71,24 @@ class UserController extends Controller
         }
 
         return response()->json($query->latest()->get()->map(fn($u) => [
-            'id'         => $u->id,
-            'name'       => $u->username ?? '',
-            'email'      => $u->email ?? '',
-            'role'       => $u->role ?? 'user',
-            'avatar_url' => $u->avatar_url,
-            'roleLabel'  => match ($u->role ?? 'user') {
+            'id'            => $u->id,
+            'name'          => $u->username ?? '',
+            'email'         => $u->email ?? '',
+            'role'          => $u->role ?? 'user',
+            'avatar_url'    => $u->avatar_url,
+            'roleLabel'     => match ($u->role ?? 'user') {
                 'admin' => 'Admin', 'super_admin' => 'Super Admin', 'owner' => 'Owner', default => 'User',
             },
-            'plan'   => $u->plan ?? 'Free',
-            'joined' => $u->created_at ? Carbon::parse($u->created_at)->format('Y-m-d') : '',
-            'status' => match ($u->account_status ?? 'active') {
+            'plan'          => $u->plan ?? 'Free',
+            'joined'        => $u->created_at ? Carbon::parse($u->created_at)->format('Y-m-d') : '',
+            'status'        => match ($u->account_status ?? 'active') {
                 'inactive' => 'Inactive', 'suspended' => 'Suspended', default => 'Active',
             },
+            'is_online'     => $u->is_online,
+            'online_status' => $u->online_status,
+            'last_active'   => $u->last_active_at
+                ? Carbon::parse($u->last_active_at)->diffForHumans()
+                : 'Never',
         ])->values());
     }
 

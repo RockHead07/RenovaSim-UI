@@ -54,7 +54,17 @@
                             <p class="text-[10px] text-paragraph mt-0.5">Role: <span class="text-foreground" x-text="u.roleLabel"></span></p>
                         </div>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="statusBadgeClass(u.status)" x-text="u.status"></span>
+                    <div class="flex items-center gap-1.5">
+                        <template x-if="u.is_online">
+                            <span class="flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>
+                        </template>
+                        <template x-if="!u.is_online">
+                            <span class="inline-flex rounded-full h-2 w-2 bg-muted-foreground/30"></span>
+                        </template>
+                        <span x-text="u.is_online ? 'Online' : 'Offline'"
+                              :class="u.is_online ? 'text-green-500' : 'text-paragraph'"
+                              class="text-xs font-medium"></span>
+                    </div>
                 </div>
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-border/10 text-center">
                     <div>
@@ -100,7 +110,7 @@
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Role</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Plan</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Joined</th>
-                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Status</th>
+                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3" title="Online = active in last 10 minutes">Status</th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Actions</th>
                         </tr>
                     </thead>
@@ -134,7 +144,23 @@
                                 </td>
                                 <td class="px-5 py-3 text-sm font-sans text-paragraph" x-text="u.joined"></td>
                                 <td class="px-5 py-3">
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-sans font-medium" :class="statusBadgeClass(u.status)" x-text="u.status"></span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="relative shrink-0">
+                                            <template x-if="u.is_online">
+                                                <span class="flex h-2.5 w-2.5">
+                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                                                </span>
+                                            </template>
+                                            <template x-if="!u.is_online">
+                                                <span class="inline-flex rounded-full h-2.5 w-2.5 bg-muted-foreground/30"></span>
+                                            </template>
+                                        </div>
+                                        <span x-text="u.is_online ? 'Online' : 'Offline'"
+                                              :class="u.is_online ? 'text-green-500' : 'text-paragraph'"
+                                              class="text-xs font-medium"></span>
+                                    </div>
+                                    <p class="text-[10px] text-paragraph mt-0.5 pl-0.5" x-text="u.last_active"></p>
                                 </td>
                                 <td class="px-5 py-3">
                                     <div class="flex gap-2">
@@ -174,6 +200,7 @@ function usersPage() {
         users: [],
         async init() {
             await this.fetchUsers();
+            setInterval(() => this.fetchUsers(), 60000);
         },
         async fetchUsers() {
             try {
@@ -185,15 +212,18 @@ function usersPage() {
                 const raw = await res.json();
 
                 this.users = raw.map(u => ({
-                    id:         u.id,
-                    name:       u.name,
-                    email:      u.email,
-                    role:       u.role,
-                    avatar_url: u.avatar_url ?? null,
-                    roleLabel:  u.roleLabel,
-                    plan:       u.plan,
-                    joined:     u.joined,
-                    status:     u.status,
+                    id:            u.id,
+                    name:          u.name,
+                    email:         u.email,
+                    role:          u.role,
+                    avatar_url:    u.avatar_url ?? null,
+                    roleLabel:     u.roleLabel,
+                    plan:          u.plan,
+                    joined:        u.joined,
+                    status:        u.status,
+                    is_online:     u.is_online ?? false,
+                    online_status: u.online_status ?? 'offline',
+                    last_active:   u.last_active ?? 'Never',
                 }));
                 this.page = 1;
             } catch (e) {
