@@ -170,10 +170,35 @@
                        class="w-full bg-background border border-border text-foreground rounded-lg px-3 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary hover:border-primary/40 transition-colors">
               </td>
               <td class="px-4 py-3">
-                <input type="text" name="features[{{ $i }}][feature_value]"
-                       value="{{ old("features.$i.feature_value", $feature->feature_value) }}"
-                       placeholder="2 / unlimited / true"
-                       class="w-full bg-background border border-border text-foreground rounded-lg px-3 py-2 text-sm font-sans font-mono focus:outline-none focus:ring-1 focus:ring-primary hover:border-primary/40 transition-colors">
+                @php
+                  $value = old("features.$i.feature_value", $feature->feature_value);
+                  $isBooleanValue = in_array(strtolower($value), ['true', 'false', '0', '1'], true);
+                @endphp
+                
+                @if($isBooleanValue)
+                  {{-- Boolean toggle for true/false values --}}
+                  <div class="checkbox-wrapper-10">
+                    <input id="feat_val_bool_{{ $i }}" name="features[{{ $i }}][feature_value_bool]"
+                           type="checkbox" class="tgl tgl-flip"
+                           {{ in_array(strtolower($value), ['true', '1'], true) ? 'checked' : '' }}>
+                    <label class="tgl-btn" data-tg-off="OFF" data-tg-on="ON" for="feat_val_bool_{{ $i }}"></label>
+                  </div>
+                  {{-- Hidden input to send the actual boolean value --}}
+                  <input type="hidden" name="features[{{ $i }}][feature_value]" 
+                         id="feat_val_hidden_{{ $i }}"
+                         value="{{ $value }}">
+                  <script>
+                    document.getElementById('feat_val_bool_{{ $i }}').addEventListener('change', function() {
+                      document.getElementById('feat_val_hidden_{{ $i }}').value = this.checked ? 'true' : 'false';
+                    });
+                  </script>
+                @else
+                  {{-- Text input for non-boolean values (numbers, "unlimited", etc) --}}
+                  <input type="text" name="features[{{ $i }}][feature_value]"
+                         value="{{ $value }}"
+                         placeholder="2 / unlimited"
+                         class="w-full bg-background border border-border text-foreground rounded-lg px-3 py-2 text-sm font-sans font-mono focus:outline-none focus:ring-1 focus:ring-primary hover:border-primary/40 transition-colors">
+                @endif
               </td>
               <td class="px-4 py-3">
                 <div class="checkbox-wrapper-10">
