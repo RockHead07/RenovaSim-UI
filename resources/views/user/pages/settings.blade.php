@@ -44,8 +44,8 @@
                                 <img :src="previewUrl" class="w-full h-full object-cover" alt="Avatar">
                             </template>
                             <template x-if="!previewUrl">
-                                @if($user->avatar_path)
-                                    <img src="{{ config('filesystems.default') === 's3' ? Storage::disk('s3')->url($user->avatar_path) : Storage::url($user->avatar_path) }}" class="w-full h-full object-cover" alt="Avatar">
+                                @if($user->avatar_url)
+                                    <img src="{{ $user->avatar_url }}" class="w-full h-full object-cover" alt="Avatar">
                                 @else
                                     <x-lucide-user class="w-8 h-8 text-primary-foreground" />
                                 @endif

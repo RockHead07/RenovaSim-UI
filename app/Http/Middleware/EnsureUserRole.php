@@ -17,7 +17,16 @@ class EnsureUserRole
     {
         $user = $request->user();
 
-        if (! $user || ! in_array($user->role, $roles, true)) {
+        if (! $user) {
+            abort(403);
+        }
+
+        // Admin, owner, and super_admin bypass all role checks
+        if (in_array($user->role, ['admin', 'owner', 'super_admin'], true) || $user->is_admin) {
+            return $next($request);
+        }
+
+        if (! in_array($user->role, $roles, true)) {
             abort(403);
         }
 

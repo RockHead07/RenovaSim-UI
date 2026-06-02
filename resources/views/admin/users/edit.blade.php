@@ -1,6 +1,12 @@
 @extends('admin.layout')
 @section('title', 'Edit User')
 @section('page-title', 'Edit User')
+
+@push('head')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
+@endpush
+
 @section('content')
 <x-admin.form.card title="Edit User" action="/admin/users/{{ $user->id }}" method="PUT" enctype="multipart/form-data" maxWidth="max-w-4xl">
   <x-admin.form.errors />
@@ -89,25 +95,64 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <x-admin.form.input name="phone" label="Phone Number" type="tel" :value="$user->phone" placeholder="Enter phone number" />
-          <div class="space-y-1.5">
+          <div class="space-y-1.5" x-data="adminAvatarCrop()">
             <label class="block text-xs font-sans uppercase tracking-widest text-paragraph mb-1.5">Profile Picture / Avatar</label>
-            <div class="flex items-start gap-3">
-              @if (!empty($user->avatar_path))
-                <img src="{{ asset('storage/' . $user->avatar_path) }}" alt="Avatar"
-                     class="w-12 h-12 rounded-full border border-border/10 object-cover bg-muted shrink-0">
-              @else
-                <div class="w-12 h-12 rounded-full border border-border/10 bg-muted shrink-0"></div>
-              @endif
-              <div class="flex-1 space-y-2">
-                <input name="avatar" type="file" accept="image/*"
-                       class="w-full bg-background border border-border text-foreground rounded-lg px-4 py-2.5 text-sm font-sans placeholder:text-paragraph/70 focus:outline-none focus:ring-1 focus:ring-primary transition-colors file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-sans file:text-foreground hover:file:bg-muted/70">
+
+            {{-- Hidden base64 input --}}
+            <input type="hidden" name="avatar_base64" x-model="croppedBase64">
+
+            <div class="flex items-center gap-3">
+              {{-- Avatar preview --}}
+              <div class="w-12 h-12 rounded-full border border-border/10 bg-muted shrink-0 overflow-hidden flex items-center justify-center">
+                <template x-if="previewUrl">
+                  <img :src="previewUrl" class="w-full h-full object-cover" alt="Avatar">
+                </template>
+                <template x-if="!previewUrl">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-paragraph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </template>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <button type="button" @click="$refs.fileInput.click()"
+                  class="inline-flex items-center gap-1.5 text-xs font-sans text-primary hover:opacity-80 transition-opacity">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Upload Photo
+                </button>
+                <input x-ref="fileInput" type="file" accept="image/*" class="hidden" @change="onFileSelect">
                 @if (!empty($user->avatar_path))
-                  <label class="inline-flex items-center gap-2 text-sm font-sans text-paragraph">
+                  <label class="inline-flex items-center gap-1.5 text-xs font-sans text-paragraph cursor-pointer">
                     <input type="checkbox" name="remove_avatar" value="1" class="accent-primary">
                     Remove current avatar
                   </label>
                 @endif
                 <p class="text-[11px] text-paragraph">PNG/JPG/WebP. Max 5MB.</p>
+              </div>
+            </div>
+
+            {{-- Crop Modal --}}
+            <div x-show="showModal" x-cloak
+                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+                 style="display: none">
+              <div class="bg-card rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-border/10">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-border/10">
+                  <p class="text-sm font-sans font-medium text-foreground">Crop Profile Photo</p>
+                  <button type="button" @click="closeModal()" class="text-paragraph hover:text-foreground">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                <div class="p-4 bg-black/90" style="max-height: 380px; overflow: hidden">
+                  <img id="adminCropperImage" style="max-width: 100%; display: block">
+                </div>
+                <div class="px-5 py-4 flex gap-3 justify-end border-t border-border/10">
+                  <button type="button" @click="closeModal()"
+                    class="px-4 py-2 text-sm font-sans text-paragraph hover:text-foreground transition-colors">
+                    Cancel
+                  </button>
+                  <button type="button" @click="applyCrop()"
+                    class="px-5 py-2 bg-primary text-primary-foreground text-sm font-sans rounded-lg hover:opacity-90 transition-opacity">
+                    Apply Crop
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -168,3 +213,60 @@
     <x-admin.form.actions primaryLabel="Update" cancelHref="/admin/users" />
 </x-admin.form.card>
 @endsection
+
+@push('scripts')
+<script>
+function adminAvatarCrop() {
+    return {
+        showModal: false,
+        cropper: null,
+        croppedBase64: '',
+        previewUrl: '{{ $user->avatar_url ?? '' }}',
+
+        onFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be under 5MB.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = document.getElementById('adminCropperImage');
+                img.src = ev.target.result;
+                this.showModal = true;
+                this.$nextTick(() => {
+                    if (this.cropper) this.cropper.destroy();
+                    this.cropper = new Cropper(img, {
+                        aspectRatio: 1,
+                        viewMode: 2,
+                        dragMode: 'move',
+                        autoCropArea: 0.8,
+                        cropBoxResizable: true,
+                        cropBoxMovable: true,
+                        background: false,
+                    });
+                });
+            };
+            reader.readAsDataURL(file);
+        },
+
+        applyCrop() {
+            if (!this.cropper) return;
+            const canvas = this.cropper.getCroppedCanvas({ width: 256, height: 256 });
+            this.croppedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+            this.previewUrl = this.croppedBase64;
+            this.closeModal();
+        },
+
+        closeModal() {
+            this.showModal = false;
+            if (this.cropper) {
+                this.cropper.destroy();
+                this.cropper = null;
+            }
+        }
+    }
+}
+</script>
+@endpush

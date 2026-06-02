@@ -12,7 +12,9 @@ class EnsureUserIsAdmin
     {
         $user = $request->user();
         
-        if (!$user || (!$user->is_admin && $user->role !== 'owner' && $user->email !== 'admin@gmail.com')) {
+        $adminRoles = ['admin', 'owner', 'super_admin'];
+
+        if (! $user || (! $user->is_admin && ! in_array($user->role, $adminRoles, true) && $user->email !== 'admin@gmail.com')) {
             abort(403, 'You do not have permission to access admin pages.');
         }
 

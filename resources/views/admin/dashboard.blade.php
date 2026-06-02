@@ -174,10 +174,11 @@
                 <div class="flex flex-col gap-3">
                     <template x-for="(pd, idx) in metrics.plan_distribution ?? []" :key="idx">
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full" :style="{ background: planChartColors[idx] ?? '#838383' }"></span>
+                            <span class="w-2.5 h-2.5 rounded-full" :style="{ background: pd.color ?? planColor(pd.name) }"></span>
                             <div>
                                 <p class="text-[9px] uppercase tracking-widest text-paragraph" x-text="pd.name"></p>
                                 <p class="text-sm font-serif text-foreground" x-text="pd.percentage + '%'"></p>
+                                <p class="text-[9px] text-paragraph" x-text="pd.count + ' user' + (pd.count !== 1 ? 's' : '')"></p>
                             </div>
                         </div>
                     </template>
@@ -241,7 +242,12 @@ function dashboardPage() {
         activities: [],
         formattedDate: new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }),
         dotColors: { project:'#8BA023', plan:'#d4941a', user:'#F5F5F5' },
-        planChartColors: ['#838383', '#8BA023', '#d4941a', '#6b8e23', '#b8860b'],
+        planColor(name) {
+            const key = (name ?? '').toLowerCase().trim();
+            if (key.includes('enterprise')) return '#facc15';
+            if (key === 'pro' || key.includes('pro')) return '#8BA023';
+            return '#838383';
+        },
 
         get gaugeActive() {
             const rate = this.metrics.active_rate ?? 0;
@@ -364,7 +370,7 @@ function dashboardPage() {
                     data: {
                         labels: planDist.map(p => p.name),
                         datasets: [{ data: planDist.map(p => p.percentage),
-                            backgroundColor: this.planChartColors.slice(0, planDist.length),
+                            backgroundColor: planDist.map(p => p.color ?? this.planColor(p.name)),
                             borderWidth:0, hoverOffset:4 }]
                     },
                     options: {

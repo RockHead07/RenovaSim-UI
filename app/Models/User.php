@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['username', 'email', 'password'])]
@@ -117,8 +118,32 @@ class User extends Authenticatable
 
     public function hasReachedLimit(string $featureKey, int $currentCount): bool
     {
+        // Elevated roles have no plan limits
+        if ($this->is_admin || in_array($this->role, ['admin', 'owner', 'super_admin'], true)) {
+            return false;
+        }
+
         $limit = $this->planLimit($featureKey);
         if ($limit === null) return false;
         return $currentCount >= $limit;
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (! $this->avatar_path) {
+            return null;
+        }
+
+        if (str_starts_with($this->avatar_path, 'http')) {
+            return $this->avatar_path;
+        }
+
+        $disk = config('filesystems.default', 'public');
+
+        try {
+            return Storage::disk($disk)->url($this->avatar_path);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

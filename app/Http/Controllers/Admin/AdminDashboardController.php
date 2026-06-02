@@ -40,7 +40,9 @@ class AdminDashboardController extends Controller
 
         $planDist = $planCounts->map(fn($count, $plan) => [
             'name'       => $plan,
+            'count'      => $count,
             'percentage' => $totalUsers > 0 ? round(($count / $totalUsers) * 100) : 0,
+            'color'      => self::planDistributionColor($plan),
         ])->values();
 
         $topMaterials = Material::select('name')->limit(5)->get()
@@ -91,6 +93,21 @@ class AdminDashboardController extends Controller
         ]]);
     }
 
+    private static function planDistributionColor(string $plan): string
+    {
+        $key = strtolower(trim($plan));
+
+        if (str_contains($key, 'enterprise')) {
+            return '#facc15'; // yellow-400
+        }
+
+        if ($key === 'pro' || str_contains($key, 'pro')) {
+            return '#8BA023'; // primary accent
+        }
+
+        return '#838383'; // free / default gray
+    }
+
     public function activity()
     {
         $recentUsers = User::select('id', 'username', 'email', 'avatar_path', 'created_at')
@@ -100,7 +117,7 @@ class AdminDashboardController extends Controller
             ->map(fn($u) => [
                 'type'       => 'user',
                 'initials'   => strtoupper(substr($u->username ?? $u->email ?? 'U', 0, 2)),
-                'avatar_url' => $u->avatar_path ? asset('storage/' . $u->avatar_path) : null,
+                'avatar_url' => $u->avatar_url,
                 'user'       => $u->username ?? $u->email,
                 'action'     => 'mendaftar sebagai user baru',
                 'detail'     => $u->email ?? '',
@@ -117,7 +134,7 @@ class AdminDashboardController extends Controller
             ->map(fn($p) => [
                 'type'       => 'project',
                 'initials'   => strtoupper(substr($p->name ?? 'P', 0, 2)),
-                'avatar_url' => $p->user?->avatar_path ? asset('storage/' . $p->user->avatar_path) : null,
+                'avatar_url' => $p->user?->avatar_url,
                 'user'       => $p->user?->username ?? $p->user?->email ?? 'Unknown',
                 'action'     => 'membuat project',
                 'detail'     => $p->name,

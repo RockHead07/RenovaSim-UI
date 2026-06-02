@@ -39,8 +39,8 @@
     <div :class="effectiveCollapsed ? 'md:justify-center md:w-full md:px-0' : 'px-2'" class="sb-logo px-2 pt-2 pb-6 flex items-center gap-2.5">
         @php $sidebarUser = auth()->user(); @endphp
         <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0 overflow-hidden">
-            @if($sidebarUser?->avatar_path)
-                <img src="{{ config('filesystems.default') === 's3' ? Storage::disk('s3')->url($sidebarUser->avatar_path) : Storage::url($sidebarUser->avatar_path) }}" class="w-full h-full object-cover" alt="Avatar">
+            @if($sidebarUser?->avatar_url)
+                <img src="{{ $sidebarUser->avatar_url }}" class="w-full h-full object-cover" alt="Avatar">
             @else
                 <x-lucide-user class="w-5 h-5 text-primary-foreground" />
             @endif
@@ -102,6 +102,22 @@
             </a>
         @endforeach
     </nav>
+
+    {{-- Admin Panel shortcut (visible to admin/owner/super_admin only) --}}
+    @if(in_array(auth()->user()?->role, ['admin', 'owner', 'super_admin']) || auth()->user()?->is_admin)
+    <div class="mt-3">
+        <a href="{{ route('admin.dashboard') }}"
+           :class="effectiveCollapsed ? 'md:w-11 md:h-11 md:px-0 md:py-0 md:gap-0 md:justify-center' : ''"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/10 transition-colors"
+           title="Admin Panel"
+        >
+            <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+            </svg>
+            <span :class="effectiveCollapsed && 'md:hidden'" class="sb-hide whitespace-nowrap">Admin Panel</span>
+        </a>
+    </div>
+    @endif
 
     {{-- Tip of the day --}}
     <div :class="effectiveCollapsed && 'md:hidden'" class="sb-hide mt-auto bg-muted rounded-2xl p-4">

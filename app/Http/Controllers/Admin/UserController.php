@@ -32,7 +32,7 @@ class UserController extends Controller
             'name'       => $u->username ?? '',
             'email'      => $u->email ?? '',
             'role'       => $u->role ?? 'user',
-            'avatar_url' => $u->avatar_path ? asset('storage/' . $u->avatar_path) : null,
+            'avatar_url' => $u->avatar_url,
             'roleLabel'  => match ($u->role ?? 'user') {
                 'admin'       => 'Admin',
                 'super_admin' => 'Super Admin',
@@ -70,7 +70,7 @@ class UserController extends Controller
             'name'       => $u->username ?? '',
             'email'      => $u->email ?? '',
             'role'       => $u->role ?? 'user',
-            'avatar_url' => $u->avatar_path ? asset('storage/' . $u->avatar_path) : null,
+            'avatar_url' => $u->avatar_url,
             'roleLabel'  => match ($u->role ?? 'user') {
                 'admin' => 'Admin', 'super_admin' => 'Super Admin', 'owner' => 'Owner', default => 'User',
             },
@@ -157,12 +157,30 @@ class UserController extends Controller
         $data = $request->only('username', 'email', 'role', 'first_name', 'last_name', 'phone', 'account_status', 'timezone', 'language', 'job_title');
 
         if ($request->boolean('remove_avatar') && $userObj->avatar_path) {
-            Storage::disk('public')->delete($userObj->avatar_path);
+            $disk = config('filesystems.default', 'public');
+            try { Storage::disk($disk)->delete($userObj->avatar_path); } catch (\Exception $e) {}
             $data['avatar_path'] = null;
-        }
-        if ($request->hasFile('avatar')) {
-            if ($userObj->avatar_path) Storage::disk('public')->delete($userObj->avatar_path);
-            $data['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
+        } elseif ($request->filled('avatar_base64')) {
+            $base64    = $request->input('avatar_base64');
+            $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $base64));
+            $filename  = $userObj->id . '_' . time() . '.jpg';
+            $disk      = config('filesystems.default', 'public');
+            if ($userObj->avatar_path) {
+                try { Storage::disk($disk)->delete($userObj->avatar_path); } catch (\Exception $e) {}
+            }
+            try {
+                Storage::disk($disk)->put($filename, $imageData, 'public');
+                $data['avatar_path'] = $filename;
+            } catch (\Exception $e) {
+                \Log::error('Admin avatar upload failed', ['error' => $e->getMessage()]);
+                return back()->withErrors(['avatar' => 'Failed to upload photo: ' . $e->getMessage()])->withInput();
+            }
+        } elseif ($request->hasFile('avatar')) {
+            $disk = config('filesystems.default', 'public');
+            if ($userObj->avatar_path) {
+                try { Storage::disk($disk)->delete($userObj->avatar_path); } catch (\Exception $e) {}
+            }
+            $data['avatar_path'] = $request->file('avatar')->store('avatars', $disk);
         }
 
         if ($request->filled('pricing_plan_id')) {

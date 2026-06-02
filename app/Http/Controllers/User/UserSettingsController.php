@@ -22,7 +22,10 @@ class UserSettingsController extends Controller
 
         return view('user.pages.settings', compact(
             'user', 'activePlan', 'projectCount', 'maxProjects', 'maxEstimations'
-        ) + ['cities' => config('renovasim.cities', [])]);
+        ) + [
+            'cities'     => config('renovasim.cities', []),
+            'avatar_url' => $user->avatar_url,
+        ]);
     }
 
     public function updateProfile(Request $request)
