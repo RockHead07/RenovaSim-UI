@@ -94,7 +94,7 @@
         /* ── API calls ────────────────────────────────────────── */
         async function loadProjects() {
             try {
-                const r = await fetch(API + '/status');
+                const r = await fetch(API + '/status', { credentials: 'same-origin' });
                 const s = await r.json();
                 if (s.status === 'online') {
                     dotEl.className = 'w-2 h-2 rounded-full bg-green-400 shrink-0';

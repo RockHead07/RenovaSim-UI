@@ -35,12 +35,16 @@ Route::prefix('v1')->group(function () {
 
 Route::post('login', [AuthController::class, 'login']);
 
-// 3D Room API — session auth (web middleware, not Sanctum token)
+// 3D Room API — public catalog endpoints (no auth, just Flask proxy)
+Route::prefix('3d')->group(function () {
+    Route::get('/status',      [Room3DController::class, 'status']);
+    Route::get('/furniture',   [Room3DController::class, 'furniture']);
+    Route::get('/templates',   [Room3DController::class, 'templates']);
+    Route::get('/paint-colors',[Room3DController::class, 'paintColors']);
+});
+
+// 3D Room API — user data endpoints (session auth)
 Route::middleware(['web', 'auth'])->prefix('3d')->group(function () {
-    Route::get('/status',                     [Room3DController::class, 'status']);
-    Route::get('/furniture',                  [Room3DController::class, 'furniture']);
-    Route::get('/templates',                  [Room3DController::class, 'templates']);
-    Route::get('/paint-colors',               [Room3DController::class, 'paintColors']);
     Route::get('/projects',                   [Room3DController::class, 'projects']);
     Route::post('/upload-images',             [Room3DController::class, 'uploadImages']);
     Route::get('/rooms/{id}',                 [Room3DController::class, 'getRoom']);
