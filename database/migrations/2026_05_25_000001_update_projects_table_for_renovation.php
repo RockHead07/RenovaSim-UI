@@ -12,21 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('projects', function (Blueprint $table) {
-            // Add after 'name'
-            $table->string('description')->nullable()->after('name');
-            $table->string('building_type')->nullable()->after('description');
-            // building_type options: rumah, apartemen, ruko, kantor, lainnya
-
-            $table->string('location')->nullable()->after('building_type');
-            // location = city name, e.g. "jakarta"
-
-            $table->integer('estimations_count')->default(0)->after('total_cost');
-            // cached count of estimations in this project
-
-            // Note: room_type and area_size are left as-is.
-            // SQLite does not support column modification via ->change().
-            // They are already effectively nullable at the application layer
-            // since we handle null checks in the model.
+            if (!Schema::hasColumn('projects', 'description')) {
+                $table->string('description')->nullable()->after('name');
+            }
+            if (!Schema::hasColumn('projects', 'building_type')) {
+                $table->string('building_type')->nullable()->after('description');
+            }
+            if (!Schema::hasColumn('projects', 'location')) {
+                $table->string('location')->nullable()->after('building_type');
+            }
+            if (!Schema::hasColumn('projects', 'estimations_count')) {
+                $table->integer('estimations_count')->default(0)->after('total_cost');
+            }
         });
     }
 

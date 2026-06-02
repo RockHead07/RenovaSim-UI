@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rab_shares', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('project_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('token', 64)->unique();
-            $table->enum('visibility', ['public', 'private'])->default('private');
-            $table->timestamp('expires_at');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('rab_shares')) {
+            Schema::create('rab_shares', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('project_id')->constrained()->onDelete('cascade');
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->string('token', 64)->unique();
+                $table->enum('visibility', ['public', 'private'])->default('private');
+                $table->timestamp('expires_at');
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void

@@ -13,12 +13,12 @@ class SupabaseService
 
     public function __construct()
     {
-        $this->url    = config('services.supabase.url');
-        $this->key    = config('services.supabase.key');
-        $this->secret = config('services.supabase.secret');
+        $this->url    = config('services.supabase.url')    ?? '';
+        $this->key    = config('services.supabase.key')    ?? '';
+        $this->secret = config('services.supabase.secret') ?? '';
 
         if (!$this->url || !$this->key) {
-            throw new Exception('Supabase credentials not configured');
+            throw new Exception('Supabase credentials not configured. Add SUPABASE_URL and SUPABASE_KEY to .env');
         }
     }
 

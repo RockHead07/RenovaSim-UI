@@ -6,10 +6,15 @@
       "Bash(php -r \"require 'vendor/autoload.php'; echo 'PHP OK';\")",
       "Bash(Get-ChildItem d:\\\\Dev\\\\Projects\\\\Web\\\\Laravel\\\\RenovaSim-UI\\\\app\\\\Models)",
       "Bash(Select-Object Name)",
-      "Bash(python fix_room_user_ids.py)"
+      "Bash(python fix_room_user_ids.py)",
+      "Bash(git add *)",
+      "Bash(php --ini)",
+      "Bash(php -m)",
+      "Bash(findstr -i pgsql)",
     ],
     "additionalDirectories": [
-      "D:\\Dev\\SDKs\\php-8.4.21"
+      "D:\\Dev\\SDKs\\php-8.4.21",
+      "C:\\"
     ]
   }
 }
