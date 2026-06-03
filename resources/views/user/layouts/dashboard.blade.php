@@ -14,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="user-id" content="{{ auth()->id() }}">
     <title>{{ $title ?? 'RenovaSim' }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/small_logo.svg') }}" />
     {{-- Prevent sidebar FOUC: read localStorage synchronously before render --}}
     {{-- Prevent sidebar FOUC: read localStorage synchronously before render --}}
     <script>

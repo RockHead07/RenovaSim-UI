@@ -119,53 +119,53 @@ $navLinks = [
 {{-- Sheet --}}
 <div
     id="mobile-sheet"
-    class="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[hsl(60_1.1%_11%)] rounded-t-4xl border-t border-white/8 flex flex-col translate-y-full transition-transform duration-500 nav-ease"
+    class="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[hsl(0_0%_5%/0.98)] backdrop-blur-2xl rounded-t-4xl border-t border-white/[0.07] flex flex-col translate-y-full transition-transform duration-500 nav-ease shadow-[0_-12px_60px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)]"
     style="max-height: 88vh"
 >
     {{-- Drag handle --}}
-    <div class="flex justify-center pt-3 pb-1">
-        <div class="w-10 h-1 rounded-full bg-white/20"></div>
+    <div class="flex justify-center pt-3.5 pb-1">
+        <div class="w-9 h-[3px] rounded-full bg-white/[0.18]"></div>
     </div>
 
     {{-- Sheet header --}}
     <div class="flex items-center justify-between px-6 py-4">
         <div>
-            <img src="{{ asset('images/logo.svg') }}" alt="RenovaSim" class="h-5 object-contain mb-0.5" style="filter: brightness(0) invert(1) brightness(0.95);" />
-            <p class="text-foreground/30 text-[10px] font-light tracking-wide">AI-powered renovation planning</p>
+            <img src="{{ asset('images/logo.svg') }}" alt="RenovaSim" class="h-5 object-contain mb-1" style="filter: brightness(0) invert(1) brightness(0.9);" />
+            <p class="text-foreground/30 text-[10px] font-light tracking-widest uppercase">AI-powered renovation planning</p>
         </div>
         <button
             onclick="closeMobileMenu()"
             aria-label="Close menu"
-            class="flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.07] text-foreground/50 hover:text-foreground transition-all duration-200"
+            class="flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.1] text-foreground/40 hover:text-foreground hover:border-white/25 hover:bg-white/[0.05] transition-all duration-200"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
     </div>
 
     {{-- Divider --}}
-    <div class="mx-6 h-px bg-white/6"></div>
+    <div class="mx-6 h-px bg-white/[0.06]"></div>
 
     {{-- Nav links --}}
-    <nav class="flex flex-col px-4 py-4 gap-1 overflow-y-auto flex-1">
+    <nav class="flex flex-col px-4 py-3 gap-0.5 overflow-y-auto flex-1">
         @foreach ($navLinks as $i => $link)
             <button
                 data-href="{{ $link['href'] }}"
                 onclick="handleMobileLink('{{ $link['href'] }}')"
-                class="mobile-nav-link w-full text-left px-4 py-4 rounded-2xl transition-all duration-200 flex items-center justify-between group text-foreground/60 hover:text-foreground hover:bg-white/4"
+                class="mobile-nav-link w-full text-left px-4 py-3.5 rounded-2xl transition-all duration-200 flex items-center justify-between group text-foreground/50 hover:text-foreground hover:bg-white/[0.05]"
             >
                 <div class="flex items-center gap-4">
-                    <span class="text-[10px] font-medium w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-white/[0.07] text-foreground/30 transition-all duration-200">
+                    <span class="text-[10px] font-medium w-5 h-5 rounded-full flex items-center justify-center shrink-0 border border-white/[0.1] text-foreground/30 group-hover:border-primary/50 group-hover:text-primary/70 transition-all duration-200">
                         {{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}
                     </span>
                     <div>
                         <p class="text-sm font-light tracking-wide leading-tight">{{ $link['label'] }}</p>
-                        <p class="text-[11px] font-light mt-0.5 text-foreground/25 transition-colors duration-200">{{ $link['desc'] }}</p>
+                        <p class="text-[11px] font-light mt-0.5 text-foreground/25 group-hover:text-foreground/40 transition-colors duration-200">{{ $link['desc'] }}</p>
                     </div>
                 </div>
                 {{-- ChevronRight --}}
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 text-foreground/20 group-hover:text-foreground/40 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 text-foreground/15 group-hover:text-foreground/40 group-hover:translate-x-0.5 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6" />
                 </svg>
             </button>
@@ -173,19 +173,19 @@ $navLinks = [
     </nav>
 
     {{-- Divider --}}
-    <div class="mx-6 h-px bg-white/6"></div>
+    <div class="mx-6 h-px bg-white/[0.06]"></div>
 
     {{-- CTA footer --}}
-    <div class="px-5 pt-4 pb-8 space-y-2">
+    <div class="px-5 pt-4 pb-8 space-y-2.5">
         <a
             href="{{ route('login') }}"
             onclick="closeMobileMenu()"
-            class="relative overflow-hidden block text-center w-full rounded-full bg-foreground text-background text-sm font-medium px-5 py-4 hover:opacity-90 transition-opacity duration-200 active:scale-[0.97] cta-shimmer"
+            class="relative overflow-hidden flex items-center justify-center gap-1.5 w-full rounded-full bg-foreground text-background text-sm font-medium px-5 py-4 hover:opacity-90 transition-all duration-200 active:scale-[0.97] cta-shimmer"
         >
             Get Started
-            <span class="text-xs">↗</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M7 7h10v10"/></svg>
         </a>
-        <p class="text-center text-foreground/25 text-xs font-light">No credit card required</p>
+        <p class="text-center text-foreground/20 text-[11px] font-light tracking-wide">No credit card required</p>
     </div>
 </div>
 

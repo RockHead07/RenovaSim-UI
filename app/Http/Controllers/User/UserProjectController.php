@@ -106,12 +106,14 @@ class UserProjectController extends Controller
             }
 
             $proj = Project::create([
-                'user_id'    => $userId,
-                'name'       => $setup['project_name'] ?? $result['project_name'] ?? 'Renovasi',
-                'room_type'  => $setup['building_type'] ?? 'Lainnya',
-                'area_size'  => $setup['area'] ?? ($result['breakdown'][0]['area'] ?? 0),
-                'status'     => 'estimated',
-                'total_cost' => (float) ($result['total_range']['min'] ?? 0),
+                'user_id'       => $userId,
+                'name'          => $setup['project_name'] ?? $result['project_name'] ?? 'Renovasi',
+                'building_type' => $setup['building_type'] ?? null,
+                'location'      => $setup['location'] ?? $result['location'] ?? null,
+                'description'   => $setup['description'] ?? null,
+                'area_size'     => $setup['area'] ?? ($result['breakdown'][0]['area'] ?? 0),
+                'status'        => 'estimated',
+                'total_cost'    => (float) ($result['total_range']['min'] ?? 0),
             ]);
 
             $projectId = $proj->id;
@@ -134,6 +136,8 @@ class UserProjectController extends Controller
                 'confidence_label' => $result['confidence']['label'] ?? null,
                 'fastapi_response' => $result,
             ]);
+
+            Project::find($projectId)->recalculateTotals();
 
             session()->forget(['estimation_result', 'project_setup']);
             session()->put('current_project_id', $projectId);

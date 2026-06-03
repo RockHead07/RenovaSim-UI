@@ -13,8 +13,8 @@
     <nav class="bg-slate-900 border-b border-slate-700 p-4">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-6">
-                <a href="{{ route('dashboard') }}" class="text-xl font-bold text-white hover:text-gray-200 flex items-center gap-2">
-                    <span>🏠</span> RenovaSim
+                <a href="{{ route('dashboard') }}" class="hover:opacity-80 transition-opacity flex items-center">
+                    <img src="{{ asset('images/logo.svg') }}" alt="RenovaSim" class="h-7 w-auto object-contain">
                 </a>
                 <span class="text-gray-400">|</span>
                 <h1 class="text-lg font-semibold text-gray-100">@yield('heading')</h1>

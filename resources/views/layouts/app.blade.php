@@ -161,7 +161,14 @@
 >
     {{-- Logo + Toggle --}}
     <div class="flex items-center justify-between px-4 h-14 shrink-0">
-        <span x-show="!collapsed" class="font-serif text-foreground text-lg tracking-tight">RenovaSim</span>
+        <a href="/" class="flex items-center min-w-0 overflow-hidden">
+            <template x-if="collapsed">
+                <img src="{{ asset('images/small_logo.svg') }}" alt="RenovaSim" class="w-7 h-7 shrink-0 object-contain">
+            </template>
+            <template x-if="!collapsed">
+                <img src="{{ asset('images/logo.svg') }}" alt="RenovaSim" class="h-6 w-auto object-contain max-w-[148px]" :style="!dark ? 'filter: brightness(0)' : ''">
+            </template>
+        </a>
         {{-- Desktop collapse --}}
         <button @click="collapsed = !collapsed" class="p-1 rounded transition-colors duration-200 hover:bg-muted hidden sm:flex ml-auto">
             <template x-if="collapsed">

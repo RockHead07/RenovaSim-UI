@@ -14,8 +14,7 @@
     <div class="editor-toolbar">
         <div class="toolbar-left">
             <div class="toolbar-logo">
-                <div class="logo-icon">R</div>
-                <span>RenovaSim</span>
+                <img src="{{ asset('images/logo.svg') }}" alt="RenovaSim" style="height:24px;width:auto;object-fit:contain;">
             </div>
             <div class="toolbar-divider"></div>
             <button class="toolbar-btn" onclick="document.getElementById('upload-overlay').style.display='flex'" title="New Room">

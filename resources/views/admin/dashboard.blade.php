@@ -25,7 +25,7 @@
     <div class="space-y-4">
 
     {{-- ════════════════════════ TOP STATS ROW ════════════════════════ --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
         {{-- Total Users --}}
         <div class="relative bg-card rounded-[14px] border border-border/10 flex flex-col min-h-[250px] overflow-hidden transition-all duration-200 hover:shadow-xl hover:border-border/20">
@@ -66,10 +66,10 @@
                     <p class="text-[2.75rem] leading-none font-serif text-foreground" x-text="metrics.active_users?.toLocaleString() ?? '—'"></p>
                 </div>
             </div>
-            <div class="flex-1 flex items-center justify-between px-6 py-3">
-                {{-- Gauge SVG --}}
-                <div class="relative shrink-0">
-                    <svg width="148" height="148" viewBox="0 0 148 148">
+            <div class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
+                {{-- Gauge SVG (scalable) --}}
+                <div class="relative" style="width:120px; height:120px">
+                    <svg class="w-full h-full" viewBox="0 0 148 148">
                         <defs>
                             <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#8BA023" stop-opacity="0.7"/>
@@ -91,28 +91,28 @@
                             filter="url(#gaugeGlow)" :stroke-dasharray="gaugeActive + ' 351.9'" transform="rotate(135 74 74)"/>
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="text-[1.6rem] font-serif text-foreground leading-none" x-text="metrics.active_rate + '%'"></span>
+                        <span class="text-[1.4rem] font-serif text-foreground leading-none" x-text="metrics.active_rate + '%'"></span>
                         <span class="text-[9px] uppercase tracking-wider text-paragraph mt-1">active rate</span>
                     </div>
                 </div>
-                {{-- Legend --}}
-                <div class="flex flex-col gap-3 ml-2">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:#8BA023"></span>
+                {{-- Legend (horizontal row) --}}
+                <div class="flex items-center justify-center gap-4 flex-wrap">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:#8BA023"></span>
                         <div>
                             <p class="text-[9px] uppercase tracking-widest text-paragraph">Active</p>
                             <p class="text-sm font-serif text-foreground" x-text="metrics.active_users?.toLocaleString() ?? '0'"></p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:#838383; opacity:0.4"></span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:#838383; opacity:0.4"></span>
                         <div>
                             <p class="text-[9px] uppercase tracking-widest text-paragraph">Inactive</p>
                             <p class="text-sm font-serif text-foreground" x-text="metrics.inactive_users?.toLocaleString() ?? '0'"></p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:#838383; opacity:0.2"></span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:#838383; opacity:0.2"></span>
                         <div>
                             <p class="text-[9px] uppercase tracking-widest text-paragraph">Total</p>
                             <p class="text-sm font-serif text-foreground" x-text="metrics.total_users?.toLocaleString() ?? '0'"></p>
@@ -154,7 +154,7 @@
     </div>
 
     {{-- ════════════════════════ MIDDLE CHARTS ════════════════════════ --}}
-    <div class="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
 
         {{-- Projects Growth --}}
         <div class="bg-card rounded-[14px] border border-border/10 p-6">
@@ -167,14 +167,14 @@
         {{-- Plan Distribution --}}
         <div class="bg-card rounded-[14px] border border-border/10 p-6">
             <p class="text-[10px] uppercase tracking-[0.15em] font-sans text-paragraph mb-4">Plan Distribution</p>
-            <div class="flex items-center gap-6">
-                <div style="height:160px; width:160px; flex-shrink:0">
+            <div class="flex flex-col items-center gap-4">
+                <div style="height:150px; width:150px; flex-shrink:0">
                     <canvas id="planDistChart"></canvas>
                 </div>
-                <div class="flex flex-col gap-3">
+                <div class="flex flex-wrap justify-center gap-x-5 gap-y-2.5 w-full">
                     <template x-for="(pd, idx) in metrics.plan_distribution ?? []" :key="idx">
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full" :style="{ background: pd.color ?? planColor(pd.name) }"></span>
+                            <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="{ background: pd.color ?? planColor(pd.name) }"></span>
                             <div>
                                 <p class="text-[9px] uppercase tracking-widest text-paragraph" x-text="pd.name"></p>
                                 <p class="text-sm font-serif text-foreground" x-text="pd.percentage + '%'"></p>
@@ -210,18 +210,18 @@
                         <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card"
                               :style="{ background: dotColors[a.type] ?? '#838383' }"></span>
                     </div>
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1 min-w-0 overflow-hidden">
                         <p class="text-sm font-sans text-foreground leading-tight">
                             <span class="font-medium" x-text="a.user"></span>
                             <span class="text-paragraph" x-text="' ' + a.action"></span>
                         </p>
-                        <p class="text-[11px] text-paragraph mt-0.5" x-text="a.detail"></p>
+                        <p class="text-[11px] text-paragraph mt-0.5 truncate" x-text="a.detail"></p>
                     </div>
-                    <div class="text-right shrink-0">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-sans font-medium"
+                    <div class="text-right shrink-0 ml-2">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-sans font-medium whitespace-nowrap"
                               :class="a.status === 'Done' ? 'bg-status-active/15 text-status-active' : 'bg-status-warning/15 text-status-warning'"
                               x-text="a.status"></span>
-                        <p class="text-[10px] text-paragraph mt-1" x-text="a.time_human"></p>
+                        <p class="text-[10px] text-paragraph mt-1 whitespace-nowrap" x-text="a.time_human"></p>
                     </div>
                 </div>
             </template>

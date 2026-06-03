@@ -8,6 +8,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'RenovaSim' }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/small_logo.svg') }}" />
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/user/theme/css/user.css', 'resources/user/theme/js/user.js'])
 </head>
 <body class="theme-user min-h-screen bg-background flex flex-col">

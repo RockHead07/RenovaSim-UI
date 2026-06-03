@@ -439,25 +439,17 @@
                 position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             }
             #thinking-overlay .xb-icon {
-                background: #fff;
+                background: #1a1a1a;
                 width: 76px; height: 76px;
-                border-radius: 50%; overflow: hidden;
-                position: absolute; inset: 0; margin: auto;
-            }
-            #thinking-overlay .xb-icon::after,
-            #thinking-overlay .xb-icon::before {
-                content: '';
-                display: block;
-                border-top: 10px solid #222;
                 border-radius: 50%;
-                height: 90%; width: 120%;
-                transform: rotate(-45deg);
-                position: absolute;
-                right: -30%; top: 15%;
+                border: 2.5px solid rgba(255,255,255,0.12);
+                box-shadow: 0 0 0 1px rgba(64,168,0,0.25), 0 4px 20px rgba(0,0,0,0.5);
+                position: absolute; inset: 0; margin: auto;
+                display: flex; align-items: center; justify-content: center;
             }
-            #thinking-overlay .xb-icon::before {
-                left: -30%;
-                transform: rotate(45deg);
+            #thinking-overlay .xb-icon svg {
+                width: 34px; height: 34px;
+                color: #fff;
             }
         </style>
 
@@ -468,7 +460,12 @@
                 </div>
             </div>
             <div class="xb-hold">
-                <div class="xb-icon"></div>
+                <div class="xb-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+                        <path d="M9 21V12h6v9"/>
+                    </svg>
+                </div>
             </div>
         </div>
 
