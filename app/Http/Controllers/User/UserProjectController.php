@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Estimation;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -47,11 +48,14 @@ class UserProjectController extends Controller
     public function destroy(int $project)
     {
         $proj = Project::where('id', $project)->where('user_id', auth()->id())->firstOrFail();
+        $projectName = $proj->name;
         $proj->estimations()->delete();
         $proj->delete();
 
+        ActivityLog::log(auth()->id(), 'delete_project', $projectName);
+
         return redirect()->route('user.projects')
-            ->with('success', 'Project "' . $proj->name . '" berhasil dihapus.');
+            ->with('success', 'Project "' . $projectName . '" berhasil dihapus.');
     }
 
     public function saveEstimation(Request $request)
@@ -108,6 +112,8 @@ class UserProjectController extends Controller
                 'total_cost'    => (float) ($result['total_range']['min'] ?? 0),
             ]);
 
+            ActivityLog::log($userId, 'create_project', $proj->name);
+
             $projectId = $proj->id;
         }
 
@@ -144,6 +150,10 @@ class UserProjectController extends Controller
                 'confidence_label' => $result['confidence']['label'] ?? null,
                 'fastapi_response' => $result,
             ]);
+
+            // Log estimation activity with project name as context
+            $projName = Project::find($projectId)?->name ?? 'Project';
+            ActivityLog::log($userId, 'create_estimation', $projName);
 
             Project::find($projectId)->recalculateTotals();
 

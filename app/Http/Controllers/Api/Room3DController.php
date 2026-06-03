@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -226,6 +227,8 @@ class Room3DController extends Controller
 
                 $result['room']['supabase_id'] = $room->id;
 
+                ActivityLog::log(Auth::id(), 'create_room', $room->name);
+
                 try {
                     Http::timeout(10)->post(
                         "{$this->flaskUrl}/rooms/{$externalId}/save",
@@ -297,7 +300,9 @@ class Room3DController extends Controller
         $room = $this->roomQuery($id)->first();
 
         if ($room) {
+            $roomName = $room->name ?? 'Room '.substr($id, 0, 6);
             $room->delete();
+            ActivityLog::log(Auth::id(), 'delete_room', $roomName);
         }
 
         try {

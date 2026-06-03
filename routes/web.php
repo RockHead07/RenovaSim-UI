@@ -9,7 +9,6 @@ use App\Http\Controllers\User\UserProjectController;
 use App\Http\Controllers\User\RabController;
 use App\Http\Controllers\User\UserSettingsController;
 use App\Http\Controllers\RoomController;
-use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\ApiManagerController;
@@ -30,10 +29,6 @@ Route::get('/', function () {
 
     return view('welcome', compact('pricingPlans'));
 });
-
-// Google OAuth Routes
-Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
 Route::middleware(['auth', 'role:user'])->prefix('user')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');

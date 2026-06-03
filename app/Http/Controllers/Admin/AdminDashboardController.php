@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Material;
 use App\Models\Partner;
 use App\Models\Project;
@@ -128,7 +129,7 @@ class AdminDashboardController extends Controller
     public function activity()
     {
         $range = request('range', 'all');
-        $sort = request('sort', 'desc');
+        $sort  = request('sort', 'desc');
         $order = ($sort === 'asc') ? 'asc' : 'desc';
 
         $dateThreshold = null;
@@ -142,14 +143,15 @@ class AdminDashboardController extends Controller
             $dateThreshold = now()->subWeek();
         }
 
+        /* ── 1. User registrations (from users table) ─────────── */
         $userQuery = User::select('id', 'username', 'email', 'avatar_path', 'created_at');
         if ($dateThreshold) {
             $userQuery->where('created_at', '>=', $dateThreshold);
         }
         $recentUsers = $userQuery->orderBy('created_at', $order)
-            ->limit(8)
+            ->limit(20)
             ->get()
-            ->map(fn($u) => [
+            ->map(fn ($u) => [
                 'type'       => 'user',
                 'initials'   => strtoupper(substr($u->username ?? $u->email ?? 'U', 0, 2)),
                 'avatar_url' => $u->avatar_url,
@@ -161,47 +163,32 @@ class AdminDashboardController extends Controller
                 '_ts'        => $u->created_at?->toIso8601String() ?? '',
             ]);
 
-        $projectQuery = Project::with('user:id,username,email,avatar_path')
-            ->select('id', 'name', 'user_id', 'created_at');
+        /* ── 2. Activity logs (project/estimation/room actions) ── */
+        $logQuery = ActivityLog::with('user:id,username,email,avatar_path')
+            ->select('id', 'user_id', 'event', 'description', 'subject_name', 'status', 'created_at');
         if ($dateThreshold) {
-            $projectQuery->where('created_at', '>=', $dateThreshold);
+            $logQuery->where('created_at', '>=', $dateThreshold);
         }
-        $recentProjects = $projectQuery->orderBy('created_at', $order)
-            ->limit(8)
+        $recentLogs = $logQuery->orderBy('created_at', $order)
+            ->limit(20)
             ->get()
-            ->map(fn($p) => [
-                'type'       => 'project',
-                'initials'   => strtoupper(substr($p->name ?? 'P', 0, 2)),
-                'avatar_url' => $p->user?->avatar_url,
-                'user'       => $p->user?->username ?? $p->user?->email ?? 'Unknown',
-                'action'     => 'membuat project',
-                'detail'     => $p->name,
-                'status'     => 'Done',
-                'time_human' => $p->created_at ? $p->created_at->diffForHumans() : '—',
-                '_ts'        => $p->created_at?->toIso8601String() ?? '',
-            ]);
+            ->map(function ($log) {
+                $u = $log->user;
+                return [
+                    'type'       => $log->event,
+                    'initials'   => strtoupper(substr($u?->username ?? $u?->email ?? 'U', 0, 2)),
+                    'avatar_url' => $u?->avatar_url,
+                    'user'       => $u?->username ?? $u?->email ?? 'Unknown',
+                    'action'     => $log->description,
+                    'detail'     => $log->subject_name ?? '',
+                    'status'     => $log->status,
+                    'time_human' => $log->created_at ? $log->created_at->diffForHumans() : '—',
+                    '_ts'        => $log->created_at?->toIso8601String() ?? '',
+                ];
+            });
 
-        $roomQuery = Room::with('user:id,username,email,avatar_path')
-            ->select('id', 'name', 'user_id', 'created_at', 'recommended_type', 'status');
-        if ($dateThreshold) {
-            $roomQuery->where('created_at', '>=', $dateThreshold);
-        }
-        $recentRooms = $roomQuery->orderBy('created_at', $order)
-            ->limit(8)
-            ->get()
-            ->map(fn($r) => [
-                'type'       => 'room',
-                'initials'   => strtoupper(substr($r->name ?? 'R', 0, 2)),
-                'avatar_url' => $r->user?->avatar_url,
-                'user'       => $r->user?->username ?? $r->user?->email ?? 'Unknown',
-                'action'     => 'membuat 3D design',
-                'detail'     => $r->name ?? 'Design 3D',
-                'status'     => 'Done',
-                'time_human' => $r->created_at ? $r->created_at->diffForHumans() : '—',
-                '_ts'        => $r->created_at?->toIso8601String() ?? '',
-            ]);
-
-        $activities = $recentUsers->concat($recentProjects)->concat($recentRooms);
+        /* ── 3. Merge, sort, and return top 20 ───────────────── */
+        $activities = $recentUsers->concat($recentLogs);
 
         if ($order === 'asc') {
             $activities = $activities->sortBy('_ts');
@@ -209,8 +196,8 @@ class AdminDashboardController extends Controller
             $activities = $activities->sortByDesc('_ts');
         }
 
-        $activities = $activities->take(8)
-            ->map(fn($a) => collect($a)->except('_ts')->all())
+        $activities = $activities->take(20)
+            ->map(fn ($a) => collect($a)->except('_ts')->all())
             ->values();
 
         return response()->json(['data' => $activities]);
