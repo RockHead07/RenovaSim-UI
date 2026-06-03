@@ -13,18 +13,6 @@
                 <p class="font-['DM_Sans'] text-sm text-muted-foreground mt-0.5">Kelola profil dan preferensi akun kamu</p>
             </div>
 
-            {{-- Success alerts --}}
-            @if(session('success_profile'))
-                <div class="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-xl text-sm">
-                    ✓ {{ session('success_profile') }}
-                </div>
-            @endif
-            @if(session('success_password'))
-                <div class="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-xl text-sm">
-                    ✓ {{ session('success_password') }}
-                </div>
-            @endif
-
             {{-- SECTION 1: Profil --}}
             <div class="bg-card rounded-2xl shadow-sm p-6 mb-4">
                 <h2 class="font-['DM_Sans'] font-semibold text-base text-card-foreground mb-4">Profil</h2>

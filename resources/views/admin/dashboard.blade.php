@@ -63,11 +63,11 @@
             <div class="px-6 pt-7">
                 <p class="text-[10px] uppercase tracking-[0.15em] font-sans text-paragraph">Active Users</p>
                 <div class="flex items-end gap-3 mt-2">
-                    <p class="text-[2.75rem] leading-none font-serif text-foreground" x-text="metrics.active_users?.toLocaleString() ?? '—'"></p>
+                    <p class="text-[2.75rem] leading-none font-serif text-foreground" x-text="metrics.online_users?.toLocaleString() ?? '—'"></p>
                 </div>
             </div>
             <div class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
-                {{-- Gauge SVG (scalable) --}}
+                {{-- Gauge SVG (scalable, online/offline) --}}
                 <div class="relative" style="width:120px; height:120px">
                     <svg class="w-full h-full" viewBox="0 0 148 148">
                         <defs>
@@ -83,32 +83,30 @@
                         <circle cx="74" cy="74" r="66" fill="none" stroke="#8BA023" stroke-width="1" stroke-opacity="0.12"/>
                         <circle cx="74" cy="74" r="56" fill="none" stroke="rgba(245,245,245,0.05)" stroke-width="14" stroke-linecap="round"
                             stroke-dasharray="237.6 351.9" transform="rotate(135 74 74)"/>
-                        <circle cx="74" cy="74" r="56" fill="none" stroke="#838383" stroke-width="14" stroke-linecap="round" stroke-opacity="0.2"
-                            :stroke-dasharray="gaugeBg + ' 351.9'" :stroke-dashoffset="'-' + gaugeActive" transform="rotate(135 74 74)"/>
                         <circle cx="74" cy="74" r="56" fill="none" stroke="#8BA023" stroke-width="14" stroke-linecap="round" stroke-opacity="0.2"
-                            :stroke-dasharray="gaugeActive + ' 351.9'" transform="rotate(135 74 74)"/>
+                            :stroke-dasharray="gaugeOnline + ' 351.9'" transform="rotate(135 74 74)"/>
                         <circle cx="74" cy="74" r="56" fill="none" stroke="url(#gaugeGrad)" stroke-width="14" stroke-linecap="round"
-                            filter="url(#gaugeGlow)" :stroke-dasharray="gaugeActive + ' 351.9'" transform="rotate(135 74 74)"/>
+                            filter="url(#gaugeGlow)" :stroke-dasharray="gaugeOnline + ' 351.9'" transform="rotate(135 74 74)"/>
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="text-[1.4rem] font-serif text-foreground leading-none" x-text="metrics.active_rate + '%'"></span>
-                        <span class="text-[9px] uppercase tracking-wider text-paragraph mt-1">active rate</span>
+                        <span class="text-[1.4rem] font-serif text-foreground leading-none" x-text="metrics.online_rate + '%'"></span>
+                        <span class="text-[9px] uppercase tracking-wider text-paragraph mt-1">online rate</span>
                     </div>
                 </div>
-                {{-- Legend (horizontal row) --}}
+                {{-- Legend (3 items horizontal) --}}
                 <div class="flex items-center justify-center gap-4 flex-wrap">
                     <div class="flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full shrink-0" style="background:#8BA023"></span>
                         <div>
-                            <p class="text-[9px] uppercase tracking-widest text-paragraph">Active</p>
-                            <p class="text-sm font-serif text-foreground" x-text="metrics.active_users?.toLocaleString() ?? '0'"></p>
+                            <p class="text-[9px] uppercase tracking-widest text-paragraph">Online</p>
+                            <p class="text-sm font-serif text-foreground" x-text="metrics.online_users?.toLocaleString() ?? '0'"></p>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full shrink-0" style="background:#838383; opacity:0.4"></span>
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:#838383; opacity:0.6"></span>
                         <div>
-                            <p class="text-[9px] uppercase tracking-widest text-paragraph">Inactive</p>
-                            <p class="text-sm font-serif text-foreground" x-text="metrics.inactive_users?.toLocaleString() ?? '0'"></p>
+                            <p class="text-[9px] uppercase tracking-widest text-paragraph">Offline</p>
+                            <p class="text-sm font-serif text-foreground" x-text="metrics.offline_users?.toLocaleString() ?? '0'"></p>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5">
@@ -158,8 +156,20 @@
 
         {{-- Projects Growth --}}
         <div class="bg-card rounded-[14px] border border-border/10 p-6">
-            <p class="text-[10px] uppercase tracking-[0.15em] font-sans text-paragraph mb-4">Projects Growth</p>
-            <div style="height:180px">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-[10px] uppercase tracking-[0.15em] font-sans text-paragraph">Projects Growth</p>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:#8BA023"></span>
+                        <span class="text-[10px] text-paragraph uppercase tracking-widest">Users</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:#d4941a"></span>
+                        <span class="text-[10px] text-paragraph uppercase tracking-widest">Projects</span>
+                    </div>
+                </div>
+            </div>
+            <div style="height:200px">
                 <canvas id="projectsGrowthChart"></canvas>
             </div>
         </div>
@@ -241,7 +251,7 @@ function dashboardPage() {
         metrics: {},
         activities: [],
         formattedDate: new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }),
-        dotColors: { project:'#8BA023', plan:'#d4941a', user:'#F5F5F5' },
+        dotColors: { project:'#8BA023', plan:'#d4941a', user:'#F5F5F5', room:'#5a9fd4' },
         planColor(name) {
             const key = (name ?? '').toLowerCase().trim();
             if (key.includes('enterprise')) return '#facc15';
@@ -249,21 +259,10 @@ function dashboardPage() {
             return '#838383';
         },
 
-        get gaugeActive() {
-            const rate = this.metrics.active_rate ?? 0;
-            return ((rate / 100) * 237.6).toFixed(1);
-        },
-        get gaugeBg() {
-            const rate = this.metrics.active_rate ?? 0;
-            return (237.6 - (rate / 100) * 237.6).toFixed(1);
-        },
-
-        chartDefaults: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { enabled: false } },
-            scales: { x: { display: false }, y: { display: false } },
-            elements: { point: { radius: 0 } },
+        get gaugeOnline() {
+            const total = this.metrics.total_users ?? 0;
+            const online = this.metrics.online_users ?? 0;
+            return total > 0 ? parseFloat(((online / total) * 237.6).toFixed(1)) : 0;
         },
 
         async init() {
@@ -287,6 +286,50 @@ function dashboardPage() {
             const usersChart = chartData.users ?? [];
             const projectsChart = chartData.projects ?? [];
 
+            const tooltip = {
+                enabled: true,
+                backgroundColor: 'rgba(18,18,18,0.95)',
+                titleColor: '#F5F5F5',
+                bodyColor: '#a0a0a0',
+                borderColor: 'rgba(139,160,35,0.25)',
+                borderWidth: 1,
+                padding: 10,
+                cornerRadius: 8,
+                displayColors: true,
+                boxWidth: 8,
+                boxHeight: 8,
+            };
+
+            const gradientFor = (ctx, stopTop, stopBottom) => {
+                const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
+                g.addColorStop(0, stopTop);
+                g.addColorStop(1, stopBottom);
+                return g;
+            };
+
+            const sparkOptions = (label) => ({
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        ...tooltip,
+                        callbacks: { label: ctx => ` ${ctx.parsed.y} ${label}` }
+                    }
+                },
+                scales: { x: { display: false }, y: { display: false } },
+                elements: {
+                    point: {
+                        radius: 0,
+                        hoverRadius: 5,
+                        hoverBackgroundColor: accent,
+                        hoverBorderColor: '#fff',
+                        hoverBorderWidth: 2,
+                    }
+                },
+                interaction: { mode: 'index', intersect: false },
+            });
+
             // Total Users spark
             const usersCanvasEl = document.getElementById('totalUsersChart');
             if (usersCanvasEl) {
@@ -294,69 +337,84 @@ function dashboardPage() {
                     type: 'line',
                     data: {
                         labels: usersChart.map(d => d.label),
-                        datasets: [{ data: usersChart.map(d => d.count),
+                        datasets: [{
+                            data: usersChart.map(d => d.count),
                             borderColor: accent, borderWidth: 3, tension: 0.4,
                             fill: true,
-                            backgroundColor: (ctx) => {
-                                const g = ctx.chart.ctx.createLinearGradient(0,0,0,100);
-                                g.addColorStop(0,'rgba(139,160,35,0.5)');
-                                g.addColorStop(1,'rgba(139,160,35,0)');
-                                return g;
-                            },
-                            pointRadius: 0 }]
+                            backgroundColor: ctx => gradientFor(ctx, 'rgba(139,160,35,0.5)', 'rgba(139,160,35,0)'),
+                            pointRadius: 0,
+                        }]
                     },
-                    options: { ...this.chartDefaults }
+                    options: sparkOptions('users'),
                 });
             }
 
-            // Projects spark (replaces New Clients)
+            // Projects spark
             const newClientsEl = document.getElementById('newClientsChart');
             if (newClientsEl) {
                 new Chart(newClientsEl, {
                     type: 'line',
                     data: {
                         labels: projectsChart.map(d => d.label),
-                        datasets: [{ data: projectsChart.map(d => d.count),
+                        datasets: [{
+                            data: projectsChart.map(d => d.count),
                             borderColor: accent, borderWidth: 3, tension: 0.4,
                             fill: true,
-                            backgroundColor: (ctx) => {
-                                const g = ctx.chart.ctx.createLinearGradient(0,0,0,100);
-                                g.addColorStop(0,'rgba(139,160,35,0.5)');
-                                g.addColorStop(1,'rgba(139,160,35,0)');
-                                return g;
-                            },
-                            pointRadius: 0 }]
+                            backgroundColor: ctx => gradientFor(ctx, 'rgba(139,160,35,0.5)', 'rgba(139,160,35,0)'),
+                            pointRadius: 0,
+                        }]
                     },
-                    options: { ...this.chartDefaults }
+                    options: sparkOptions('projects'),
                 });
             }
 
-            // Projects Growth line
+            // Projects Growth — dual-line with visible nodes
             const projGrowthEl = document.getElementById('projectsGrowthChart');
             if (projGrowthEl) {
                 new Chart(projGrowthEl, {
                     type: 'line',
                     data: {
-                        labels: projectsChart.map(d => d.label),
-                        datasets: [{ data: projectsChart.map(d => d.count),
-                            borderColor: accent, borderWidth: 2.5, tension: 0.4,
-                            fill: true,
-                            backgroundColor: (ctx) => {
-                                const g = ctx.chart.ctx.createLinearGradient(0,0,0,180);
-                                g.addColorStop(0,'rgba(139,160,35,0.25)');
-                                g.addColorStop(1,'rgba(139,160,35,0)');
-                                return g;
+                        labels: usersChart.map(d => d.label),
+                        datasets: [
+                            {
+                                label: 'Users',
+                                data: usersChart.map(d => d.count),
+                                borderColor: '#8BA023', borderWidth: 2.5, tension: 0.4,
+                                fill: true,
+                                backgroundColor: ctx => gradientFor(ctx, 'rgba(139,160,35,0.28)', 'rgba(139,160,35,0)'),
+                                pointRadius: 4, pointHoverRadius: 7,
+                                pointBackgroundColor: '#8BA023',
+                                pointBorderColor: '#1a1a1a', pointBorderWidth: 2,
+                                pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2,
                             },
-                            pointRadius: 0 }]
+                            {
+                                label: 'Projects',
+                                data: projectsChart.map(d => d.count),
+                                borderColor: '#d4941a', borderWidth: 2.5, tension: 0.4,
+                                fill: true,
+                                backgroundColor: ctx => gradientFor(ctx, 'rgba(212,148,26,0.18)', 'rgba(212,148,26,0)'),
+                                pointRadius: 4, pointHoverRadius: 7,
+                                pointBackgroundColor: '#d4941a',
+                                pointBorderColor: '#1a1a1a', pointBorderWidth: 2,
+                                pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2,
+                            }
+                        ]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { ...tooltip }
+                        },
                         scales: {
                             x: { ticks: { color:'#838383', font:{ size:10 } }, grid:{ display:false } },
-                            y: { ticks: { color:'#838383', font:{ size:10 } }, grid:{ color:'rgba(245,245,245,0.05)' } }
+                            y: {
+                                ticks: { color:'#838383', font:{ size:10 }, precision: 0, stepSize: 1 },
+                                grid: { color:'rgba(245,245,245,0.05)' },
+                                beginAtZero: true,
+                            }
                         },
-                        elements: { point: { radius: 0 } },
                     }
                 });
             }
@@ -369,17 +427,29 @@ function dashboardPage() {
                     type: 'doughnut',
                     data: {
                         labels: planDist.map(p => p.name),
-                        datasets: [{ data: planDist.map(p => p.percentage),
+                        datasets: [{
+                            data: planDist.map(p => p.percentage),
                             backgroundColor: planDist.map(p => p.color ?? this.planColor(p.name)),
-                            borderWidth:0, hoverOffset:4 }]
+                            borderWidth: 0, hoverOffset: 6,
+                        }]
                     },
                     options: {
-                        responsive: true, maintainAspectRatio: false, cutout:'65%',
-                        plugins: { legend:{ display:false } },
+                        responsive: true, maintainAspectRatio: false, cutout: '65%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                ...tooltip,
+                                callbacks: {
+                                    label: ctx => {
+                                        const pd = planDist[ctx.dataIndex];
+                                        return pd ? ` ${pd.name}: ${pd.count} users (${pd.percentage}%)` : '';
+                                    }
+                                }
+                            }
+                        },
                     }
                 });
             }
-
         },
     }
 }

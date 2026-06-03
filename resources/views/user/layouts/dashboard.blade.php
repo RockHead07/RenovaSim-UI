@@ -115,49 +115,49 @@
     <x-user::components.layout.sidebar />
 
     {{-- Global Flash Messages --}}
-    @if(session('error'))
-    <div
-        x-data="{ show: true }"
-        x-show="show"
-        x-init="setTimeout(() => show = false, 6000)"
-        x-transition:leave="transition ease-in duration-300"
-        x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 -translate-y-2"
-        class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
-        style="display: none"
-    >
-        <div class="bg-red-50 border border-red-200 text-red-800 rounded-2xl px-5 py-4 shadow-lg flex items-start gap-3">
-            <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <div class="flex-1">
-                <p class="text-sm font-['DM_Sans'] font-medium">{{ session('error') }}</p>
+    @php
+    $toasts = array_values(array_filter([
+        session('success')          ? ['type'=>'success', 'msg'=>session('success')]          : null,
+        session('error')            ? ['type'=>'error',   'msg'=>session('error')]            : null,
+        session('warning')          ? ['type'=>'warning', 'msg'=>session('warning')]          : null,
+        session('success_profile')  ? ['type'=>'success', 'msg'=>session('success_profile')]  : null,
+        session('success_password') ? ['type'=>'success', 'msg'=>session('success_password')] : null,
+        session('error_profile')    ? ['type'=>'error',   'msg'=>session('error_profile')]    : null,
+        session('error_password')   ? ['type'=>'error',   'msg'=>session('error_password')]   : null,
+    ]));
+    @endphp
+    @if(count($toasts) > 0)
+    <div class="fixed top-4 right-4 z-50 flex flex-col gap-2"
+         x-data="toastManager({{ Js::from($toasts) }})"
+         @keydown.escape.window="dismissAll()">
+        <template x-for="(toast, i) in toasts" :key="i">
+            <div x-show="toast.visible"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-x-8"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 translate-x-8"
+                 class="flex items-center w-72 sm:w-80 rounded-xl bg-card border border-border shadow-lg px-3 py-3 gap-3">
+                <div class="shrink-0 p-1.5 rounded-lg" :class="iconBg(toast.type)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" class="w-5 h-5" :class="iconColor(toast.type)">
+                        <path stroke-linecap="round" stroke-linejoin="round" :d="iconPath(toast.type)"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[12px] font-semibold font-['DM_Sans'] text-card-foreground" x-text="toastTitle(toast.type)"></p>
+                    <p class="text-[11px] font-['DM_Sans'] text-muted-foreground leading-snug mt-0.5 break-words" x-text="toast.msg"></p>
+                </div>
+                <button @click="dismiss(i)"
+                        class="shrink-0 text-muted-foreground hover:bg-muted p-1 rounded-md transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
-            <button @click="show = false" class="text-red-400 hover:text-red-600 shrink-0">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
-    </div>
-    @endif
-
-    @if(session('success'))
-    <div
-        x-data="{ show: true }"
-        x-show="show"
-        x-init="setTimeout(() => show = false, 4000)"
-        x-transition:leave="transition ease-in duration-300"
-        x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 -translate-y-2"
-        class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
-        style="display: none"
-    >
-        <div class="bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-4 shadow-lg flex items-start gap-3">
-            <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 16 4 11"/></svg>
-            <div class="flex-1">
-                <p class="text-sm font-['DM_Sans'] font-medium">{{ session('success') }}</p>
-            </div>
-            <button @click="show = false" class="text-green-400 hover:text-green-600 shrink-0">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
+        </template>
     </div>
     @endif
 
@@ -171,5 +171,36 @@
         </div>
     </main>
     @stack('scripts')
+    <script>
+    function toastManager(initial) {
+        return {
+            toasts: initial.map(t => ({ ...t, visible: true })),
+            init() {
+                this.toasts.forEach((_, i) => {
+                    setTimeout(() => this.dismiss(i), 5000 + i * 300);
+                });
+            },
+            dismiss(i) { this.toasts[i].visible = false; },
+            dismissAll() { this.toasts.forEach(t => t.visible = false); },
+            toastTitle(type) {
+                return { success: 'Berhasil', error: 'Terjadi Kesalahan', warning: 'Perhatian' }[type] ?? 'Notifikasi';
+            },
+            iconBg(type) {
+                return { success: 'bg-primary/10', error: 'bg-destructive/10', warning: 'bg-amber-500/10' }[type] ?? 'bg-muted';
+            },
+            iconColor(type) {
+                return { success: 'text-primary', error: 'text-destructive', warning: 'text-amber-500' }[type] ?? 'text-muted-foreground';
+            },
+            iconPath(type) {
+                const paths = {
+                    success: 'm4.5 12.75 6 6 9-13.5',
+                    error:   'M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z',
+                    warning: 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z',
+                };
+                return paths[type] ?? paths.success;
+            },
+        };
+    }
+    </script>
 </body>
 </html>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Material;
 use App\Models\Partner;
 use App\Models\Project;
+use App\Models\Room;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -24,8 +25,11 @@ class AdminDashboardController extends Controller
         $lastMonth = $now->copy()->subMonth();
 
         $totalUsers     = User::count();
-        $activeUsers    = User::where('account_status', 'active')->orWhereNull('account_status')->count();
-        $inactiveUsers  = $totalUsers - $activeUsers;
+        $activeUsers    = User::where(fn ($q) => $q->where('account_status', 'active')->orWhereNull('account_status'))->count();
+        $inactiveUsers  = User::where('account_status', 'inactive')->count();
+        $suspendedUsers = User::where('account_status', 'suspended')->count();
+        $onlineUsers    = User::where('last_active_at', '>=', now()->subMinutes(10))->count();
+        $offlineUsers   = $totalUsers - $onlineUsers;
         $usersThisMonth = User::whereYear('created_at', $thisYear)->whereMonth('created_at', $thisMonth)->count();
         $usersLastMonth = User::whereYear('created_at', $lastMonth->year)->whereMonth('created_at', $lastMonth->month)->count();
 
@@ -76,6 +80,10 @@ class AdminDashboardController extends Controller
             'new_users_last_month' => $usersLastMonth,
             'active_users'         => $activeUsers,
             'inactive_users'       => $inactiveUsers,
+            'suspended_users'      => $suspendedUsers,
+            'online_users'         => $onlineUsers,
+            'offline_users'        => $offlineUsers,
+            'online_rate'          => $totalUsers > 0 ? round(($onlineUsers / $totalUsers) * 100) : 0,
             'total_projects'       => $totalProjects,
             'projects_by_status'   => [
                 'draft'     => $draftProjects,
@@ -143,7 +151,24 @@ class AdminDashboardController extends Controller
                 '_ts'        => $p->created_at?->toIso8601String() ?? '',
             ]);
 
-        $activities = $recentUsers->concat($recentProjects)
+        $recentRooms = Room::with('user:id,username,email,avatar_path')
+            ->select('id', 'name', 'user_id', 'created_at', 'recommended_type', 'status')
+            ->latest()
+            ->limit(4)
+            ->get()
+            ->map(fn($r) => [
+                'type'       => 'room',
+                'initials'   => strtoupper(substr($r->name ?? 'R', 0, 2)),
+                'avatar_url' => $r->user?->avatar_url,
+                'user'       => $r->user?->username ?? $r->user?->email ?? 'Unknown',
+                'action'     => 'membuat 3D design',
+                'detail'     => $r->name ?? 'Design 3D',
+                'status'     => 'Done',
+                'time_human' => $r->created_at ? $r->created_at->diffForHumans() : '—',
+                '_ts'        => $r->created_at?->toIso8601String() ?? '',
+            ]);
+
+        $activities = $recentUsers->concat($recentProjects)->concat($recentRooms)
             ->sortByDesc('_ts')
             ->take(8)
             ->map(fn($a) => collect($a)->except('_ts')->all())
