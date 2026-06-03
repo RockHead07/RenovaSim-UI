@@ -44,10 +44,20 @@
                             {{ isset($room['created_at']) ? \Carbon\Carbon::parse($room['created_at'])->format('Y-m-d H:i') : '-' }}
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <a href="http://localhost:5000" target="_blank"
-                               class="inline-flex items-center justify-center rounded-lg bg-primary/10 text-primary px-3 py-1.5 text-xs font-medium hover:bg-primary/20 transition-colors">
-                                View 3D
-                            </a>
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="http://localhost:5000" target="_blank"
+                                   class="inline-flex items-center justify-center rounded-lg bg-primary/10 text-primary px-3 py-1.5 text-xs font-medium hover:bg-primary/20 transition-colors">
+                                    View 3D
+                                </a>
+                                <form action="{{ route('admin.rooms.destroy', $room['id']) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus hasil save 3D ini?')" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="source" value="flask">
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-red-500/20 transition-colors" style="background:rgba(220,50,50,0.1);color:rgb(239, 68, 68)">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -72,10 +82,20 @@
                         </td>
                         <td class="px-6 py-4 text-sm text-paragraph">{{ $room->created_at->format('Y-m-d H:i') }}</td>
                         <td class="px-6 py-4 text-right">
-                            <a href="{{ route('room.editor', $room->id) }}" target="_blank"
-                               class="inline-flex items-center justify-center rounded-lg bg-primary/10 text-primary px-3 py-1.5 text-xs font-medium hover:bg-primary/20 transition-colors">
-                                View 3D
-                            </a>
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ route('room.editor', $room->id) }}" target="_blank"
+                                   class="inline-flex items-center justify-center rounded-lg bg-primary/10 text-primary px-3 py-1.5 text-xs font-medium hover:bg-primary/20 transition-colors">
+                                    View 3D
+                                </a>
+                                <form action="{{ route('admin.rooms.destroy', $room->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus hasil save 3D ini?')" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="source" value="db">
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-red-500/20 transition-colors" style="background:rgba(220,50,50,0.1);color:rgb(239, 68, 68)">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty

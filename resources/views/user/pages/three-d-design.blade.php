@@ -92,25 +92,32 @@
         };
 
         /* ── API calls ────────────────────────────────────────── */
-        async function loadProjects() {
+        async function checkServerStatus() {
             try {
                 const r = await fetch(API + '/status', { credentials: 'same-origin' });
                 const s = await r.json();
                 if (s.status === 'online') {
                     dotEl.className = 'w-2 h-2 rounded-full bg-green-400 shrink-0';
                     statusEl.textContent = 'Server online — v' + (s.version || '2.0');
+                } else {
+                    dotEl.className = 'w-2 h-2 rounded-full bg-yellow-400 shrink-0';
+                    statusEl.textContent = 'RAI server offline — jalankan python app_server.py';
                 }
             } catch(e) {
                 dotEl.className = 'w-2 h-2 rounded-full bg-yellow-400 shrink-0';
                 statusEl.textContent = 'RAI server offline — jalankan python app_server.py';
-                loadingEl.classList.add('hidden');
-                showEmpty();
-                return;
             }
+        }
 
+        async function loadProjects() {
             try {
-                const r    = await fetch(API + '/projects', {
-                    headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+                const r    = await fetch(API + '/projects?t=' + Date.now(), {
+                    headers: { 
+                        'X-CSRF-TOKEN': CSRF, 
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
                     credentials: 'same-origin',
                 });
                 const data = await r.json();
@@ -118,6 +125,7 @@
 
                 if (!data.projects || data.projects.length === 0) { showEmpty(); return; }
 
+                emptyEl.classList.add('hidden');
                 gridEl.classList.remove('hidden');
                 renderProjects(data.projects);
             } catch(e) {
@@ -127,6 +135,8 @@
         }
 
         function showEmpty() {
+            gridEl.innerHTML = '';
+            gridEl.classList.add('hidden');
             emptyEl.classList.remove('hidden');
             emptyEl.style.display = 'flex';
         }
@@ -151,6 +161,7 @@
                     : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">${SVG.cube}</div>`;
 
                 const card = document.createElement('div');
+                card.id = 'project-card-' + p.id;
                 card.style.cssText = 'background:var(--card);border-radius:16px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:box-shadow .25s ease, transform .25s ease;';
                 card.onmouseenter = () => { card.style.boxShadow = '0 8px 24px rgba(0,0,0,0.10)'; card.style.transform = 'translateY(-2px)'; };
                 card.onmouseleave = () => { card.style.boxShadow = ''; card.style.transform = ''; };
@@ -199,19 +210,105 @@
             });
         }
 
-        window.deleteProject = async function(id) {
-            if (!confirm('Hapus desain ini? Tindakan ini tidak dapat dibatalkan.')) return;
+        window.deleteProject = function(id) {
+            window._pendingDeleteId = id;
+            window.dispatchEvent(new CustomEvent('confirm-delete-design'));
+        };
+
+        window._doDeleteDesign = async function(id) {
+            // Optimistic UI update: hide and remove card instantly
+            const cardEl = document.getElementById('project-card-' + id);
+            if (cardEl) {
+                cardEl.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+                cardEl.style.opacity = '0';
+                cardEl.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    cardEl.remove();
+                    if (gridEl.children.length === 0) {
+                        showEmpty();
+                    }
+                }, 250);
+            }
+
             try {
-                await fetch(API + '/rooms/' + id, {
+                const response = await fetch(API + '/rooms/' + id, {
                     method: 'DELETE',
                     headers: { 'X-CSRF-TOKEN': CSRF },
                     credentials: 'same-origin',
                 });
+                if (!response.ok) {
+                    throw new Error('Delete failed');
+                }
                 loadProjects();
-            } catch(e) { alert('Gagal menghapus desain.'); }
+            } catch(e) {
+                alert('Gagal menghapus desain. Silakan coba lagi.');
+                loadProjects();
+            }
         };
 
+        checkServerStatus();
         loadProjects();
     })();
     </script>
+
+    {{-- Delete Design Confirmation Modal --}}
+    <div x-data="{
+             open: false,
+             init() {
+                 window.addEventListener('confirm-delete-design', () => { this.open = true; });
+             },
+             confirm() {
+                 this.open = false;
+                 window._doDeleteDesign(window._pendingDeleteId);
+             }
+         }"
+         @keydown.escape.window="open = false">
+
+        <div x-show="open"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click.self="open = false"
+             class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm"
+             style="display:none">
+            <div x-show="open"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="bg-card rounded-2xl shadow-xl border border-border w-full max-w-sm p-6">
+
+                {{-- Icon --}}
+                <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center mb-4">
+                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </div>
+
+                {{-- Text --}}
+                <p class="font-['DM_Sans'] font-semibold text-[15px] text-card-foreground mb-1">Hapus Desain?</p>
+                <p class="font-['DM_Sans'] text-[13px] text-muted-foreground leading-relaxed">
+                    Desain ini akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.
+                </p>
+
+                {{-- Actions --}}
+                <div class="flex gap-3 mt-5 justify-end">
+                    <button type="button" @click="open = false"
+                            class="px-4 py-2 text-sm font-['DM_Sans'] font-medium text-muted-foreground hover:text-card-foreground bg-muted/60 hover:bg-muted rounded-xl transition-colors">
+                        Batal
+                    </button>
+                    <button type="button" @click="confirm()"
+                            class="px-4 py-2 text-sm font-['DM_Sans'] font-medium text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors">
+                        Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </x-user::layouts.dashboard>

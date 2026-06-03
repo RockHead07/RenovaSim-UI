@@ -110,6 +110,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('/pricing-plans', PricingPlanController::class)->middleware('manage-pricing-plans');
     Route::resource('/partners', PartnerController::class);
     Route::get('/rooms', [RoomController::class, 'adminIndex'])->name('admin.rooms.index');
+    Route::delete('/rooms/{id}', [RoomController::class, 'adminDestroy'])->name('admin.rooms.destroy');
 
     // Manage API
     Route::get('/api-manager',  [ApiManagerController::class, 'index'])->name('admin.api');

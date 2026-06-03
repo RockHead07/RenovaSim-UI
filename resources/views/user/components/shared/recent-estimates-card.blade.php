@@ -1,38 +1,21 @@
 @php
-    $user   = \Illuminate\Support\Facades\Auth::user();
-    $userId = $user?->getAuthIdentifier() ?? 0;
-    $supabase = app(\App\Services\SupabaseService::class);
+    $userId = auth()->id();
 
-    $rawProjects = $supabase->select('projects', 'id,name,status,total_cost,room_type,area_size', ['user_id' => $userId]);
-
-    // Sort by id descending (latest first) and take 5
-    usort($rawProjects, fn($a, $b) => ($b['id'] ?? 0) - ($a['id'] ?? 0));
-    $rawProjects = array_slice($rawProjects, 0, 5);
-
-    // Wrap as objects with safe defaults for columns that may not exist yet
-    $projects = collect(array_map(function ($p) {
-        return (object) [
-            'id'                => $p['id'],
-            'name'              => $p['name'] ?? 'Untitled',
-            'status'            => $p['status'] ?? 'draft',
-            'total_cost'        => $p['total_cost'] ?? 0,
-            'location'          => $p['location'] ?? null,
-            'building_type'     => $p['building_type'] ?? null,
-            'estimations_count' => $p['estimations_count'] ?? 0,
-        ];
-    }, $rawProjects));
+    $projects = \App\Models\Project::where('user_id', $userId)
+        ->latest()
+        ->limit(5)
+        ->get();
 
     $statusStyles = [
-        'active'    => 'bg-amber-100 text-amber-700',
+        'estimated' => 'bg-blue-100 text-blue-700',
         'completed' => 'bg-[hsl(73,55%,90%)] text-secondary',
         'draft'     => 'bg-muted text-muted-foreground',
-        'estimated' => 'bg-blue-100 text-blue-700',
     ];
+
     $statusLabels = [
-        'active'    => 'In Progress',
-        'completed' => 'Completed',
+        'estimated' => 'Estimasi',
+        'completed' => 'Selesai',
         'draft'     => 'Draft',
-        'estimated' => 'Estimated',
     ];
 @endphp
 

@@ -5,7 +5,21 @@
 
 <x-user::layouts.dashboard title="RenovaSim — Projects">
     <div class="flex-1 py-6 px-4">
-        <div class="max-w-[920px] mx-auto">
+        <div class="max-w-[920px] mx-auto"
+             x-data="{
+                 deleteModal: false,
+                 pendingName: '',
+                 pendingAction: '',
+                 openDelete(name, action) {
+                     this.pendingName = name;
+                     this.pendingAction = action;
+                     this.deleteModal = true;
+                 },
+                 submitDelete() {
+                     this.$refs.deleteForm.action = this.pendingAction;
+                     this.$refs.deleteForm.submit();
+                 }
+             }">
 
             {{-- Header --}}
             <div class="flex items-center justify-between mb-6">
@@ -25,15 +39,6 @@
                     Buat Project
                 </a>
             </div>
-
-            @if(session('success'))
-                <div class="mb-5 flex items-start gap-2.5 bg-[hsl(120,60%,96%)] border border-[hsl(120,60%,70%)] rounded-xl px-4 py-3">
-                    <svg class="w-4 h-4 text-[hsl(120,60%,35%)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    <p class="font-['DM_Sans'] text-[13px] text-card-foreground">{{ session('success') }}</p>
-                </div>
-            @endif
 
             {{-- Empty state --}}
             @if($projects->isEmpty())
@@ -62,25 +67,50 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach($projects as $project)
                         @php
-                            // Extract project data from array
-                            $projectArray = $project->toArray();
-                            $projectId = $projectArray['id'] ?? null;
-                            $projectName = $projectArray['name'] ?? 'Untitled';
-                            $projectLocation = $projectArray['location'] ?? null;
-                            $projectStatus = $projectArray['status'] ?? 'draft';
-                            $projectCreatedAt = $projectArray['created_at'] ?? null;
-                            $latestEst = $projectArray['latest_estimation'] ?? null;
-                            
-                            // Extract estimation data if exists
-                            $estArray = $latestEst ? (is_array($latestEst) ? $latestEst : $latestEst->toArray()) : [];
-                            $costMin = (int) ($estArray['cost_min'] ?? 0);
-                            $costMax = (int) ($estArray['cost_max'] ?? 0);
+                            $projectId = $project->id;
+                            $projectName = $project->name ?? 'Untitled';
+                            $projectLocation = $project->location ?? null;
+                            $projectStatus = $project->status ?? 'draft';
+                            $projectCreatedAt = $project->created_at ?? null;
+
+                            $estimations = $project->estimations;
+
+                            $costMin = (int) $estimations->sum('cost_min');
+                            $costMax = (int) $estimations->sum('cost_max');
                             $costAvg = $costMin > 0 ? (int)(($costMin + $costMax) / 2) : 0;
-                            $jobTypeKey = $estArray['job_type'] ?? null;
-                            $jobLabel = $jobTypeKey ? ($jobTypeMap[$jobTypeKey] ?? $jobTypeKey) : null;
-                            $confLabel = $estArray['confidence_label'] ?? null;
-                            $confScore = (float) ($estArray['confidence_score'] ?? 0);
+
+                            $uniqueJobKeys = $estimations->pluck('job_type')->unique()->filter()->values();
+                            $jobLabel = null;
+                            if ($uniqueJobKeys->isNotEmpty()) {
+                                $firstJobKey = $uniqueJobKeys->first();
+                                $firstJobLabel = $jobTypeMap[$firstJobKey] ?? $firstJobKey;
+                                if ($uniqueJobKeys->count() === 1) {
+                                    $jobLabel = $firstJobLabel;
+                                } else {
+                                    $jobLabel = $firstJobLabel . ' & ' . ($uniqueJobKeys->count() - 1) . ' lainnya';
+                                }
+                            }
+
+                            $uniqueQualities = $estimations->pluck('quality')->unique()->filter()->values();
+                            $qualityLabel = null;
+                            if ($uniqueQualities->isNotEmpty()) {
+                                $qualityLabel = $uniqueQualities->map(fn($q) => ucfirst($q))->implode(' / ');
+                            }
+
+                            $confScore = $estimations->isNotEmpty() ? (float) $estimations->avg('confidence_score') : 0;
                             $confPct = $confScore <= 1 ? (int)round($confScore * 100) : (int)$confScore;
+
+                            $confLabel = null;
+                            if ($estimations->isNotEmpty()) {
+                                if ($confScore >= 0.8) {
+                                    $confLabel = 'Tinggi';
+                                } elseif ($confScore >= 0.5) {
+                                    $confLabel = 'Sedang';
+                                } else {
+                                    $confLabel = 'Rendah';
+                                }
+                            }
+
                             $confColor = match($confLabel) {
                                 'Tinggi' => '#8BA023',
                                 'Sedang' => '#d4941a',
@@ -143,14 +173,14 @@
                                                 <span class="font-['DM_Sans'] text-[12px] text-muted-foreground">{{ $jobLabel }}</span>
                                             </div>
                                         @endif
-                                        @if($estArray && isset($estArray['quality']))
+                                        @if($qualityLabel)
                                             <div class="flex items-center gap-1.5">
                                                 <svg class="w-3 h-3 text-muted-foreground shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                           d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
                                                 </svg>
                                                 <span class="font-['DM_Sans'] text-[12px] text-muted-foreground capitalize">
-                                                    {{ ucfirst($estArray['quality']) }}
+                                                    {{ $qualityLabel }}
                                                 </span>
                                             </div>
                                         @endif
@@ -225,20 +255,15 @@
                                         Lihat & Lanjutkan
                                     </a>
 
-                                    <form method="POST"
-                                          action="{{ route('user.projects.destroy', $projectId) }}"
-                                          onsubmit="return confirm('Hapus project \'{{ addslashes($projectName) }}\'? Semua estimasi di dalamnya juga akan dihapus.')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="w-10 h-10 flex items-center justify-center rounded-xl border border-border text-muted-foreground hover:border-red-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                                                title="Hapus project">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                            @click="openDelete('{{ addslashes($projectName) }}', '{{ route('user.projects.destroy', $projectId) }}')"
+                                            class="w-10 h-10 flex items-center justify-center rounded-xl border border-border text-muted-foreground hover:border-red-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                            title="Hapus project">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
                                 </div>
 
                             </div>
@@ -246,6 +271,61 @@
                     @endforeach
                 </div>
             @endif
+
+            {{-- Hidden form for delete submission --}}
+            <form x-ref="deleteForm" method="POST" style="display:none">
+                @csrf
+                @method('DELETE')
+            </form>
+
+            {{-- Delete confirmation modal --}}
+            <div x-show="deleteModal"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @keydown.escape.window="deleteModal = false"
+                 class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm"
+                 style="display:none">
+                <div x-show="deleteModal"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="bg-card rounded-2xl shadow-xl border border-border w-full max-w-sm p-6">
+
+                    {{-- Icon --}}
+                    <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center mb-4">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </div>
+
+                    {{-- Text --}}
+                    <p class="font-['DM_Sans'] font-semibold text-[15px] text-card-foreground mb-1">Hapus Project?</p>
+                    <p class="font-['DM_Sans'] text-[13px] text-muted-foreground leading-relaxed">
+                        Project <span class="font-semibold text-card-foreground" x-text="'&quot;' + pendingName + '&quot;'"></span>
+                        dan semua estimasi di dalamnya akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.
+                    </p>
+
+                    {{-- Actions --}}
+                    <div class="flex gap-3 mt-5 justify-end">
+                        <button type="button" @click="deleteModal = false"
+                                class="px-4 py-2 text-sm font-['DM_Sans'] font-medium text-muted-foreground hover:text-card-foreground bg-muted/60 hover:bg-muted rounded-xl transition-colors">
+                            Batal
+                        </button>
+                        <button type="button" @click="submitDelete()"
+                                class="px-4 py-2 text-sm font-['DM_Sans'] font-medium text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors">
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>

@@ -204,6 +204,40 @@ class RoomController extends Controller
     }
 
     /**
+     * Delete room (admin option for both DB and Flask saves)
+     */
+    public function adminDestroy(Request $request, $id)
+    {
+        $source = $request->input('source', 'db');
+
+        if ($source === 'flask') {
+            try {
+                // Delete from Flask 3D server
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                    ->delete("http://localhost:5000/api/rooms/{$id}");
+
+                if ($response->successful()) {
+                    return redirect()->route('admin.rooms.index')->with('success', 'Room deleted from 3D server successfully.');
+                }
+
+                $errorMsg = $response->json()['error'] ?? 'Unknown error';
+                return redirect()->route('admin.rooms.index')->with('error', "Failed to delete room from 3D server: {$errorMsg}");
+            } catch (\Exception $e) {
+                return redirect()->route('admin.rooms.index')->with('error', 'Flask server is offline or unreachable. Cannot delete room.');
+            }
+        } else {
+            // Delete from Database
+            $room = Room::find($id);
+            if (!$room) {
+                return redirect()->route('admin.rooms.index')->with('error', 'Room not found in database.');
+            }
+
+            $room->delete(); // Cascades to room_objects in DB
+            return redirect()->route('admin.rooms.index')->with('success', 'Room deleted from database successfully.');
+        }
+    }
+
+    /**
      * Create new room
      */
     public function create()

@@ -10,7 +10,7 @@
       "Bash(git add *)",
       "Bash(php --ini)",
       "Bash(php -m)",
-      "Bash(findstr -i pgsql)",
+      "Bash(findstr -i pgsql)"
     ],
     "additionalDirectories": [
       "D:\\Dev\\SDKs\\php-8.4.21",

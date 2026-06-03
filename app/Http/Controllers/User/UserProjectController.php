@@ -12,14 +12,9 @@ class UserProjectController extends Controller
     public function index()
     {
         $projects = Project::where('user_id', auth()->id())
-            ->with(['estimations' => fn ($q) => $q->latest()->limit(1)])
+            ->with('estimations')
             ->latest()
-            ->get()
-            ->map(function ($p) {
-                $p->latest_estimation = $p->estimations->first();
-
-                return $p;
-            });
+            ->get();
 
         return view('user.pages.projects', ['projects' => $projects]);
     }
@@ -117,10 +112,26 @@ class UserProjectController extends Controller
         }
 
         if ($projectId) {
+            $breakdown = $result['breakdown'] ?? [];
+            $uniqueJobs = collect($breakdown)->pluck('job_type')->unique()->values();
+            $jobTypeMap = config('renovasim.job_type_id', []);
+
+            $label = 'Estimasi';
+            if ($uniqueJobs->isNotEmpty()) {
+                $firstJob = $uniqueJobs->first();
+                $firstJobLabel = $jobTypeMap[$firstJob] ?? ucfirst($firstJob);
+
+                if ($uniqueJobs->count() === 1) {
+                    $label = $firstJobLabel;
+                } else {
+                    $label = $firstJobLabel . ' & ' . ($uniqueJobs->count() - 1) . ' lainnya';
+                }
+            }
+
             Estimation::create([
                 'project_id'       => $projectId,
                 'user_id'          => $userId,
-                'label'            => $result['breakdown'][0]['job_type'] ?? 'Estimasi',
+                'label'            => $label,
                 'mode'             => $result['mode'] ?? 'wizard',
                 'job_type'         => $result['breakdown'][0]['job_type'] ?? null,
                 'area'             => $result['breakdown'][0]['area'] ?? null,

@@ -9,6 +9,7 @@ use App\Models\Project;
 use App\Models\Room;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
@@ -52,20 +53,28 @@ class AdminDashboardController extends Controller
         $topMaterials = Material::select('name')->limit(5)->get()
             ->map(fn($m) => ['name' => $m->name, 'count' => 1])->values();
 
-        $chartUsers = collect(range(5, 0))->map(function ($i) {
+        $sixMonthsAgo = now()->subMonths(5)->startOfMonth();
+
+        $chartUsersRaw = DB::table('users')
+            ->selectRaw("TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count")
+            ->where('created_at', '>=', $sixMonthsAgo)
+            ->groupByRaw("TO_CHAR(created_at, 'YYYY-MM')")
+            ->pluck('count', 'month');
+
+        $chartProjectsRaw = DB::table('projects')
+            ->selectRaw("TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count")
+            ->where('created_at', '>=', $sixMonthsAgo)
+            ->groupByRaw("TO_CHAR(created_at, 'YYYY-MM')")
+            ->pluck('count', 'month');
+
+        $chartUsers = collect(range(5, 0))->map(function ($i) use ($chartUsersRaw) {
             $d = now()->subMonths($i);
-            return [
-                'label' => $d->format('M'),
-                'count' => User::whereYear('created_at', $d->year)->whereMonth('created_at', $d->month)->count(),
-            ];
+            return ['label' => $d->format('M'), 'count' => (int) ($chartUsersRaw[$d->format('Y-m')] ?? 0)];
         });
 
-        $chartProjects = collect(range(5, 0))->map(function ($i) {
+        $chartProjects = collect(range(5, 0))->map(function ($i) use ($chartProjectsRaw) {
             $d = now()->subMonths($i);
-            return [
-                'label' => $d->format('M'),
-                'count' => Project::whereYear('created_at', $d->year)->whereMonth('created_at', $d->month)->count(),
-            ];
+            return ['label' => $d->format('M'), 'count' => (int) ($chartProjectsRaw[$d->format('Y-m')] ?? 0)];
         });
 
         $usersGrowth = $usersLastMonth > 0
@@ -118,9 +127,27 @@ class AdminDashboardController extends Controller
 
     public function activity()
     {
-        $recentUsers = User::select('id', 'username', 'email', 'avatar_path', 'created_at')
-            ->latest()
-            ->limit(4)
+        $range = request('range', 'all');
+        $sort = request('sort', 'desc');
+        $order = ($sort === 'asc') ? 'asc' : 'desc';
+
+        $dateThreshold = null;
+        if ($range === '12h') {
+            $dateThreshold = now()->subHours(12);
+        } elseif ($range === '1d') {
+            $dateThreshold = now()->subDay();
+        } elseif ($range === '3d') {
+            $dateThreshold = now()->subDays(3);
+        } elseif ($range === '1w') {
+            $dateThreshold = now()->subWeek();
+        }
+
+        $userQuery = User::select('id', 'username', 'email', 'avatar_path', 'created_at');
+        if ($dateThreshold) {
+            $userQuery->where('created_at', '>=', $dateThreshold);
+        }
+        $recentUsers = $userQuery->orderBy('created_at', $order)
+            ->limit(8)
             ->get()
             ->map(fn($u) => [
                 'type'       => 'user',
@@ -134,10 +161,13 @@ class AdminDashboardController extends Controller
                 '_ts'        => $u->created_at?->toIso8601String() ?? '',
             ]);
 
-        $recentProjects = Project::with('user:id,username,email,avatar_path')
-            ->select('id', 'name', 'user_id', 'created_at')
-            ->latest()
-            ->limit(4)
+        $projectQuery = Project::with('user:id,username,email,avatar_path')
+            ->select('id', 'name', 'user_id', 'created_at');
+        if ($dateThreshold) {
+            $projectQuery->where('created_at', '>=', $dateThreshold);
+        }
+        $recentProjects = $projectQuery->orderBy('created_at', $order)
+            ->limit(8)
             ->get()
             ->map(fn($p) => [
                 'type'       => 'project',
@@ -151,10 +181,13 @@ class AdminDashboardController extends Controller
                 '_ts'        => $p->created_at?->toIso8601String() ?? '',
             ]);
 
-        $recentRooms = Room::with('user:id,username,email,avatar_path')
-            ->select('id', 'name', 'user_id', 'created_at', 'recommended_type', 'status')
-            ->latest()
-            ->limit(4)
+        $roomQuery = Room::with('user:id,username,email,avatar_path')
+            ->select('id', 'name', 'user_id', 'created_at', 'recommended_type', 'status');
+        if ($dateThreshold) {
+            $roomQuery->where('created_at', '>=', $dateThreshold);
+        }
+        $recentRooms = $roomQuery->orderBy('created_at', $order)
+            ->limit(8)
             ->get()
             ->map(fn($r) => [
                 'type'       => 'room',
@@ -168,9 +201,15 @@ class AdminDashboardController extends Controller
                 '_ts'        => $r->created_at?->toIso8601String() ?? '',
             ]);
 
-        $activities = $recentUsers->concat($recentProjects)->concat($recentRooms)
-            ->sortByDesc('_ts')
-            ->take(8)
+        $activities = $recentUsers->concat($recentProjects)->concat($recentRooms);
+
+        if ($order === 'asc') {
+            $activities = $activities->sortBy('_ts');
+        } else {
+            $activities = $activities->sortByDesc('_ts');
+        }
+
+        $activities = $activities->take(8)
             ->map(fn($a) => collect($a)->except('_ts')->all())
             ->values();
 

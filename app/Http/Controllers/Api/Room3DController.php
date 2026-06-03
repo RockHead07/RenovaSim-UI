@@ -33,7 +33,7 @@ class Room3DController extends Controller
     public function status()
     {
         try {
-            $r = Http::timeout(5)->get("{$this->flaskUrl}/status");
+            $r = Http::timeout(2)->get("{$this->flaskUrl}/status");
 
             return response()->json($r->json());
         } catch (\Exception $e) {
@@ -69,7 +69,9 @@ class Room3DController extends Controller
             ->get()
             ->map(fn ($r) => $r->toFlaskFormat());
 
-        return response()->json(['projects' => $rooms]);
+        return response()->json(['projects' => $rooms])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     public function getRoom(string $id)
@@ -299,7 +301,7 @@ class Room3DController extends Controller
         }
 
         try {
-            Http::timeout(5)->delete("{$this->flaskUrl}/rooms/{$id}");
+            Http::timeout(2)->delete("{$this->flaskUrl}/rooms/{$id}");
         } catch (\Exception $e) {
             // ignore
         }

@@ -200,41 +200,76 @@
 
     {{-- ════════════════════════ RECENT ACTIVITY ════════════════════════ --}}
     <div class="bg-card rounded-[14px] border border-border/10 p-6">
-        <p class="text-[10px] uppercase tracking-[0.15em] font-sans text-paragraph mb-4">Recent Activity</p>
-        <div class="space-y-4">
-            <template x-if="activities.length === 0">
-                <p class="text-center text-paragraph text-sm py-4">No recent activity.</p>
-            </template>
-            <template x-for="(a, i) in activities" :key="i">
-                <div class="flex items-start gap-3">
-                    <div class="relative shrink-0">
-                        <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-[11px] font-semibold text-foreground"
-                             :style="a.avatar_url ? '' : `background: ${dotColors[a.type] ?? '#838383'}`">
-                            <template x-if="a.avatar_url">
-                                <img :src="a.avatar_url" class="w-full h-full object-cover" alt="">
-                            </template>
-                            <template x-if="!a.avatar_url">
-                                <span x-text="a.initials"></span>
-                            </template>
-                        </div>
-                        <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card"
-                              :style="{ background: dotColors[a.type] ?? '#838383' }"></span>
-                    </div>
-                    <div class="flex-1 min-w-0 overflow-hidden">
-                        <p class="text-sm font-sans text-foreground leading-tight">
-                            <span class="font-medium" x-text="a.user"></span>
-                            <span class="text-paragraph" x-text="' ' + a.action"></span>
-                        </p>
-                        <p class="text-[11px] text-paragraph mt-0.5 truncate" x-text="a.detail"></p>
-                    </div>
-                    <div class="text-right shrink-0 ml-2">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-sans font-medium whitespace-nowrap"
-                              :class="a.status === 'Done' ? 'bg-status-active/15 text-status-active' : 'bg-status-warning/15 text-status-warning'"
-                              x-text="a.status"></span>
-                        <p class="text-[10px] text-paragraph mt-1 whitespace-nowrap" x-text="a.time_human"></p>
-                    </div>
+        <div class="flex items-center justify-between flex-wrap gap-4 mb-5 pb-3 border-b border-border/5">
+            <p class="text-[10px] uppercase tracking-[0.15em] font-sans text-paragraph">Recent Activity</p>
+            <div class="flex items-center gap-3">
+                <!-- Time Range Selector -->
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[9px] uppercase tracking-wider font-sans text-paragraph">Range:</span>
+                    <select x-model="activityRange" @change="loadActivities()" 
+                            class="bg-[#1b1c1e] text-foreground border border-border/10 rounded-lg px-2.5 py-1 text-xs font-sans focus:outline-none focus:border-[#8BA023] transition-colors cursor-pointer select-none">
+                        <option value="all">All Time</option>
+                        <option value="12h">Last 12 Hours</option>
+                        <option value="1d">Last 24 Hours</option>
+                        <option value="3d">Last 3 Days</option>
+                        <option value="1w">Last 1 Week</option>
+                    </select>
                 </div>
-            </template>
+                <!-- Sort Order Selector -->
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[9px] uppercase tracking-wider font-sans text-paragraph">Sort:</span>
+                    <select x-model="activitySort" @change="loadActivities()" 
+                            class="bg-[#1b1c1e] text-foreground border border-border/10 rounded-lg px-2.5 py-1 text-xs font-sans focus:outline-none focus:border-[#8BA023] transition-colors cursor-pointer select-none">
+                        <option value="desc">Newest First</option>
+                        <option value="asc">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative min-h-[150px]">
+            <!-- Loading overlay -->
+            <div x-show="activityLoading" 
+                 class="absolute inset-0 bg-card/75 backdrop-blur-[1px] flex items-center justify-center z-10 transition-opacity rounded-lg"
+                 style="display: none;">
+                <div class="w-6 h-6 border-2 border-[#8BA023]/30 border-t-[#8BA023] rounded-full animate-spin"></div>
+            </div>
+
+            <div class="space-y-4" :style="activityLoading ? 'opacity: 0.4' : ''">
+                <template x-if="activities.length === 0">
+                    <p class="text-center text-paragraph text-sm py-8">No recent activity found.</p>
+                </template>
+                <template x-for="(a, i) in activities" :key="i">
+                    <div class="flex items-start gap-3">
+                        <div class="relative shrink-0">
+                            <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-[11px] font-semibold text-foreground"
+                                 :style="a.avatar_url ? '' : `background: ${dotColors[a.type] ?? '#838383'}`">
+                                <template x-if="a.avatar_url">
+                                    <img :src="a.avatar_url" class="w-full h-full object-cover" alt="">
+                                </template>
+                                <template x-if="!a.avatar_url">
+                                    <span x-text="a.initials"></span>
+                                </template>
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card"
+                                  :style="{ background: dotColors[a.type] ?? '#838383' }"></span>
+                        </div>
+                        <div class="flex-1 min-w-0 overflow-hidden">
+                            <p class="text-sm font-sans text-foreground leading-tight">
+                                <span class="font-medium" x-text="a.user"></span>
+                                <span class="text-paragraph" x-text="' ' + a.action"></span>
+                            </p>
+                            <p class="text-[11px] text-paragraph mt-0.5 truncate" x-text="a.detail"></p>
+                        </div>
+                        <div class="text-right shrink-0 ml-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-sans font-medium whitespace-nowrap"
+                                  :class="a.status === 'Done' ? 'bg-status-active/15 text-status-active' : 'bg-status-warning/15 text-status-warning'"
+                                  x-text="a.status"></span>
+                            <p class="text-[10px] text-paragraph mt-1 whitespace-nowrap" x-text="a.time_human"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
     </div>
 
@@ -252,6 +287,9 @@ function dashboardPage() {
         activities: [],
         formattedDate: new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }),
         dotColors: { project:'#8BA023', plan:'#d4941a', user:'#F5F5F5', room:'#5a9fd4' },
+        activityRange: 'all',
+        activitySort: 'desc',
+        activityLoading: false,
         planColor(name) {
             const key = (name ?? '').toLowerCase().trim();
             if (key.includes('enterprise')) return '#facc15';
@@ -269,7 +307,7 @@ function dashboardPage() {
             try {
                 const [metricsRes, activityRes] = await Promise.all([
                     fetch('/admin/dashboard/metrics').then(r => r.json()),
-                    fetch('/admin/dashboard/activity').then(r => r.json()),
+                    fetch(`/admin/dashboard/activity?range=${this.activityRange}&sort=${this.activitySort}`).then(r => r.json()),
                 ]);
                 this.metrics    = metricsRes.data ?? {};
                 this.activities = activityRes.data ?? [];
@@ -278,6 +316,17 @@ function dashboardPage() {
             }
             this.loading = false;
             this.$nextTick(() => this.initCharts());
+        },
+
+        async loadActivities() {
+            this.activityLoading = true;
+            try {
+                const res = await fetch(`/admin/dashboard/activity?range=${this.activityRange}&sort=${this.activitySort}`).then(r => r.json());
+                this.activities = res.data ?? [];
+            } catch (e) {
+                console.error('Failed to load activities:', e);
+            }
+            this.activityLoading = false;
         },
 
         initCharts() {

@@ -1,27 +1,13 @@
 @php
-    $user   = \Illuminate\Support\Facades\Auth::user();
-    $userId = $user?->getAuthIdentifier() ?? 0;
-    $supabase = app(\App\Services\SupabaseService::class);
+    $userId = auth()->id() ?? 0;
 
-    $allProjects = $supabase->select('projects', 'id,total_cost,created_at,status', ['user_id' => $userId]);
-    $totalProjects = count($allProjects);
-    $totalCostMin  = (int) array_sum(array_column($allProjects, 'total_cost'));
-
-    $thisMonthNum = now()->month;
-    $thisYear     = now()->year;
-    $thisMonth = count(array_filter($allProjects, function ($p) use ($thisMonthNum, $thisYear) {
-        if (empty($p['created_at'])) return false;
-        $d = \Carbon\Carbon::parse($p['created_at']);
-        return $d->month === $thisMonthNum && $d->year === $thisYear;
-    }));
-
-    // estimations table may not exist yet — treat as 0
-    try {
-        $allEstimations   = $supabase->select('estimations', 'id', ['user_id' => $userId]);
-        $totalEstimations = count($allEstimations);
-    } catch (\Throwable) {
-        $totalEstimations = 0;
-    }
+    $totalProjects    = \App\Models\Project::where('user_id', $userId)->count();
+    $totalCostMin     = (int) \App\Models\Project::where('user_id', $userId)->sum('total_cost');
+    $thisMonth        = \App\Models\Project::where('user_id', $userId)
+                            ->whereYear('created_at', now()->year)
+                            ->whereMonth('created_at', now()->month)
+                            ->count();
+    $totalEstimations = \App\Models\Estimation::where('user_id', $userId)->count();
 
     $metrics = [
         [

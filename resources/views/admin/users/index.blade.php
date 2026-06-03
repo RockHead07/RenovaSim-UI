@@ -22,6 +22,25 @@
                         class="px-3 py-1.5 rounded-lg text-xs font-sans font-medium transition-colors duration-200"
                         x-text="p"></button>
             </template>
+            
+            <!-- Role Filter Select -->
+            <select x-model="roleFilter" @change="page = 1"
+                    class="bg-[#1b1c1e] text-foreground border border-border/10 rounded-lg px-2.5 py-1.5 text-xs font-sans focus:outline-none focus:border-[#8BA023] transition-colors cursor-pointer select-none">
+                <option value="All">All Roles</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+                <option value="super_admin">Super Admin</option>
+                <option value="owner">Owner</option>
+            </select>
+
+            <!-- Status Filter Select -->
+            <select x-model="statusFilter" @change="page = 1"
+                    class="bg-[#1b1c1e] text-foreground border border-border/10 rounded-lg px-2.5 py-1.5 text-xs font-sans focus:outline-none focus:border-[#8BA023] transition-colors cursor-pointer select-none">
+                <option value="All">All Status</option>
+                <option value="online">Online</option>
+                <option value="offline">Offline</option>
+            </select>
+
             <a href="/admin/users/create"
                class="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-sans font-medium bg-foreground text-background">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -103,14 +122,28 @@
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
-                        <tr class="border-b border-border/10">
-                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">ID</th>
-                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Name</th>
-                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Email</th>
-                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Role</th>
-                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Plan</th>
-                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Joined</th>
-                            <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3" title="Online = active in last 10 minutes">Status</th>
+                        <tr class="border-b border-border/10 select-none">
+                            <th @click="toggleSort('id')" class="cursor-pointer hover:text-foreground text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3 transition-colors">
+                                ID <span x-show="sortBy === 'id'" x-text="sortDesc ? '▼' : '▲'" class="text-[8px] ml-0.5"></span>
+                            </th>
+                            <th @click="toggleSort('name')" class="cursor-pointer hover:text-foreground text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3 transition-colors">
+                                Name <span x-show="sortBy === 'name'" x-text="sortDesc ? '▼' : '▲'" class="text-[8px] ml-0.5"></span>
+                            </th>
+                            <th @click="toggleSort('email')" class="cursor-pointer hover:text-foreground text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3 transition-colors">
+                                Email <span x-show="sortBy === 'email'" x-text="sortDesc ? '▼' : '▲'" class="text-[8px] ml-0.5"></span>
+                            </th>
+                            <th @click="toggleSort('role')" class="cursor-pointer hover:text-foreground text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3 transition-colors">
+                                Role <span x-show="sortBy === 'role'" x-text="sortDesc ? '▼' : '▲'" class="text-[8px] ml-0.5"></span>
+                            </th>
+                            <th @click="toggleSort('plan')" class="cursor-pointer hover:text-foreground text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3 transition-colors">
+                                Plan <span x-show="sortBy === 'plan'" x-text="sortDesc ? '▼' : '▲'" class="text-[8px] ml-0.5"></span>
+                            </th>
+                            <th @click="toggleSort('joined')" class="cursor-pointer hover:text-foreground text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3 transition-colors">
+                                Joined <span x-show="sortBy === 'joined'" x-text="sortDesc ? '▼' : '▲'" class="text-[8px] ml-0.5"></span>
+                            </th>
+                            <th @click="toggleSort('is_online')" class="cursor-pointer hover:text-foreground text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3 transition-colors" title="Online = active in last 10 minutes">
+                                Status <span x-show="sortBy === 'is_online'" x-text="sortDesc ? '▼' : '▲'" class="text-[8px] ml-0.5"></span>
+                            </th>
                             <th class="text-[10px] uppercase tracking-widest text-paragraph font-sans font-normal text-left px-5 py-3">Actions</th>
                         </tr>
                     </thead>
@@ -193,6 +226,10 @@ function usersPage() {
     return {
         search: '',
         planFilter: 'All',
+        roleFilter: 'All',
+        statusFilter: 'All',
+        sortBy: 'id',
+        sortDesc: false,
         page: 1,
         perPage: 10,
         plans: ['All', @foreach(\App\Models\PricingPlan::where('is_active', true)->get() as $p)'{{ $p->name }}', @endforeach],
@@ -266,13 +303,44 @@ function usersPage() {
             if (role === 'admin') return 'bg-primary text-primary-accent';
             return 'bg-muted text-muted-foreground';
         },
+        toggleSort(field) {
+            if (this.sortBy === field) {
+                this.sortDesc = !this.sortDesc;
+            } else {
+                this.sortBy = field;
+                this.sortDesc = false;
+            }
+            this.page = 1;
+        },
         filtered() {
             const q = this.search.toLowerCase();
-            return this.users.filter(u => {
+            let result = this.users.filter(u => {
                 const ms = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
                 const mp = this.planFilter === 'All' || u.plan === this.planFilter;
-                return ms && mp;
+                const mr = this.roleFilter === 'All' || u.role === this.roleFilter;
+                const mo = this.statusFilter === 'All' || 
+                           (this.statusFilter === 'online' && u.is_online) || 
+                           (this.statusFilter === 'offline' && !u.is_online);
+                return ms && mp && mr && mo;
             });
+
+            const field = this.sortBy;
+            const desc = this.sortDesc;
+            result.sort((a, b) => {
+                let valA = a[field];
+                let valB = b[field];
+
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (valA < valB) return desc ? 1 : -1;
+                if (valA > valB) return desc ? -1 : 1;
+                return 0;
+            });
+
+            return result;
         },
         totalPages() { return Math.max(1, Math.ceil(this.filtered().length / this.perPage)); },
         paginated() {

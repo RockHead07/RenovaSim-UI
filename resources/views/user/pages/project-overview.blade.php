@@ -71,23 +71,39 @@
                         @else
                             <div class="space-y-3">
                                 @foreach($project->estimations as $estimation)
+                                    @php
+                                        $breakdown = $estimation->fastapi_response['breakdown'] ?? [];
+                                        $itemCount = count($breakdown);
+                                        $breakdownNames = collect($breakdown)->map(function($item) {
+                                            $jobTypeMap = config('renovasim.job_type_id', []);
+                                            $label = $jobTypeMap[$item['job_type']] ?? $item['job_type'];
+                                            return str_replace(['Pemasangan ', 'Pekerjaan ', 'Instalasi '], '', $label);
+                                        })->unique()->implode(', ');
+                                    @endphp
                                     <div class="flex items-center justify-between p-4 bg-muted/40 rounded-xl border border-border">
                                         <div class="flex items-center gap-3">
                                             <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
                                                 <x-lucide-hammer class="w-4 h-4 text-primary" />
                                             </div>
                                             <div>
-                                                <p class="font-['DM_Sans'] font-semibold text-sm text-card-foreground capitalize">
-                                                    {{ str_replace('_', ' ', $estimation->label) }}
+                                                <p class="font-['DM_Sans'] font-semibold text-sm text-card-foreground">
+                                                    {{ $estimation->label }}
                                                 </p>
                                                 <p class="font-['DM_Sans'] text-xs text-muted-foreground">
                                                     {{ $estimation->area ? $estimation->area . ' m²' : '' }}
-                                                    {{ $estimation->area && $estimation->mode ? ' · ' : '' }}
-                                                    {{ $estimation->mode ? ucfirst($estimation->mode) : '' }}
+                                                    @if($itemCount > 0)
+                                                        · {{ $itemCount }} Pekerjaan
+                                                    @endif
+                                                    · {{ $estimation->mode ? ucfirst($estimation->mode) : '' }}
                                                     @if($estimation->confidence_label)
                                                         · Kepercayaan: {{ $estimation->confidence_label }}
                                                     @endif
                                                 </p>
+                                                @if(!empty($breakdownNames))
+                                                    <p class="font-['DM_Sans'] text-[10px] text-muted-foreground/75 mt-0.5">
+                                                        Mencakup: {{ $breakdownNames }}
+                                                    </p>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="text-right">

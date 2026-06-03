@@ -72,7 +72,7 @@
 
         {{-- Session Error --}}
         @if(session('error'))
-            <div class="max-w-[640px] mx-auto w-full px-4 mt-4">
+            <div class="max-w-[520px] mx-auto w-full px-4 mt-4">
                 <div class="flex items-start gap-2.5 bg-[hsl(0,95%,96%)] border-[1.5px] border-[hsl(0,95%,40%)] rounded-xl px-4 py-3 animate-fade-in">
                     <x-lucide-alert-triangle class="w-[18px] h-[18px] text-[hsl(0,95%,40%)] shrink-0 mt-0.5" />
                     <p class="font-['DM_Sans'] text-[13px] text-card-foreground leading-relaxed">{{ session('error') }}</p>
@@ -82,7 +82,7 @@
 
         {{-- Validation Errors --}}
         @if($errors->any())
-            <div class="max-w-[640px] mx-auto w-full px-4 mt-4">
+            <div class="max-w-[520px] mx-auto w-full px-4 mt-4">
                 <div class="flex items-start gap-2.5 bg-[hsl(0,95%,96%)] border-[1.5px] border-[hsl(0,95%,40%)] rounded-xl px-4 py-3 animate-fade-in">
                     <x-lucide-alert-triangle class="w-[18px] h-[18px] text-[hsl(0,95%,40%)] shrink-0 mt-0.5" />
                     <div>
@@ -96,7 +96,7 @@
 
         {{-- Main Card --}}
         <div class="flex-1 flex justify-center items-center px-4 mt-6">
-            <div class="w-full max-w-[640px] bg-card rounded-2xl p-5 sm:p-9 shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
+            <div class="w-full max-w-[520px] bg-card rounded-2xl p-5 sm:p-9 shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
 
                 {{-- ============================================ --}}
                 {{-- SCREEN A: MODE SELECTION                     --}}

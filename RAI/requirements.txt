@@ -1,8 +1,16 @@
-flask>=2.0.0
-flask-cors>=3.0.0
-flask-restful>=0.3.9
-ultralytics>=8.0.0
-Pillow>=9.0.0
-numpy>=1.24.0
-opencv-python-headless>=4.7.0
-ursina>=4.0.0
+# ── Flask API Server (app_server.py) ──────────────────────────────────────────
+flask>=3.0.0
+flask-cors>=4.0.0
+flask-restful>=0.3.10
+
+# ── Computer Vision / AI (YOLO room detection) ────────────────────────────────
+ultralytics>=8.2.0
+opencv-python-headless>=4.9.0
+
+# Transitive deps pinned for stability (pulled by ultralytics)
+numpy>=1.26.0
+Pillow>=10.0.0
+
+# ── 3D Desktop Editor (room_editor_3d.py) ─────────────────────────────────────
+# Run separately: python room_editor_3d.py
+ursina>=5.3.0

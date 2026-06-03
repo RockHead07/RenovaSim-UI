@@ -66,9 +66,13 @@ class Estimation extends Model
      */
     public function getLabelAttribute($value): string
     {
-        if ($value) return $value;
-
         $jobTypeMap = config('renovasim.job_type_id', []);
+
+        if ($value) {
+            $key = strtolower($value);
+            return $jobTypeMap[$key] ?? $value;
+        }
+
         return $jobTypeMap[$this->job_type] ?? ucfirst($this->job_type ?? 'Estimasi');
     }
 }

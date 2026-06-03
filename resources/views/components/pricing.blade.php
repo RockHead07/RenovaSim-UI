@@ -36,14 +36,14 @@
 
                         @if($hasDiscount)
                             <div class="mb-1 flex items-center gap-2">
-                                <span class="text-paragraph text-sm line-through">${{ number_format($originalPrice, floor($originalPrice) == $originalPrice ? 0 : 2) }}</span>
+                                <span class="text-paragraph text-sm line-through">Rp {{ number_format($originalPrice, 0, ',', '.') }}</span>
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-status-warning/15 text-primary-accent">
                                     Save {{ $discountPercent }}%
                                 </span>
                             </div>
                         @endif
                         <div class="flex items-baseline gap-1 mb-1">
-                            <span class="font-serif text-5xl text-foreground">${{ number_format($currentPrice, floor($currentPrice) == $currentPrice ? 0 : 2) }}</span>
+                            <span class="font-serif text-5xl text-foreground">Rp {{ number_format($currentPrice, 0, ',', '.') }}</span>
                         </div>
                         <p class="text-paragraph text-xs font-light mb-8">Billed each month / Per user</p>
 
