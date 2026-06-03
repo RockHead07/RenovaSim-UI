@@ -6,25 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\Estimation;
 use App\Models\Project;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class UserProjectController extends Controller
 {
     public function index()
     {
-        $userId = auth()->id();
+        $projects = Project::where('user_id', auth()->id())
+            ->with(['estimations' => fn ($q) => $q->latest()->limit(1)])
+            ->latest()
+            ->get()
+            ->map(function ($p) {
+                $p->latest_estimation = $p->estimations->first();
 
-        $projects = Cache::remember('user_projects_'.$userId, 60, function () use ($userId) {
-            return Project::where('user_id', $userId)
-                ->with(['estimations' => fn ($q) => $q->latest()->limit(1)])
-                ->latest()
-                ->get()
-                ->map(function ($p) {
-                    $p->latest_estimation = $p->estimations->first();
-
-                    return $p;
-                });
-        });
+                return $p;
+            });
 
         return view('user.pages.projects', ['projects' => $projects]);
     }
@@ -60,8 +55,6 @@ class UserProjectController extends Controller
         $proj->estimations()->delete();
         $proj->delete();
 
-        $this->clearUserCache();
-
         return redirect()->route('user.projects')
             ->with('success', 'Project "' . $proj->name . '" berhasil dihapus.');
     }
@@ -83,6 +76,10 @@ class UserProjectController extends Controller
         $existingProject   = null;
         if ($existingProjectId) {
             $existingProject = Project::where('id', $existingProjectId)->where('user_id', $userId)->first();
+            if (!$existingProject) {
+                $existingProjectId = null;
+                session()->forget('current_project_id');
+            }
         }
 
         if ($existingProject) {
@@ -139,24 +136,14 @@ class UserProjectController extends Controller
 
             Project::find($projectId)->recalculateTotals();
 
-            session()->forget(['estimation_result', 'project_setup']);
-            session()->put('current_project_id', $projectId);
+            session()->forget(['estimation_result', 'project_setup', 'current_project_id']);
         }
-
-        $this->clearUserCache();
 
         $message = $existingProjectId
             ? 'Estimasi berhasil ditambahkan ke project!'
             : 'Estimasi berhasil disimpan!';
 
         return redirect()->route('user.projects')->with('success', $message);
-    }
-
-    private function clearUserCache(): void
-    {
-        $userId = auth()->id();
-        Cache::forget('user_projects_'.$userId);
-        Cache::forget('user_stats_'.$userId);
     }
 
     public function showOverview()

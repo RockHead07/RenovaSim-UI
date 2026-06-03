@@ -184,7 +184,8 @@ class EstimationController extends Controller
             'description'   => 'nullable|string|max:1000',
         ]);
 
-        // Store project context in session
+        session()->forget(['current_project_id', 'estimation_result']);
+
         session()->put('project_setup', [
             'project_name'  => $request->input('project_name'),
             'building_type' => $request->input('building_type'),
