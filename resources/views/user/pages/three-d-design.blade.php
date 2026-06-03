@@ -233,7 +233,11 @@
             try {
                 const response = await fetch(API + '/rooms/' + id, {
                     method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': CSRF },
+                    headers: {
+                        'X-CSRF-TOKEN': CSRF,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
                     credentials: 'same-origin',
                 });
                 if (!response.ok) {
