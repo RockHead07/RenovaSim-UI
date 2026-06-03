@@ -30,10 +30,13 @@
 
     {{-- Metrics --}}
     @php
+        $totalProjects = \App\Models\Project::count();
+        $totalUsers    = \App\Models\User::count();
+
         $metrics = [
-            ['label' => 'Projects', 'value' => '67+', 'desc' => 'Renovation estimations have been generated across various types of work, helping users understand potential costs before starting their projects.'],
-            ['label' => 'Users', 'value' => '120+', 'desc' => 'Individuals have used RenovaSim to explore renovation scenarios and get a clearer picture of their budget planning.'],
-            ['label' => 'Experience', 'value' => '3 Years', 'desc' => 'Built as a concept-driven platform, RenovaSim reflects ongoing development and learning in simplifying renovation cost estimation.'],
+            ['label' => 'Projects',   'value' => $totalProjects . '+', 'desc' => 'Renovation estimations have been generated across various types of work, helping users understand potential costs before starting their projects.'],
+            ['label' => 'Users',      'value' => $totalUsers . '+',    'desc' => 'Individuals have used RenovaSim to explore renovation scenarios and get a clearer picture of their budget planning.'],
+            ['label' => 'Experience', 'value' => '3 Years',            'desc' => 'Built as a concept-driven platform, RenovaSim reflects ongoing development and learning in simplifying renovation cost estimation.'],
         ];
     @endphp
 

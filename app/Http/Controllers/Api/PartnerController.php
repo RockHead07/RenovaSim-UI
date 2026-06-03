@@ -64,7 +64,11 @@ class PartnerController extends Controller
         $data['is_active'] = $request->boolean('is_active', true);
 
         if ($request->hasFile('logo_image')) {
-            $data['logo_image'] = $request->file('logo_image')->store('partners', 'public');
+            $file     = $request->file('logo_image');
+            $filename = 'partners/' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $disk     = config('filesystems.default', 'public');
+            Storage::disk($disk)->put($filename, file_get_contents($file), 'public');
+            $data['logo_image'] = $filename;
         }
 
         $partner = Partner::create($data);
@@ -92,10 +96,16 @@ class PartnerController extends Controller
         $data['is_active'] = $request->boolean('is_active', true);
 
         if ($request->hasFile('logo_image')) {
-            if ($partner->logo_image && Storage::disk('public')->exists($partner->logo_image)) {
-                Storage::disk('public')->delete($partner->logo_image);
+            if ($partner->logo_image) {
+                try {
+                    Storage::disk(config('filesystems.default', 'public'))->delete($partner->logo_image);
+                } catch (\Exception $e) {}
             }
-            $data['logo_image'] = $request->file('logo_image')->store('partners', 'public');
+            $file     = $request->file('logo_image');
+            $filename = 'partners/' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $disk     = config('filesystems.default', 'public');
+            Storage::disk($disk)->put($filename, file_get_contents($file), 'public');
+            $data['logo_image'] = $filename;
         }
 
         $partner->update($data);
@@ -119,8 +129,10 @@ class PartnerController extends Controller
             ], 404);
         }
 
-        if ($partner->logo_image && Storage::disk('public')->exists($partner->logo_image)) {
-            Storage::disk('public')->delete($partner->logo_image);
+        if ($partner->logo_image) {
+            try {
+                Storage::disk(config('filesystems.default', 'public'))->delete($partner->logo_image);
+            } catch (\Exception $e) {}
         }
 
         $partner->delete();

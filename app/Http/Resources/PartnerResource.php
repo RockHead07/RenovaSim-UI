@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @mixin \App\Models\Partner
@@ -17,7 +18,7 @@ class PartnerResource extends JsonResource
             'name' => $this->name,
             'logo' => $this->logo,
             'logo_image' => $this->logo_image
-                ? asset('storage/' . $this->logo_image)
+                ? Storage::url($this->logo_image)
                 : null,
             'order' => $this->order,
             'is_active' => $this->is_active,

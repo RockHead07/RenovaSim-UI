@@ -53,8 +53,7 @@
                         @php
                             // Determine logo path - prioritize logo_image
                             if (isset($partner->logo_image) && $partner->logo_image) {
-                                // Use the actual logo image from storage
-                                $logoPath = asset('storage/' . $partner->logo_image);
+                                $logoPath = \Illuminate\Support\Facades\Storage::url($partner->logo_image);
                                 $partnerName = $partner->name;
                             } elseif (isset($partner->logo) && $partner->logo) {
                                 // Fallback to logo field

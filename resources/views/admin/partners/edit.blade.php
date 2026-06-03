@@ -15,7 +15,7 @@
     @if($partner->logo_image)
       <div class="mb-3 p-3 bg-muted rounded-lg border border-border/10">
         <p class="text-xs text-paragraph mb-2">Current image:</p>
-        <img src="{{ asset('storage/' . $partner->logo_image) }}" alt="{{ $partner->name }}" class="max-w-xs max-h-40 rounded">
+        <img src="{{ \Illuminate\Support\Facades\Storage::url($partner->logo_image) }}" alt="{{ $partner->name }}" class="max-w-xs max-h-40 rounded">
       </div>
     @endif
     <div

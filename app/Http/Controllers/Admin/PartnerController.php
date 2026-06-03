@@ -32,6 +32,13 @@ class PartnerController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info('Partner store called', [
+            'has_file'    => $request->hasFile('logo_image'),
+            'all_files'   => array_keys($request->allFiles()),
+            'all_input'   => array_keys($request->all()),
+            'content_type'=> $request->header('Content-Type'),
+        ]);
+
         $request->validate([
             'name'       => 'required|string|max:255',
             'logo'       => 'nullable|string|max:10',
@@ -43,7 +50,11 @@ class PartnerController extends Controller
         $data['is_active'] = true;
 
         if ($request->hasFile('logo_image')) {
-            $data['logo_image'] = $request->file('logo_image')->store('partners', 'public');
+            $file     = $request->file('logo_image');
+            $filename = 'partners/' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $disk     = config('filesystems.default', 'public');
+            Storage::disk($disk)->put($filename, file_get_contents($file), 'public');
+            $data['logo_image'] = $filename;
         }
 
         Partner::create($data);
@@ -78,10 +89,16 @@ class PartnerController extends Controller
         $data['is_active'] = $request->input('status') === 'Active';
 
         if ($request->hasFile('logo_image')) {
-            if ($partner->logo_image && Storage::disk('public')->exists($partner->logo_image)) {
-                Storage::disk('public')->delete($partner->logo_image);
+            if ($partner->logo_image) {
+                try {
+                    Storage::disk(config('filesystems.default', 'public'))->delete($partner->logo_image);
+                } catch (\Exception $e) {}
             }
-            $data['logo_image'] = $request->file('logo_image')->store('partners', 'public');
+            $file     = $request->file('logo_image');
+            $filename = 'partners/' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $disk     = config('filesystems.default', 'public');
+            Storage::disk($disk)->put($filename, file_get_contents($file), 'public');
+            $data['logo_image'] = $filename;
         }
 
         $partner->update($data);
@@ -91,8 +108,10 @@ class PartnerController extends Controller
     public function destroy(int $id)
     {
         $partner = Partner::findOrFail($id);
-        if ($partner->logo_image && Storage::disk('public')->exists($partner->logo_image)) {
-            Storage::disk('public')->delete($partner->logo_image);
+        if ($partner->logo_image) {
+            try {
+                Storage::disk(config('filesystems.default', 'public'))->delete($partner->logo_image);
+            } catch (\Exception $e) {}
         }
         $partner->delete();
         return redirect('/admin/partners')->with('success', 'Partner deleted successfully.');

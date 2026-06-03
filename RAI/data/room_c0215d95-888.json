@@ -1,0 +1,842 @@
+{
+  "id": "c0215d95-888",
+  "name": "Room c0215d",
+  "width": 7,
+  "length": 7,
+  "height": 3,
+  "wall_color": "#e8e0d8",
+  "floor_color": "#b89a7d",
+  "objects": [
+    {
+      "id": "1f669dd0",
+      "type": "bed_double",
+      "name": "Double Bed",
+      "category": "bedroom",
+      "position": [
+        0,
+        0.25,
+        -1.8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.6,
+        0.5,
+        2.1
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "0909a3a1",
+      "type": "nightstand",
+      "name": "Nightstand",
+      "category": "bedroom",
+      "position": [
+        -1.3,
+        0.275,
+        -1.8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.55,
+        0.45
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "8d190e3c",
+      "type": "nightstand",
+      "name": "Nightstand",
+      "category": "bedroom",
+      "position": [
+        1.3,
+        0.275,
+        -1.8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.55,
+        0.45
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "30f9e308",
+      "type": "lamp_table",
+      "name": "Table Lamp",
+      "category": "decor",
+      "position": [
+        -1.3,
+        0.7,
+        -1.8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.45,
+        0.2
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "6936c5d0",
+      "type": "lamp_table",
+      "name": "Table Lamp",
+      "category": "decor",
+      "position": [
+        1.3,
+        0.7,
+        -1.8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.45,
+        0.2
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "7fb89f5f",
+      "type": "wardrobe",
+      "name": "Wardrobe",
+      "category": "bedroom",
+      "position": [
+        2.8,
+        1,
+        0.5
+      ],
+      "rotation": [
+        0,
+        -1.57,
+        0
+      ],
+      "scale": [
+        1.2,
+        2,
+        0.6
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "2b3fb9c1",
+      "type": "dresser",
+      "name": "Dresser",
+      "category": "bedroom",
+      "position": [
+        -2.8,
+        0.425,
+        1
+      ],
+      "rotation": [
+        0,
+        1.57,
+        0
+      ],
+      "scale": [
+        1,
+        0.85,
+        0.5
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "30ef9abe",
+      "type": "mirror",
+      "name": "Wall Mirror",
+      "category": "bathroom",
+      "position": [
+        -3.475,
+        1.5,
+        1
+      ],
+      "rotation": [
+        0,
+        1.57,
+        0
+      ],
+      "scale": [
+        0.6,
+        0.8,
+        0.05
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "fb73ffc4",
+      "type": "rug",
+      "name": "Rug",
+      "category": "living",
+      "position": [
+        0,
+        0.01,
+        -0.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        2.5,
+        0.02,
+        3.5
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "bfb22b59",
+      "type": "plant_small",
+      "name": "Small Plant",
+      "category": "decor",
+      "position": [
+        2.8,
+        0.225,
+        2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.45,
+        0.3
+      ],
+      "color": "#888888"
+    },
+    {
+      "id": "2f5c8946",
+      "type": "curtain",
+      "name": "Curtain",
+      "category": "decor",
+      "position": [
+        0,
+        1.4,
+        -3.46
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.2,
+        2.2,
+        0.08
+      ],
+      "color": "#888888"
+    }
+  ],
+  "detected_assets": [],
+  "recommended_type": "living",
+  "recommended_templates": [
+    {
+      "category": "living",
+      "description": "Minimalist living room with clean lines and neutral tones",
+      "floor_color": "#c4a882",
+      "height": 3.2,
+      "id": "modern_living",
+      "length": 10,
+      "name": "Modern Living Room",
+      "objects": [
+        {
+          "position": [
+            0,
+            0.4,
+            -1.8
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "sofa"
+        },
+        {
+          "position": [
+            0,
+            0.2,
+            -0.3
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "coffee_table"
+        },
+        {
+          "position": [
+            0,
+            0.25,
+            3
+          ],
+          "rotation": [
+            0,
+            3.14,
+            0
+          ],
+          "type": "tv_stand"
+        },
+        {
+          "position": [
+            0,
+            0.01,
+            -0.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "rug"
+        },
+        {
+          "position": [
+            -2.8,
+            0.75,
+            -2.2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            2.8,
+            0.6,
+            -2.8
+          ],
+          "rotation": [
+            0,
+            0.5,
+            0
+          ],
+          "type": "plant_large"
+        },
+        {
+          "position": [
+            0,
+            1.8,
+            -3.47
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "painting"
+        },
+        {
+          "position": [
+            -2.2,
+            0.425,
+            0
+          ],
+          "rotation": [
+            0,
+            1.2,
+            0
+          ],
+          "type": "armchair"
+        },
+        {
+          "position": [
+            3.2,
+            0.9,
+            0
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "bookshelf"
+        },
+        {
+          "position": [
+            -3.47,
+            1.4,
+            -1.5
+          ],
+          "rotation": [
+            0,
+            1.57,
+            0
+          ],
+          "type": "curtain"
+        }
+      ],
+      "thumbnail": "\ud83d\udecb",
+      "wall_color": "#f5f0eb",
+      "width": 8
+    },
+    {
+      "category": "living",
+      "description": "Productive workspace with comfortable setup",
+      "floor_color": "#b89a7d",
+      "height": 3,
+      "id": "home_office",
+      "length": 7,
+      "name": "Home Office",
+      "objects": [
+        {
+          "position": [
+            0,
+            0.2,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "coffee_table"
+        },
+        {
+          "position": [
+            0,
+            0.425,
+            -1.2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "armchair"
+        },
+        {
+          "position": [
+            3,
+            0.9,
+            0
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "bookshelf"
+        },
+        {
+          "position": [
+            3,
+            0.9,
+            -1.5
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "bookshelf"
+        },
+        {
+          "position": [
+            -2.8,
+            0.75,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            2.5,
+            0.225,
+            3
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "plant_small"
+        },
+        {
+          "position": [
+            0,
+            2,
+            -3.47
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "clock"
+        },
+        {
+          "position": [
+            0,
+            0.01,
+            -1.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "rug"
+        }
+      ],
+      "thumbnail": "\ud83d\udda5",
+      "wall_color": "#eae6e0",
+      "width": 6
+    },
+    {
+      "category": "living",
+      "description": "Spacious luxury living with premium furnishings",
+      "floor_color": "#a08060",
+      "height": 3.4,
+      "id": "luxury_living",
+      "length": 11,
+      "name": "Luxury Living Room",
+      "objects": [
+        {
+          "position": [
+            0,
+            0.4,
+            -2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "sofa"
+        },
+        {
+          "position": [
+            -2.5,
+            0.4,
+            0.5
+          ],
+          "rotation": [
+            0,
+            1.57,
+            0
+          ],
+          "type": "sofa"
+        },
+        {
+          "position": [
+            -0.8,
+            0.2,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "coffee_table"
+        },
+        {
+          "position": [
+            3.2,
+            0.25,
+            0
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "tv_stand"
+        },
+        {
+          "position": [
+            -0.5,
+            0.01,
+            -0.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "rug"
+        },
+        {
+          "position": [
+            1.5,
+            0.75,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            -3.5,
+            0.75,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            3.5,
+            0.6,
+            -3.2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "plant_large"
+        },
+        {
+          "position": [
+            0,
+            1.8,
+            -3.97
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "painting"
+        },
+        {
+          "position": [
+            -3.97,
+            1.4,
+            0
+          ],
+          "rotation": [
+            0,
+            1.57,
+            0
+          ],
+          "type": "curtain"
+        },
+        {
+          "position": [
+            2,
+            0.425,
+            -2
+          ],
+          "rotation": [
+            0,
+            -0.8,
+            0
+          ],
+          "type": "armchair"
+        },
+        {
+          "position": [
+            3.5,
+            0.9,
+            3
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "bookshelf"
+        }
+      ],
+      "thumbnail": "\u2728",
+      "wall_color": "#f0ece5",
+      "width": 9
+    },
+    {
+      "category": "living",
+      "description": "Compact multi-functional living space",
+      "floor_color": "#c0a880",
+      "height": 3,
+      "id": "studio_apartment",
+      "length": 7,
+      "name": "Studio Apartment",
+      "objects": [
+        {
+          "position": [
+            -2.5,
+            0.25,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "bed_single"
+        },
+        {
+          "position": [
+            1.5,
+            0.4,
+            -1
+          ],
+          "rotation": [
+            0,
+            -1.57,
+            0
+          ],
+          "type": "sofa"
+        },
+        {
+          "position": [
+            0,
+            0.2,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "coffee_table"
+        },
+        {
+          "position": [
+            -3,
+            0.25,
+            0
+          ],
+          "rotation": [
+            0,
+            1.57,
+            0
+          ],
+          "type": "tv_stand"
+        },
+        {
+          "position": [
+            0,
+            0.39,
+            2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "dining_table"
+        },
+        {
+          "position": [
+            -0.5,
+            0.45,
+            1.8
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "dining_chair"
+        },
+        {
+          "position": [
+            0.5,
+            0.45,
+            3.2
+          ],
+          "rotation": [
+            0,
+            3.14,
+            0
+          ],
+          "type": "dining_chair"
+        },
+        {
+          "position": [
+            2.8,
+            0.75,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "lamp_floor"
+        },
+        {
+          "position": [
+            0,
+            0.01,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "rug"
+        },
+        {
+          "position": [
+            -3,
+            0.225,
+            3
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "type": "plant_small"
+        }
+      ],
+      "thumbnail": "\ud83c\udfe0",
+      "wall_color": "#f5f2ed",
+      "width": 7
+    }
+  ],
+  "images": [
+    "c0215d95-888_ba88f4.jpg"
+  ],
+  "created_at": "2026-06-04T03:21:03.786999",
+  "status": "generated",
+  "user_id": "11",
+  "updated_at": "2026-06-04T03:21:32.872625",
+  "applied_template": "cozy_bedroom",
+  "thumbnail": "data:image/jpeg;base64,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"
+}
