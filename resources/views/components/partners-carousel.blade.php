@@ -51,22 +51,22 @@
                 @foreach ($partners as $partner)
                     <div class="flex items-center justify-center px-10 md:px-14">
                         @php
-                            // Determine logo path - prioritize logo_image
                             if (isset($partner->logo_image) && $partner->logo_image) {
-                                $logoPath = \Illuminate\Support\Facades\Storage::url($partner->logo_image);
+                                $disk     = config('filesystems.default', 'public');
+                                $logoPath = $disk === 's3'
+                                    ? \Illuminate\Support\Facades\Storage::disk('s3')->url($partner->logo_image)
+                                    : asset('storage/' . $partner->logo_image);
                                 $partnerName = $partner->name;
                             } elseif (isset($partner->logo) && $partner->logo) {
-                                // Fallback to logo field
-                                $logoPath = str_contains($partner->logo, '/') 
-                                    ? asset('storage/' . $partner->logo)
+                                $logoPath = str_contains($partner->logo, '/')
+                                    ? asset($partner->logo)
                                     : asset('images/partners/' . $partner->logo);
                                 $partnerName = $partner->name;
                             } elseif (isset($partner['logo'])) {
-                                // Static partner array fallback
-                                $logoPath = asset($partner['logo']);
+                                $logoPath    = asset($partner['logo']);
                                 $partnerName = $partner['name'];
                             } else {
-                                $logoPath = asset('images/logo.svg');
+                                $logoPath    = asset('images/logo.svg');
                                 $partnerName = $partner->name ?? $partner['name'] ?? 'Partner';
                             }
                         @endphp
