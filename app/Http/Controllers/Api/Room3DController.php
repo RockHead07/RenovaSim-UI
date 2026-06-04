@@ -20,6 +20,13 @@ class Room3DController extends Controller
         $this->flaskUrl = config('app.flask_url', 'http://localhost:5000/api');
     }
 
+    private function supabasePublicUrl(string $diskName, string $filename): string
+    {
+        $bucket      = config("filesystems.disks.{$diskName}.bucket");
+        $supabaseUrl = rtrim(env('SUPABASE_URL'), '/');
+        return "{$supabaseUrl}/storage/v1/object/public/{$bucket}/{$filename}";
+    }
+
     private function roomQuery(string $id)
     {
         return Room::where('user_id', Auth::id())
@@ -137,7 +144,7 @@ class Room3DController extends Controller
                 $filename  = ($room->external_id ?? $room->id).'_'.time().'.jpg';
 
                 Storage::disk('thumbnails')->put($filename, $imageData, 'public');
-                $url = Storage::disk('thumbnails')->url($filename);
+                $url = $this->supabasePublicUrl('thumbnails', $filename);
 
                 $room->update(['thumbnail' => $url]);
             } catch (\Exception $e) {
@@ -248,7 +255,7 @@ class Room3DController extends Controller
                 if (file_exists($localPath)) {
                     try {
                         Storage::disk('room_uploads')->put($imageName, file_get_contents($localPath), 'public');
-                        $uploadedUrls[] = Storage::disk('room_uploads')->url($imageName);
+                        $uploadedUrls[] = $this->supabasePublicUrl('room_uploads', $imageName);
                     } catch (\Exception $e) {
                         $uploadedUrls[] = null;
                     }

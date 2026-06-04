@@ -32,7 +32,9 @@ class MigrateRoomThumbnails extends Command
 
                 try {
                     Storage::disk('thumbnails')->put($filename, $imageData, 'public');
-                    $url = Storage::disk('thumbnails')->url($filename);
+                    $bucket      = config('filesystems.disks.thumbnails.bucket', 'thumbnails');
+                    $supabaseUrl = rtrim(env('SUPABASE_URL'), '/');
+                    $url         = "{$supabaseUrl}/storage/v1/object/public/{$bucket}/{$filename}";
                     $room->update(['thumbnail' => $url]);
                     $this->info("Uploaded thumbnail: {$room->external_id}");
                 } catch (\Exception $e) {
@@ -50,7 +52,9 @@ class MigrateRoomThumbnails extends Command
 
                 try {
                     Storage::disk('thumbnails')->put($filename, $imageData, 'public');
-                    $url = Storage::disk('thumbnails')->url($filename);
+                    $bucket      = config('filesystems.disks.thumbnails.bucket', 'thumbnails');
+                    $supabaseUrl = rtrim(env('SUPABASE_URL'), '/');
+                    $url         = "{$supabaseUrl}/storage/v1/object/public/{$bucket}/{$filename}";
                     $room->update(['thumbnail' => $url]);
                     $this->info("Uploaded from local: {$room->external_id}");
                 } catch (\Exception $e) {
