@@ -10,7 +10,9 @@
       "Bash(git add *)",
       "Bash(php --ini)",
       "Bash(php -m)",
-      "Bash(findstr -i pgsql)"
+      "Bash(findstr -i pgsql)",
+      "PowerShell(Remove-Item -Recurse -Force \"d:\\\\Dev\\\\Projects\\\\Web\\\\Laravel\\\\RenovaSim-UI\\\\public\\\\css\\\\filament\" -Confirm:$false)",
+      "PowerShell(Remove-Item -Recurse -Force \"d:\\\\Dev\\\\Projects\\\\Web\\\\Laravel\\\\RenovaSim-UI\\\\public\\\\js\\\\filament\" -Confirm:$false)"
     ],
     "additionalDirectories": [
       "D:\\Dev\\SDKs\\php-8.4.21",
